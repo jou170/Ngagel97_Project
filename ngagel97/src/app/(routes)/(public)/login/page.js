@@ -44,7 +44,7 @@ export default function LoginPage() {
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem("token", data.token); // Simpan token di localStorage
-        router.push("/dashboard"); // Redirect ke halaman dashboard atau home
+        router.push("/home");
       } else {
         const errorData = await res.json();
         setError(errorData.error || "Login failed");

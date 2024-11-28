@@ -20,12 +20,13 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const user = req.headers["X-User"];
   return (
     <>
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable}`}>
-          {/* <NavbarPublic />
-          <NavbarUser /> */}
+          {!user && <NavbarPublic />}
+          {user && <NavbarUser />}
           {}
           {children}
         </body>

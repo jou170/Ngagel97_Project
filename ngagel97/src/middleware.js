@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-const PUBLIC_ROUTES = ["/register", "/login", "/home"]; // '/dashboard' is public
+const PUBLIC_ROUTES = ["/register", "/login", "/home", "/product"]; // '/dashboard' is public
 const STATIC_FILE_EXTENSIONS = [
   ".png",
   ".jpg",
