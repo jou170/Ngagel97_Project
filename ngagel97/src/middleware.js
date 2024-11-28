@@ -48,7 +48,9 @@ export async function middleware(request) {
 
     // Attach user data if needed for future reference
     request.user = decoded;
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set('X-User', decoded); 
+    return response;
   } catch (error) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
