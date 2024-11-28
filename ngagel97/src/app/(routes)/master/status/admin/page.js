@@ -13,7 +13,6 @@ import {
   Paper,
   Chip,
 } from "@mui/material";
-import Navbar from "../../components/navbar";
 
 // const navItemStyle = {
 //   color: "#fff",
@@ -33,13 +32,16 @@ const dummyData = [
 
 const Page = () => {
   return (
-    <Box sx={{ backgroundColor: "#F4E1D2", minHeight: "100vh", paddingTop: "80px" }}>
-      {/* Navbar */}
-      <Navbar />
-
+    <Box
+      sx={{
+        backgroundColor: "#F4E1D2",
+        minHeight: "100vh",
+        paddingTop: "80px",
+      }}
+    >
       {/* Main Content */}
       <Box sx={{ padding: "20px" }}>
-      <Typography
+        <Typography
           variant="h5"
           component="div"
           sx={{ fontWeight: "bold", marginBottom: "20px", color: "#6d4c41" }}

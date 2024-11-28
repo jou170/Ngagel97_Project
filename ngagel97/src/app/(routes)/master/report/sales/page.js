@@ -15,19 +15,42 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import Navbar from "../../components/navbar";
-
 const SalesReport = () => {
   const [error, setError] = useState("");
   const [dates, setDates] = useState({ startDate: "", endDate: "" });
 
   // Data dummy
   const salesData = [
-    { date: "04/05/2024", product: "Print A4", quantity: 24, price: "Rp. 440.000,-" },
-    { date: "05/05/2024", product: "Print A3", quantity: 12, price: "Rp. 320.000,-" },
-    { date: "07/05/2024", product: "Print A4", quantity: 34, price: "Rp. 540.000,-" },
-    { date: "12/05/2024", product: "Laminating", quantity: 52, price: "Rp. 840.000,-" },
-    { date: "23/05/2024", product: "Print A4", quantity: 14, price: "Rp. 240.000,-" },
+    {
+      date: "04/05/2024",
+      product: "Print A4",
+      quantity: 24,
+      price: "Rp. 440.000,-",
+    },
+    {
+      date: "05/05/2024",
+      product: "Print A3",
+      quantity: 12,
+      price: "Rp. 320.000,-",
+    },
+    {
+      date: "07/05/2024",
+      product: "Print A4",
+      quantity: 34,
+      price: "Rp. 540.000,-",
+    },
+    {
+      date: "12/05/2024",
+      product: "Laminating",
+      quantity: 52,
+      price: "Rp. 840.000,-",
+    },
+    {
+      date: "23/05/2024",
+      product: "Print A4",
+      quantity: 14,
+      price: "Rp. 240.000,-",
+    },
   ];
 
   // Joi schema for validation
@@ -63,9 +86,6 @@ const SalesReport = () => {
 
   return (
     <div style={{ backgroundColor: "#F4E1D2", minHeight: "100vh" }}>
-      {/* Navbar */}
-      <Navbar />
-
       {/* Main Content */}
       <Box sx={{ padding: "80px 20px" }}>
         <Typography
@@ -105,16 +125,17 @@ const SalesReport = () => {
             onChange={handleDateChange}
             error={!!error}
           />
-          <Button
-            variant="contained"
-            sx={{ backgroundColor: "#493628" }}
-          >
+          <Button variant="contained" sx={{ backgroundColor: "#493628" }}>
             Update Laporan
           </Button>
         </Box>
 
         {error && (
-          <Typography variant="body2" color="error" sx={{ marginBottom: "10px" }}>
+          <Typography
+            variant="body2"
+            color="error"
+            sx={{ marginBottom: "10px" }}
+          >
             {error}
           </Typography>
         )}

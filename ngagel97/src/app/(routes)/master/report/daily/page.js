@@ -15,7 +15,6 @@ import {
   Button,
   TextField,
 } from "@mui/material";
-import Navbar from "../../components/navbar";
 
 const DeliveryReport = () => {
   const [error, setError] = useState("");
@@ -36,14 +35,11 @@ const DeliveryReport = () => {
       "date.base": "Tanggal mulai harus berupa tanggal yang valid",
       "any.required": "Tanggal mulai harus diisi",
     }),
-    endDate: Joi.date()
-      .greater(Joi.ref("startDate"))
-      .required()
-      .messages({
-        "date.base": "Tanggal selesai harus berupa tanggal yang valid",
-        "date.greater": "Tanggal selesai harus lebih besar dari tanggal mulai",
-        "any.required": "Tanggal selesai harus diisi",
-      }),
+    endDate: Joi.date().greater(Joi.ref("startDate")).required().messages({
+      "date.base": "Tanggal selesai harus berupa tanggal yang valid",
+      "date.greater": "Tanggal selesai harus lebih besar dari tanggal mulai",
+      "any.required": "Tanggal selesai harus diisi",
+    }),
   });
 
   const handleDateChange = (e) => {
@@ -62,9 +58,6 @@ const DeliveryReport = () => {
 
   return (
     <div style={{ backgroundColor: "#F4E1D2", minHeight: "100vh" }}>
-      {/* Navbar */}
-      <Navbar />
-
       {/* Main Content */}
       <Box sx={{ padding: "80px 20px" }}>
         <Typography
@@ -117,7 +110,11 @@ const DeliveryReport = () => {
         </Box>
 
         {error && (
-          <Typography variant="body2" color="error" sx={{ marginBottom: "10px" }}>
+          <Typography
+            variant="body2"
+            color="error"
+            sx={{ marginBottom: "10px" }}
+          >
             {error}
           </Typography>
         )}
@@ -130,7 +127,9 @@ const DeliveryReport = () => {
                 <TableCell sx={{ fontWeight: "bold" }}>ORDER ID</TableCell>
                 <TableCell sx={{ fontWeight: "bold" }}>Nama Customer</TableCell>
                 <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Tanggal Pengiriman</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>
+                  Tanggal Pengiriman
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
