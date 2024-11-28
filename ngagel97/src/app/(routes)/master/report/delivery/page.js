@@ -1,7 +1,7 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import {
-  Box,
-  Typography,
   Table,
   TableBody,
   TableCell,
@@ -9,92 +9,85 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Box,
+  Typography,
+  Container,
 } from "@mui/material";
-const DailyTransactionReport = () => {
-  // Data dummy
-  const transactionData = [
-    {
-      no: 1,
-      offline: "Rp. 240.000,-",
-      online: "Rp. 240.000,-",
-      total: "Rp. 440.000,-",
-    },
-    {
-      no: 2,
-      offline: "Rp. 240.000,-",
-      online: "Rp. 240.000,-",
-      total: "Rp. 320.000,-",
-    },
-    {
-      no: 3,
-      offline: "Rp. 240.000,-",
-      online: "Rp. 240.000,-",
-      total: "Rp. 540.000,-",
-    },
-    {
-      no: 4,
-      offline: "Rp. 240.000,-",
-      online: "Rp. 240.000,-",
-      total: "Rp. 840.000,-",
-    },
-    {
-      no: 5,
-      offline: "Rp. 240.000,-",
-      online: "Rp. 240.000,-",
-      total: "Rp. 240.000,-",
-    },
-    {
-      no: 6,
-      offline: "Rp. 240.000,-",
-      online: "Rp. 240.000,-",
-      total: "Rp. 240.000,-",
-    },
-  ];
 
+// Mock transactions data
+const transactions = [
+  { date: "01/11/2024", product: "Laptop", quantity: 2, price: "$1200" },
+  { date: "02/11/2024", product: "Phone", quantity: 5, price: "$500" },
+  { date: "03/11/2024", product: "Tablet", quantity: 3, price: "$300" },
+  { date: "04/11/2024", product: "Monitor", quantity: 4, price: "$200" },
+  { date: "05/11/2024", product: "Keyboard", quantity: 10, price: "$50" },
+];
+
+const DeliveryPage = () => {
   return (
-    <div style={{ backgroundColor: "#F4E1D2", minHeight: "100vh" }}>
-      {/* Main Content */}
-      <Box sx={{ padding: "80px 20px" }}>
-        <Typography
-          variant="h5"
-          component="div"
-          sx={{ fontWeight: "bold", marginBottom: "20px", color: "#6d4c41" }}
+    <div
+      style={{
+        backgroundColor: "#F5E6D3",
+        minHeight: "100vh",
+        padding: "20px",
+      }}
+    >
+      <Container maxWidth="lg">
+        {/* Header */}
+        <Box
+          sx={{
+            bgcolor: "#b08968",
+            p: 2,
+            borderRadius: "4px 4px 0 0",
+            textAlign: "center",
+          }}
         >
-          Laporan Transaksi Harian
-        </Typography>
+          <Typography variant="h6" sx={{ color: "white" }}>
+            Laporan Pengiriman
+          </Typography>
+        </Box>
 
-        {/* Tabel Laporan */}
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: "bold" }}>No</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Pendapatan Harian Offline
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Pendapatan Harian Online
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Total Pendapatan
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {transactionData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell>{row.no}</TableCell>
-                  <TableCell>{row.offline}</TableCell>
-                  <TableCell>{row.online}</TableCell>
-                  <TableCell>{row.total}</TableCell>
+        {/* Table */}
+        <Paper sx={{ p: 3 }}>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ bgcolor: "#d7ccc8" }}>
+                  <TableCell>
+                    <strong>Tanggal</strong>
+                  </TableCell>
+                  <TableCell>
+                    <strong>Produk</strong>
+                  </TableCell>
+                  <TableCell>
+                    <strong>Jumlah</strong>
+                  </TableCell>
+                  <TableCell>
+                    <strong>Harga</strong>
+                  </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
+              </TableHead>
+              <TableBody>
+                {transactions.map((transaction, index) => (
+                  <TableRow
+                    key={index}
+                    sx={{
+                      "&:nth-of-type(odd)": { bgcolor: "#fafafa" },
+                    }}
+                  >
+                    <TableCell>{transaction.date}</TableCell>
+                    <TableCell>{transaction.product}</TableCell>
+                    <TableCell>{transaction.quantity}</TableCell>
+                    <TableCell>{transaction.price}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      </Container>
     </div>
   );
 };
 
-export default DailyTransactionReport;
+export default DeliveryPage;

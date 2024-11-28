@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from "react";
 import {
   Table,
@@ -8,53 +9,59 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
-  Box,
   Typography,
   Container,
-  TextField, // Import TextField
+  Box,
+  Button,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
+import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers"; // Import DatePicker
+import dayjs from "dayjs";
 
-const SalesPage = () => {
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [transactions, setTransactions] = useState([
-    { date: "04/05/2024", product: "Print A4", quantity: 24, price: 440000 },
-    { date: "05/05/2024", product: "Print A3", quantity: 12, price: 320000 },
-    // Add more rows...
-  ]);
-  const [filteredData, setFilteredData] = useState(transactions); // Added filteredData state
+// Generate dummy data
+const generateDummyData = () => {
+  return Array.from({ length: 20 }, (_, index) => {
+    const date = new Date(2024, 10, index + 1); // Generate dates in November 2024
+    const total = Math.floor(Math.random() * 800000) + 200000; // Random price
+    return {
+      id: index + 1,
+      date: dayjs(date).format("YYYY-MM-DD"), // Format date as string
+      rawDate: date, // Keep raw date for filtering
+      product: `Product ${index + 1}`,
+      quantity: Math.floor(Math.random() * 10) + 1,
+      price: total,
+    };
+  });
+};
+
+const DailySalesPage = () => {
+  const [data] = useState(generateDummyData()); // Original data
+  const [filteredData, setFilteredData] = useState(data); // Filtered data for display
+  const [startDate, setStartDate] = useState(null); // Start date for filtering
+  const [endDate, setEndDate] = useState(null); // End date for filtering
 
   const formatCurrency = (amount) => {
     return `Rp. ${amount.toLocaleString("id-ID")},-`;
   };
 
-  const handleUpdateReport = () => {
-    if (startDate && endDate) {
-      const filteredTransactions = transactions.filter((transaction) => {
-        const transactionDate = new Date(
-          transaction.date.split("/").reverse().join("-")
-        );
-        const start = startDate.toDate();
-        const end = endDate.toDate();
-        return transactionDate >= start && transactionDate <= end;
-      });
-      setFilteredData(filteredTransactions); // Update filteredData
+  const handleFilter = () => {
+    if (!startDate || !endDate) {
+      setFilteredData(data); // Reset if no dates are selected
+      return;
     }
+
+    const filtered = data.filter((item) => {
+      const itemDate = new Date(item.rawDate); // Raw date for comparison
+      return itemDate >= startDate.toDate() && itemDate <= endDate.toDate();
+    });
+
+    setFilteredData(filtered);
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <div
-        style={{
-          backgroundColor: "#F5E6D3",
-          minHeight: "100vh",
-          padding: "20px",
-        }}
-      >
+      <div style={{ backgroundColor: "#F5E6D3", minHeight: "100vh", padding: "20px" }}>
         <Container maxWidth="lg">
           {/* Header */}
           <Box
@@ -88,14 +95,14 @@ const SalesPage = () => {
               <Button
                 variant="contained"
                 sx={{ bgcolor: "#b08968", color: "white" }}
-                onClick={handleUpdateReport} // Updated to use handleUpdateReport
+                onClick={handleFilter}
               >
                 Filter
               </Button>
               <Button
                 variant="outlined"
                 sx={{ color: "#b08968" }}
-                onClick={() => setFilteredData(transactions)} // Reset the filtered data
+                onClick={() => setFilteredData(data)}
               >
                 Reset
               </Button>
@@ -146,4 +153,4 @@ const SalesPage = () => {
   );
 };
 
-export default SalesPage;
+export default DailySalesPage;

@@ -1,4 +1,4 @@
-import NavbarMaster from "./components/NavbarMaster";
+import MasterNavbar from "./components/MasterNavbar";
 
 export default function MasterLayout({
   children, // will be a page or nested layout
@@ -6,7 +6,7 @@ export default function MasterLayout({
   return (
     <section>
       {/* Include shared UI here e.g. a header or sidebar */}
-      <NavbarMaster />
+      <MasterNavbar />
 
       {children}
     </section>

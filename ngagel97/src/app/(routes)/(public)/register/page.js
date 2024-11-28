@@ -17,7 +17,7 @@ import Joi from "joi";
 import { useForm } from "react-hook-form";
 
 export default function RegisterPage() {
-  const router = useRouter(); // Hook for navigation
+  const router = useRouter();
   const [error, setError] = useState("");
 
   // Use react-hook-form

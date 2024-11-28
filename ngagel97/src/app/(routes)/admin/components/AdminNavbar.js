@@ -4,7 +4,7 @@ import { AppBar, Toolbar, Box, Typography, Button, Link } from "@mui/material";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-const Navbar = () => {
+const AdminNavbar = () => {
   const router = useRouter();
 
   // Navigasi menggunakan router.push
@@ -61,4 +61,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default AdminNavbar;
