@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
 import {
   Box,
   Button,
@@ -61,13 +62,16 @@ const ProductPage = () => {
     { id: 1, name: "Print A4", price: 5000, category: "Print" },
     { id: 2, name: "Print A3", price: 10000, category: "Print" },
     { id: 3, name: "Laminating", price: 5000, category: "Laminating" },
+    { id: 0, name: "Laminating", price: 5000, category: "Laminating" },
   ]);
-
+  
   const [formValues, setFormValues] = useState({
     name: "",
     price: "",
     category: "",
   });
+
+  const router = useRouter(); // Initialize useRouter from next/navigation
 
   const handleInputChange = (e) => {
     setFormValues({ ...formValues, [e.target.name]: e.target.value });
@@ -89,6 +93,11 @@ const ProductPage = () => {
 
   const handleDeleteProduct = (id) => {
     setProducts(products.filter((product) => product.id !== id));
+  };
+
+  const handleEditProduct = (id) => {
+    // Programmatically navigate to the product edit page
+    router.push(`/master/list/product/edit/${id}`);
   };
 
   return (
@@ -186,6 +195,7 @@ const ProductPage = () => {
                           color="primary"
                           size="small"
                           style={{ marginRight: "10px" }}
+                          onClick={() => handleEditProduct(product.id)} // Navigate on click
                         >
                           Edit
                         </Button>
