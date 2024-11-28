@@ -20,16 +20,16 @@ export async function POST(request) {
       );
     }
 
-    const existingUserByPhone = await User.findOne({ phone_number });
-    if (existingUserByPhone) {
-      return new Response(
-        JSON.stringify({ error: "Phone number is already registered" }),
-        {
-          status: 409,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
+    // const existingUserByPhone = await User.findOne({ phone_number });
+    // if (existingUserByPhone) {
+    //   return new Response(
+    //     JSON.stringify({ error: "Phone number is already registered" }),
+    //     {
+    //       status: 409,
+    //       headers: { "Content-Type": "application/json" },
+    //     }
+    //   );
+    // }
 
     // Hash password before storing
     const hashedPassword = await bcrypt.hash(password, 10);
