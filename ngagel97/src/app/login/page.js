@@ -118,7 +118,7 @@ export default function LoginPage() {
             )}
 
             <Typography variant="body2" marginTop={1} sx={{ color: "black" }}>
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/register" underline="hover" sx={{ color: "black" }}>
                 Click here to register
               </Link>
