@@ -1,7 +1,6 @@
 import React from "react";
 import { Box, Typography, Paper, Button } from "@mui/material";
-// Uncomment the following line if using Next.js
-// import Image from "next/image";
+import Image from "next/image";
 
 const orders = [
   {
@@ -53,7 +52,7 @@ const TransactionHistoryPage = () => {
             {/* Left: Product Details */}
             <Box display="flex" alignItems="center" gap="15px">
               {/* Use img tag if not using Next.js */}
-              <img
+              <Image
                 src={order.image}
                 alt={order.title}
                 width={80}
