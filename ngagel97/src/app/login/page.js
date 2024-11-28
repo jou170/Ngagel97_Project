@@ -11,6 +11,7 @@ import {
   AppBar,
   Toolbar,
 } from "@mui/material";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -55,33 +56,6 @@ export default function LoginPage() {
 
   return (
     <>
-      {/* AppBar for Header */}
-      <AppBar position="static" sx={{ backgroundColor: "#AB886D" }}>
-        <Toolbar sx={{ justifyContent: "space-between", paddingX: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <img
-              src="/image/Ngagel97Logo.png"
-              alt="Fotocopy Vindi Logo"
-              style={{
-                width: "50px",
-                height: "auto",
-                marginRight: "10px",
-              }}
-            />
-            <Typography
-              variant="h6"
-              sx={{
-                fontSize: "24px",
-                fontFamily: "-moz-initial",
-                color: "#FFFFFF",
-              }}
-            >
-              Ngagel97
-            </Typography>
-          </Box>
-        </Toolbar>
-      </AppBar>
-
       {/* Login Form */}
       <Container maxWidth="sm">
         <Box
@@ -90,11 +64,16 @@ export default function LoginPage() {
           alignItems="center"
           marginTop={5}
         >
-          <img
+          <Image
             src="/image/HumanLogoLogin.png"
-            alt="Login Logo"
-            style={{ width: "150px", height: "auto", marginBottom: "20px" }}
+            alt="Logo"
+            width={150}
+            height={150}
+            style={{ marginBottom: "20px" }}
           />
+          <Typography variant="h4" gutterBottom>
+            Login
+          </Typography>
 
           <Box
             component="form"

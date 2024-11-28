@@ -103,32 +103,6 @@ export default function RegisterPage() {
 
   return (
     <>
-      {/* AppBar for Header */}
-      <AppBar position="static" sx={{ backgroundColor: "#AB886D" }}>
-        <Toolbar sx={{ justifyContent: "space-between", paddingX: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Image
-              src="/image/Ngagel97Logo.png" // Adjust the path if necessary
-              alt="Fotocopy Vindi Logo"
-              width={50}
-              height={50}
-              style={{ marginRight: "10px" }}
-            />
-            <Typography
-              variant="h6"
-              component="div"
-              sx={{
-                fontSize: "24px",
-                fontFamily: "-moz-initial",
-                color: "#FFFFFF",
-              }}
-            >
-              Ngagel97
-            </Typography>
-          </Box>
-        </Toolbar>
-      </AppBar>
-
       {/* Registration Form */}
       <Container maxWidth="sm">
         <Box
@@ -138,8 +112,8 @@ export default function RegisterPage() {
           marginTop={5}
         >
           <Image
-            src="/image/HumanLogoLogin.png" // Adjust the path if necessary
-            alt="Human Registration Logo"
+            src="/image/HumanLogoLogin.png"
+            alt="Logo"
             width={150}
             height={150}
             style={{ marginBottom: "20px" }}
