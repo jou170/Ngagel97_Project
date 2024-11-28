@@ -5,7 +5,7 @@ import Image from "next/image";
 const orders = [
   {
     id: 1,
-    image: "https://via.placeholder.com/80x100", // Replace with your image URL
+    // image: "https://via.placeholder.com/80x100", // Replace with your image URL
     title: "Order Title 1",
     total: "$50",
     date: "2024-11-01",
@@ -14,7 +14,7 @@ const orders = [
   },
   {
     id: 2,
-    image: "https://via.placeholder.com/80x100",
+    // image: "https://via.placeholder.com/80x100",
     title: "Order Title 2",
     total: "$30",
     date: "2024-11-02",

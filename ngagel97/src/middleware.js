@@ -20,9 +20,9 @@ export async function middleware(request) {
   }
 
   // Redirect '/' to '/dashboard'
-  if (pathname === "/") {
-    return NextResponse.redirect(new URL("/home", request.url));
-  }
+  // if (pathname === "/") {
+  //   return NextResponse.redirect(new URL("/home", request.url));
+  // }
 
   // Allow access to public routes without authentication
   if (PUBLIC_ROUTES.includes(pathname)) {
@@ -30,28 +30,28 @@ export async function middleware(request) {
   }
 
   const token = request.headers.get("Authorization")?.split(" ")[1];
-  if (!token) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+  // if (!token) {
+  //   return NextResponse.redirect(new URL("/login", request.url));
+  // }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { role } = decoded; // Extract role from the token
 
     // Role-based access control
-    if (pathname.startsWith("/master") && role.toLowerCase() === "admin") {
-      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
-    }
-    if (pathname.startsWith("/master") && role.toLowerCase() !== "master") {
-      return NextResponse.redirect(new URL("/home", request.url));
-    }
+    // if (pathname.startsWith("/master") && role.toLowerCase() === "admin") {
+    //   return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+    // }
+    // if (pathname.startsWith("/master") && role.toLowerCase() !== "master") {
+    //   return NextResponse.redirect(new URL("/home", request.url));
+    // }
 
-    if (pathname.startsWith("/admin") && role.toLowerCase() === "master") {
-      return NextResponse.redirect(new URL("/master/dashboard", request.url));
-    }
-    if (pathname.startsWith("/admin") && role.toLowerCase() !== "admin") {
-      return NextResponse.redirect(new URL("/home", request.url));
-    }
+    // if (pathname.startsWith("/admin") && role.toLowerCase() === "master") {
+    //   return NextResponse.redirect(new URL("/master/dashboard", request.url));
+    // }
+    // if (pathname.startsWith("/admin") && role.toLowerCase() !== "admin") {
+    //   return NextResponse.redirect(new URL("/home", request.url));
+    // }
 
     // Attach user data if needed for future reference
     request.user = decoded;
@@ -59,7 +59,7 @@ export async function middleware(request) {
     response.headers.set("X-User", decoded);
     return response;
   } catch (error) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    // return NextResponse.redirect(new URL("/login", request.url));
   }
 }
 export const config = {

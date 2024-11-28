@@ -35,7 +35,7 @@ const MasterNavbar = () => {
           <Link href="/master/report/sales" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
             Laporan Penjualan
           </Link>
-          <Link href="/master/report/dailysales" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
+          <Link href="/master/report/daily" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
             Laporan Transaksi Harian
           </Link>
           <Link href="/master/report/delivery" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>

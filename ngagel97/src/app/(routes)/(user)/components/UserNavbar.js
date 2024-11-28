@@ -29,19 +29,19 @@ const UserNavbar = () => {
 
         {/* Navigation Links */}
         <Box sx={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          <Link href="/user/homepage" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
+          <Link href="/home" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
             HomePage
           </Link>
-          <Link href="/user/order/status" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
+          <Link href="/order/status" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
             Order Status
           </Link>
-          <Link href="/user/cart" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
+          <Link href="/cart" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
             Cart
           </Link>
-          <Link href="/user/transaction/history" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
+          <Link href="/transaction/history" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
             Transaction
           </Link>
-          <Link href="/user/payment" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
+          <Link href="/payment" underline="none" sx={{ color: "#FFFFFF", fontSize: "18px" }}>
             Payment
           </Link>
         </Box>
