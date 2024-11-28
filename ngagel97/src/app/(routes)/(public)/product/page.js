@@ -1,3 +1,5 @@
+"use client"; // Add this at the top
+
 import React from "react";
 import {
   Table,
@@ -11,8 +13,11 @@ import {
   Box,
   Button,
 } from "@mui/material";
+import { useRouter } from "next/navigation"; // App Router hook
 
 const ProductList = () => {
+  const router = useRouter();
+
   const dummyProducts = [
     {
       product_id: "P001",
@@ -47,8 +52,7 @@ const ProductList = () => {
   ];
 
   const handleDetailClick = (productId) => {
-    // Placeholder for button action, e.g., navigate or show modal
-    alert(`Viewing details for Product ID: ${productId}`);
+    router.push(`/product/detail/${productId}`);
   };
 
   return (
@@ -80,7 +84,7 @@ const ProductList = () => {
                   <Button
                     variant="contained"
                     color="primary"
-                    // onClick={() => handleDetailClick(product.product_id)}
+                    onClick={() => handleDetailClick(product.product_id)}
                   >
                     Detail
                   </Button>
