@@ -1,4 +1,5 @@
-import Navbar from "./components/Navbar";
+import AdminNavbar from "./components/AdminNavbar";
+
 
 export default function AdminLayout({
   children, // will be a page or nested layout
@@ -6,7 +7,7 @@ export default function AdminLayout({
   return (
     <section>
       {/* Include shared UI here e.g. a header or sidebar */}
-      <Navbar/>
+      <AdminNavbar/>
 
       {children}
     </section>

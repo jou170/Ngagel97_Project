@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Image from 'next/image'; // For optimized image rendering with Next.js
 
-const Navbar = () => {
+const UserNavbar = () => {
   return (
     <AppBar position="static" sx={{ backgroundColor: "#AB886D" }}>
       <Toolbar sx={{ justifyContent: "space-between" }}>
@@ -50,4 +50,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default UserNavbar;
