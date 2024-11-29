@@ -1,12 +1,18 @@
 import mongoose from "mongoose";
+import AutoIncrement from "mongoose-sequence";
 
-const addOnSchema = new mongoose.Schema({
-  add_on_id: { type: String, required: true, unique: true },
-  add_on_name: { type: String, required: true },
-  add_on_price: { type: Number, required: true },
-  add_on_description: String,
-});
+const AddOnSchema = new mongoose.Schema(
+  {
+    id: { type: Number, unique: true }, // Auto-increment ID
+    nama: { type: String, required: true },
+    harga: { type: Number, required: true }, // Harga per layanan tambahan
+    deskripsi: { type: String }, // Opsional
+    deleted: { type: Boolean, default: false }, // Soft delete
+  },
+  { timestamps: true }
+);
 
-const AddOn = mongoose.models.AddOn || mongoose.model("AddOn", addOnSchema);
+AddOnSchema.plugin(AutoIncrement(mongoose), { inc_field: "id" });
 
-module.exports = AddOn;
+const AddOn = mongoose.models.AddOn || mongoose.model("AddOn", AddOnSchema);
+export default AddOn;
