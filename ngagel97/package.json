@@ -24,6 +24,7 @@
     "date-fns": "^2.29.3",
     "dayjs": "^1.11.13",
     "joi": "^17.13.3",
+    "jose": "^5.9.6",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
     "midtrans-client": "^1.4.2",

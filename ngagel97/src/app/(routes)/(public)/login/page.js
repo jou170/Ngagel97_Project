@@ -43,7 +43,9 @@ export default function LoginPage() {
 
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem("token", data.token); // Simpan token di localStorage
+
+        localStorage.setItem("token", data.token);
+
         router.push("/home");
       } else {
         const errorData = await res.json();

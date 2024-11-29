@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "@/models/User";
 import connectDB from "@/app/api/mongoose";
-
+import { NextResponse } from "next/server";
 const SECRET_KEY = process.env.JWT_SECRET;
 
 export async function POST(request) {
@@ -34,10 +34,17 @@ export async function POST(request) {
       { expiresIn: "12h" }
     );
 
-    return new Response(
-      JSON.stringify({ message: "Login successful", token }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    const response = NextResponse.json({ message: "Login successful" });
+
+    // Set token in cookie
+    response.cookies.set("token", token, {
+      httpOnly: true, // So the cookie is not accessible by JS
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      maxAge: 60 * 60 * 12, // Token expiry (12 hours)
+      path: "/", // Make the cookie accessible site-wide
+    });
+
+    return response;
   } catch (error) {
     return new Response(JSON.stringify({ error: "Login failed" }), {
       status: 500,
