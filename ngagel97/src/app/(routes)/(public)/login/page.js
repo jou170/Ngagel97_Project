@@ -43,10 +43,9 @@ export default function LoginPage() {
 
       if (res.ok) {
         const data = await res.json();
+        console.log("berhasil login");
 
-        localStorage.setItem("token", data.token);
-
-        router.push("/home");
+        // router.push("/home");
       } else {
         const errorData = await res.json();
         setError(errorData.error || "Login failed");
