@@ -73,7 +73,7 @@ const DailySalesPage = () => {
             }}
           >
             <Typography variant="h6" sx={{ color: "white" }}>
-              Laporan Pengiriman
+              Laporan Transaksi Harian
             </Typography>
           </Box>
 

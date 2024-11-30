@@ -66,7 +66,7 @@ const SalesPage = () => {
             }}
           >
             <Typography variant="h6" sx={{ color: "white" }}>
-              Laporan Pengiriman
+              Laporan Penjualan
             </Typography>
           </Box>
 

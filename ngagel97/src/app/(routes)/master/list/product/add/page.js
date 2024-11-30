@@ -64,7 +64,7 @@ const ProductPage = () => {
     { id: 3, name: "Laminating", price: 5000, category: "Laminating" },
     { id: 0, name: "Laminating", price: 5000, category: "Laminating" },
   ]);
-  
+
   const [formValues, setFormValues] = useState({
     name: "",
     price: "",
@@ -104,18 +104,19 @@ const ProductPage = () => {
     <PageLayout>
       {/* Header */}
       <HeaderContainer>
-        <Box
-          sx={{
-            bgcolor: "#b08968",
-            p: 2,
-            borderRadius: "4px 4px 0 0",
-            textAlign: "center",
-          }}
-        >
-          <Typography variant="h6" sx={{ color: "white" }}>
-            Add product
-          </Typography>
-        </Box>
+      <Box
+            sx={{
+              bgcolor: "#b08968",
+              p: 2,
+              borderRadius: "4px 4px 0 0",
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="h6" sx={{ color: "white" }}>
+              Add Product
+            </Typography>
+          </Box>
+
       </HeaderContainer>
 
       {/* Main Content */}
@@ -154,7 +155,7 @@ const ProductPage = () => {
             <Button
               variant="contained"
               color="primary"
-              fullWidth
+              fullWidth // Fixed: Ensures button width matches input fields
               onClick={handleAddProduct}
             >
               Tambah
