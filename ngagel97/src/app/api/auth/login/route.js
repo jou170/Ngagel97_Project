@@ -13,19 +13,31 @@ export async function POST(request) {
 
     const user = await User.findOne({ email });
 
+    // Cek apakah user ditemukan
     if (!user) {
-      return new Response(JSON.stringify({ error: "Invalid email" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid email",
+          data: null,
+          error: "User not found",
+        },
+        { status: 401 }
+      );
     }
 
+    // Validasi password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return new Response(JSON.stringify({ error: "Invalid password" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid password",
+          data: null,
+          error: "Incorrect password",
+        },
+        { status: 401 }
+      );
     }
 
     const token = jwt.sign(
@@ -34,21 +46,31 @@ export async function POST(request) {
       { expiresIn: "12h" }
     );
 
-    const response = NextResponse.json({ message: "Login successful" });
+    const response = NextResponse.json({
+      success: true,
+      message: "Login successful",
+      data: { token },
+      error: null,
+    });
 
-    // Set token in cookie
+    // Set token di cookies
     response.cookies.set("token", token, {
-      httpOnly: true, // So the cookie is not accessible by JS
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      maxAge: 60 * 60 * 12, // Token expiry (12 hours)
-      path: "/", // Make the cookie accessible site-wide
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 12, // 12 hours
+      path: "/",
     });
 
     return response;
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Login failed" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Login failed",
+        data: null,
+        error: error.message || "Internal server error",
+      },
+      { status: 500 }
+    );
   }
 }
