@@ -12,6 +12,7 @@ import {
   Typography,
   Container,
   Box,
+  TextField,
   Button,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -61,7 +62,13 @@ const DailySalesPage = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <div style={{ backgroundColor: "#F5E6D3", minHeight: "100vh", padding: "20px" }}>
+      <div
+        style={{
+          backgroundColor: "#F5E6D3",
+          minHeight: "100vh",
+          padding: "20px",
+        }}
+      >
         <Container maxWidth="lg">
           {/* Header */}
           <Box

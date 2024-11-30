@@ -1,23 +1,17 @@
 import React from "react";
-import {
-  Box,
-  Grid,
-  Typography,
-  Card,
-  CardMedia,
-  CardContent,
-} from "@mui/material";
+import { Box, Grid, Typography, Card, CardContent } from "@mui/material";
+import Image from "next/image";
 
 const HomePage = () => {
   const services = [
-    { id: 1, name: "Printer A4", image: "https://via.placeholder.com/150" },
-    { id: 2, name: "Printer A3", image: "https://via.placeholder.com/150" },
-    { id: 3, name: "Fotocopy A3", image: "https://via.placeholder.com/150" },
-    { id: 4, name: "Jilid", image: "https://via.placeholder.com/150" },
-    { id: 5, name: "Printer A4", image: "https://via.placeholder.com/150" },
-    { id: 6, name: "Printer A3", image: "https://via.placeholder.com/150" },
-    { id: 7, name: "Fotocopy A3", image: "https://via.placeholder.com/150" },
-    { id: 8, name: "Jilid", image: "https://via.placeholder.com/150" },
+    { id: 1, name: "Printer A4", image: "/path/to/image1.jpg" },
+    { id: 2, name: "Printer A3", image: "/path/to/image2.jpg" },
+    { id: 3, name: "Fotocopy A3", image: "/path/to/image3.jpg" },
+    { id: 4, name: "Jilid", image: "/path/to/image4.jpg" },
+    { id: 5, name: "Printer A4", image: "/path/to/image5.jpg" },
+    { id: 6, name: "Printer A3", image: "/path/to/image6.jpg" },
+    { id: 7, name: "Fotocopy A3", image: "/path/to/image7.jpg" },
+    { id: 8, name: "Jilid", image: "/path/to/image8.jpg" },
   ];
 
   return (
@@ -43,9 +37,11 @@ const HomePage = () => {
       <Grid container spacing={2} justifyContent="center" mb={4}>
         <Grid item xs={6} sm={3}>
           <Box textAlign="center">
-            <img
-              src="https://via.placeholder.com/80"
+            <Image
+              src="/path/to/icon1.png"
               alt="High Digital Printing"
+              width={80}
+              height={80}
               style={{ marginBottom: 8 }}
             />
             <Typography variant="body1">High Digital Printing</Typography>
@@ -53,9 +49,11 @@ const HomePage = () => {
         </Grid>
         <Grid item xs={6} sm={3}>
           <Box textAlign="center">
-            <img
-              src="https://via.placeholder.com/80"
+            <Image
+              src="/path/to/icon2.png"
               alt="Great Quality"
+              width={80}
+              height={80}
               style={{ marginBottom: 8 }}
             />
             <Typography variant="body1">Great Quality</Typography>
@@ -63,9 +61,11 @@ const HomePage = () => {
         </Grid>
         <Grid item xs={6} sm={3}>
           <Box textAlign="center">
-            <img
-              src="https://via.placeholder.com/80"
+            <Image
+              src="/path/to/icon3.png"
               alt="Handled With Care"
+              width={80}
+              height={80}
               style={{ marginBottom: 8 }}
             />
             <Typography variant="body1">Handled With Care</Typography>
@@ -73,9 +73,11 @@ const HomePage = () => {
         </Grid>
         <Grid item xs={6} sm={3}>
           <Box textAlign="center">
-            <img
-              src="https://via.placeholder.com/80"
+            <Image
+              src="/path/to/icon4.png"
               alt="Fast Delivery"
+              width={80}
+              height={80}
               style={{ marginBottom: 8 }}
             />
             <Typography variant="body1">Fast Delivery</Typography>
@@ -91,11 +93,12 @@ const HomePage = () => {
         {services.map((service) => (
           <Grid item xs={6} sm={3} key={service.id}>
             <Card>
-              <CardMedia
-                component="img"
-                height="140"
-                image={service.image}
+              <Image
+                src={service.image}
                 alt={service.name}
+                width={300}
+                height={140}
+                style={{ objectFit: "cover" }}
               />
               <CardContent>
                 <Typography variant="body1" textAlign="center">

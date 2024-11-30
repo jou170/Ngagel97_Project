@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import { jwtVerify } from "jose";
 
 const PUBLIC_ROUTES = ["/register", "/login", "/home", "/product"]; // is public
@@ -33,11 +32,14 @@ export async function middleware(request) {
     return NextResponse.next();
   }
 
+  if (!token) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
   const { payload } = await jwtVerify(
     token.value,
     new TextEncoder().encode(process.env.JWT_SECRET)
   );
-
   console.log("Token is valid:", payload);
 
   if (!payload) {
@@ -46,12 +48,8 @@ export async function middleware(request) {
 
   try {
     // Verify the token using 'jose'
-
-    // console.log("Token is valid:", payload);
-
     // Role-based access control logic
     const role = payload.role;
-
     if (pathname.startsWith("/master") && role.toLowerCase() === "admin") {
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
