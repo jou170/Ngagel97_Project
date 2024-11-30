@@ -90,7 +90,7 @@ export default function RegisterPage() {
 
       if (res.ok) {
         const responseData = await res.json();
-        console.log(responseData); // Debugging response
+        // console.log(responseData); // Debugging response
         router.push("/login"); // Redirect after successful registration
       } else {
         const errorData = await res.json();
