@@ -1,13 +1,33 @@
-import React from "react";
-import {
-  Box,
-  TextField,
-  Typography,
-  Card,
-  CardContent,
-  Button,
-  Divider,
-} from "@mui/material";
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import "leaflet/dist/leaflet.css";
+import "leaflet-control-geocoder/dist/Control.Geocoder.css";
+import { Box, TextField, Typography, Card, CardContent, Button, Divider } from "@mui/material";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet-control-geocoder";
+import * as EsriLeaflet from 'esri-leaflet';
+import 'esri-leaflet-geocoder';
+
+import dynamic from "next/dynamic";
+
+const geocodeService = EsriLeaflet.Geocoding;  // Initialize geocodeService from EsriLeaflet
+// Dynamically import Leaflet with no SSR (server-side rendering)
+const MapContainerWithNoSSR = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), {
+  ssr: false, // Disable SSR for this component
+});
+
+const TileLayerWithNoSSR = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), {
+  ssr: false,
+});
+
+// Prevent default icon URL errors in Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 const CheckoutPage = () => {
   const dummyData = [
@@ -20,6 +40,53 @@ const CheckoutPage = () => {
   const totalPrice = dummyData.reduce((sum, item) => sum + item.price, 0);
   const shippingCost = 12000;
 
+  const [position, setPosition] = useState([-6.2088, 106.8456]); // Default Jakarta coordinates
+  const [address, setAddress] = useState(null);
+  const mapRef = useRef();
+
+  // LocationSearch component for handling search and reverse geocoding
+  const LocationSearch = () => {
+    const map = useMap();
+
+    useEffect(() => {
+      console.log(geocodeService); // Check if geocodeService is defined
+
+      // Adding geocoder control to map
+      const geocoderControl = L.Control.geocoder({
+        defaultMarkGeocode: false,
+      }).on("markgeocode", function (e) {
+        const latlng = e.geocode.center;
+        map.setView(latlng, 13);
+        setPosition([latlng.lat, latlng.lng]);
+
+        // Reverse geocoding to get address from coordinates
+        if (geocodeService) {  // Ensure geocodeService is defined before calling reverse
+          geocodeService.reverse(latlng, 13, (error, result) => {
+            if (error) {
+              console.error(error);
+              return;
+            }
+            setAddress(result.address.Match_addr);  // Store address from reverse geocode result
+          });
+        } else {
+          console.error("Geocode service is not available.");
+        }
+      });
+
+      // Add geocoder control to map if it's not already added
+      const existingControls = document.querySelectorAll(".leaflet-control-geocoder");
+      if (existingControls.length === 0) {
+        geocoderControl.addTo(map);
+      }
+
+      return () => {
+        map.removeControl(geocoderControl);
+      };
+    }, [map]);
+
+    return null;
+  };
+
   return (
     <Box display="flex" p={4} gap={4}>
       {/* Left Section */}
@@ -31,19 +98,26 @@ const CheckoutPage = () => {
           <TextField label="Email Pembeli" variant="outlined" fullWidth />
           <TextField label="Nomor Handphone" variant="outlined" fullWidth />
           <TextField label="Input Alamat" variant="outlined" fullWidth />
-          {/* Placeholder for Map */}
-          <Box
-            height={200}
-            bgcolor="#e0e0e0"
-            borderRadius={1}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Typography variant="body2" color="textSecondary">
-              Map Placeholder
-            </Typography>
+          
+          {/* Map with location search and reverse geocoding */}
+          <Box height={300} borderRadius={1} overflow="hidden">
+            <MapContainer center={position} zoom={13} style={{ height: "100%", width: "100%" }} whenCreated={(map) => (mapRef.current = map)}>
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              <Marker position={position}>
+                <Popup>Posisi Terpilih</Popup>
+              </Marker>
+              <LocationSearch />
+            </MapContainer>
           </Box>
+
+          {/* Display address found by reverse geocoding */}
+          <Box mt={2}>
+            <Typography variant="h6">Alamat Lokasi:</Typography>
+            <Box border={1} p={2} borderRadius={1}>
+              <Typography variant="body2">{address || "Alamat tidak ditemukan"}</Typography>
+            </Box>
+          </Box>
+
           <TextField label="Catatan" variant="outlined" fullWidth multiline rows={3} />
         </Box>
       </Box>
@@ -92,12 +166,7 @@ const CheckoutPage = () => {
         </Card>
 
         {/* Checkout Button */}
-        <Button
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 3, py: 1.5 }}
-        >
+        <Button variant="contained" color="primary" fullWidth sx={{ mt: 3, py: 1.5 }}>
           Lanjut Pembayaran
         </Button>
       </Box>
