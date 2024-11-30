@@ -7,6 +7,7 @@ const JasaSchema = new mongoose.Schema(
     nama: { type: String, required: true },
     harga: { type: Number, required: true }, // Harga per satuan (misal per lembar untuk print)
     deskripsi: { type: String }, // Opsional, untuk informasi tambahan
+    gambar: { type: String }, // Link ke gambar
     addOns: [{ type: Number }], // Referensi ke AddOn
     deleted: { type: Boolean, default: false }, // Soft delete
   },
