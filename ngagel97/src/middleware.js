@@ -40,7 +40,7 @@ export async function middleware(request) {
     token.value,
     new TextEncoder().encode(process.env.JWT_SECRET)
   );
-  console.log("Token is valid: ", payload);
+  // console.log("Token is valid: ", payload);
 
   if (!payload) {
     return NextResponse.redirect(new URL("/login", request.url));

@@ -30,6 +30,7 @@
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
     "leaflet-control-geocoder": "^2.4.0",
+    "leaflet-geosearch": "^4.0.0",
     "midtrans-client": "^1.4.2",
     "mongoose": "^8.8.2",
     "mongoose-sequence": "^6.0.1",

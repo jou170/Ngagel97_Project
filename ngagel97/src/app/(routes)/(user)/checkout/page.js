@@ -1,32 +1,21 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import "leaflet/dist/leaflet.css";
-import "leaflet-control-geocoder/dist/Control.Geocoder.css";
-import { Box, TextField, Typography, Card, CardContent, Button, Divider } from "@mui/material";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet-control-geocoder";
-import * as EsriLeaflet from 'esri-leaflet';
-import 'esri-leaflet-geocoder';
 
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  TextField,
+  Typography,
+  Card,
+  CardContent,
+  Button,
+  Divider,
+} from "@mui/material";
 import dynamic from "next/dynamic";
+import axios from "axios";
 
-const geocodeService = EsriLeaflet.Geocoding;  // Initialize geocodeService from EsriLeaflet
-// Dynamically import Leaflet with no SSR (server-side rendering)
-const MapContainerWithNoSSR = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), {
-  ssr: false, // Disable SSR for this component
-});
-
-const TileLayerWithNoSSR = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), {
+// Dynamically load MapComponent (SSR-safe)
+const MapComponent = dynamic(() => import("../components/MapComponent"), {
   ssr: false,
-});
-
-// Prevent default icon URL errors in Leaflet
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
 const CheckoutPage = () => {
@@ -41,51 +30,25 @@ const CheckoutPage = () => {
   const shippingCost = 12000;
 
   const [position, setPosition] = useState([-6.2088, 106.8456]); // Default Jakarta coordinates
-  const [address, setAddress] = useState(null);
-  const mapRef = useRef();
+  const [address, setAddress] = useState("");
 
-  // LocationSearch component for handling search and reverse geocoding
-  const LocationSearch = () => {
-    const map = useMap();
-
-    useEffect(() => {
-      console.log(geocodeService); // Check if geocodeService is defined
-
-      // Adding geocoder control to map
-      const geocoderControl = L.Control.geocoder({
-        defaultMarkGeocode: false,
-      }).on("markgeocode", function (e) {
-        const latlng = e.geocode.center;
-        map.setView(latlng, 13);
-        setPosition([latlng.lat, latlng.lng]);
-
-        // Reverse geocoding to get address from coordinates
-        if (geocodeService) {  // Ensure geocodeService is defined before calling reverse
-          geocodeService.reverse(latlng, 13, (error, result) => {
-            if (error) {
-              console.error(error);
-              return;
-            }
-            setAddress(result.address.Match_addr);  // Store address from reverse geocode result
-          });
-        } else {
-          console.error("Geocode service is not available.");
-        }
-      });
-
-      // Add geocoder control to map if it's not already added
-      const existingControls = document.querySelectorAll(".leaflet-control-geocoder");
-      if (existingControls.length === 0) {
-        geocoderControl.addTo(map);
+  // Fetch address using reverse geocoding
+  useEffect(() => {
+    const fetchAddress = async () => {
+      try {
+        const [lat, lng] = position;
+        const response = await axios.get(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+        );
+        setAddress(response.data.display_name || "Alamat tidak ditemukan");
+      } catch (error) {
+        console.error("Error fetching address:", error);
+        setAddress("Gagal mendapatkan alamat");
       }
+    };
 
-      return () => {
-        map.removeControl(geocoderControl);
-      };
-    }, [map]);
-
-    return null;
-  };
+    fetchAddress();
+  }, [position]);
 
   return (
     <Box display="flex" p={4} gap={4}>
@@ -97,34 +60,35 @@ const CheckoutPage = () => {
         <Box display="flex" flexDirection="column" gap={2}>
           <TextField label="Email Pembeli" variant="outlined" fullWidth />
           <TextField label="Nomor Handphone" variant="outlined" fullWidth />
-          <TextField label="Input Alamat" variant="outlined" fullWidth />
-          
-          {/* Map with location search and reverse geocoding */}
-          <Box height={300} borderRadius={1} overflow="hidden">
-            <MapContainer center={position} zoom={13} style={{ height: "100%", width: "100%" }} whenCreated={(map) => (mapRef.current = map)}>
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <Marker position={position}>
-                <Popup>Posisi Terpilih</Popup>
-              </Marker>
-              <LocationSearch />
-            </MapContainer>
+          <TextField label="Input Alamat Manual" variant="outlined" fullWidth />
+
+          {/* Map */}
+          <Box height={300} borderRadius={1} overflow="hidden" mb={2}>
+            <MapComponent position={position} onLocationChange={setPosition} />
           </Box>
 
-          {/* Display address found by reverse geocoding */}
-          <Box mt={2}>
-            <Typography variant="h6">Alamat Lokasi:</Typography>
-            <Box border={1} p={2} borderRadius={1}>
-              <Typography variant="body2">{address || "Alamat tidak ditemukan"}</Typography>
-            </Box>
-          </Box>
+          <TextField
+            label="Alamat Terpilih"
+            variant="outlined"
+            fullWidth
+            value={address}
+            InputProps={{
+              readOnly: true,
+            }}
+          />
 
-          <TextField label="Catatan" variant="outlined" fullWidth multiline rows={3} />
+          <TextField
+            label="Catatan"
+            variant="outlined"
+            fullWidth
+            multiline
+            rows={3}
+          />
         </Box>
       </Box>
 
       {/* Right Section */}
       <Box flex={1}>
-        {/* Product Details */}
         <Typography variant="h6" mb={2}>
           Detail Produk
         </Typography>
@@ -133,25 +97,32 @@ const CheckoutPage = () => {
             <CardContent>
               <Box display="flex" justifyContent="space-between">
                 <Typography variant="body1">{item.name}</Typography>
-                <Typography variant="body1">Harga: Rp. {item.price.toLocaleString()}</Typography>
+                <Typography variant="body1">
+                  Harga: Rp. {item.price.toLocaleString()}
+                </Typography>
               </Box>
             </CardContent>
           </Card>
         ))}
 
-        {/* Price Summary */}
         <Typography variant="h6" mt={4} mb={2}>
           Ringkasan Harga
         </Typography>
         <Card>
           <CardContent>
             <Box display="flex" justifyContent="space-between" mb={1}>
-              <Typography variant="body2">Total Harga ({totalItems} Produk):</Typography>
-              <Typography variant="body2">Rp. {totalPrice.toLocaleString()}</Typography>
+              <Typography variant="body2">
+                Total Harga ({totalItems} Produk):
+              </Typography>
+              <Typography variant="body2">
+                Rp. {totalPrice.toLocaleString()}
+              </Typography>
             </Box>
             <Box display="flex" justifyContent="space-between" mb={1}>
               <Typography variant="body2">Ongkos Kirim:</Typography>
-              <Typography variant="body2">Rp. {shippingCost.toLocaleString()}</Typography>
+              <Typography variant="body2">
+                Rp. {shippingCost.toLocaleString()}
+              </Typography>
             </Box>
             <Divider sx={{ my: 1 }} />
             <Box display="flex" justifyContent="space-between">
@@ -165,8 +136,12 @@ const CheckoutPage = () => {
           </CardContent>
         </Card>
 
-        {/* Checkout Button */}
-        <Button variant="contained" color="primary" fullWidth sx={{ mt: 3, py: 1.5 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{ mt: 3, py: 1.5 }}
+        >
           Lanjut Pembayaran
         </Button>
       </Box>
