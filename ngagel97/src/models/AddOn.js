@@ -3,7 +3,7 @@ import AutoIncrement from "mongoose-sequence";
 
 const AddOnSchema = new mongoose.Schema(
   {
-    id: { type: Number, unique: true }, // Auto-increment ID
+    id: { type: Number, unique: true, required: true },
     nama: { type: String, required: true },
     harga: { type: Number, required: true }, // Harga default
     tipeHarga: {
@@ -17,7 +17,7 @@ const AddOnSchema = new mongoose.Schema(
     gambar: { type: String }, // Link ke gambar
     deleted: { type: Boolean, default: false }, // Soft delete
   },
-  { timestamps: true }
+  { timestamps: true, _id: false }
 );
 
 AddOnSchema.plugin(AutoIncrement(mongoose), { inc_field: "id" });
