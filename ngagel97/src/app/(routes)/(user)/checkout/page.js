@@ -27,10 +27,10 @@ const CheckoutPage = () => {
 
   const totalItems = dummyData.length;
   const totalPrice = dummyData.reduce((sum, item) => sum + item.price, 0);
-  const shippingCost = 12000;
 
-  const [position, setPosition] = useState([-6.2088, 106.8456]); // Default Jakarta coordinates
+  const [position, setPosition] = useState([-7.2891, 112.7578]); // Default Jakarta coordinates
   const [address, setAddress] = useState("");
+  const [shippingCost, setShippingCost] = useState(0);
 
   // Fetch address using reverse geocoding
   useEffect(() => {
@@ -47,6 +47,30 @@ const CheckoutPage = () => {
       }
     };
 
+    const calculateShipping = async () => {
+      try {
+        const response = await fetch("/api/shipping", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userLat: position[0],
+            userLng: position[1]
+          }),
+        });
+    
+        if (!response.ok) {
+          throw new Error("Failed to calculate shipping");
+        }
+    
+        const data = await response.json();
+        setShippingCost(data.shippingCost);
+      } catch (error) {
+        console.error("Error calculating shipping cost:", error);
+      }
+    };
+    calculateShipping();
     fetchAddress();
   }, [position]);
 
@@ -119,11 +143,12 @@ const CheckoutPage = () => {
               </Typography>
             </Box>
             <Box display="flex" justifyContent="space-between" mb={1}>
-              <Typography variant="body2">Ongkos Kirim:</Typography>
-              <Typography variant="body2">
-                Rp. {shippingCost.toLocaleString()}
-              </Typography>
-            </Box>
+  <Typography variant="body2">Ongkos Kirim:</Typography>
+  <Typography variant="body2">
+    Rp. {shippingCost.toLocaleString()}
+  </Typography>
+</Box>
+
             <Divider sx={{ my: 1 }} />
             <Box display="flex" justifyContent="space-between">
               <Typography variant="body1" fontWeight="bold">
