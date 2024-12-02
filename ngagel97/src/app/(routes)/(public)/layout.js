@@ -1,14 +1,5 @@
-import NavbarPublic from "./components/NavbarPublic";
-
 export default function UserLayout({
   children, // will be a page or nested layout
 }) {
-  return (
-    <section>
-      {/* Include shared UI here e.g. a header or sidebar */}
-      <NavbarPublic />
-
-      {children}
-    </section>
-  );
+  return <section>{children}</section>;
 }

@@ -4,12 +4,31 @@ import { AppBar, Toolbar, Box, Typography, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-const Navbar = () => {
+const NavbarInvalid = () => {
   const router = useRouter();
 
   // Navigasi menggunakan router.push
   const handleNavigation = (path) => {
     router.push(path);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        handleNavigation("/login");
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
   };
 
   return (
@@ -40,31 +59,10 @@ const Navbar = () => {
         <Box>
           <Button
             color="inherit"
-            onClick={() => handleNavigation("/home")}
+            onClick={handleLogout}
             sx={{ color: "#FFFFFF", marginX: 1 }}
           >
-            Home
-          </Button>
-          <Button
-            color="inherit"
-            onClick={() => handleNavigation("/about")}
-            sx={{ color: "#FFFFFF", marginX: 1 }}
-          >
-            About
-          </Button>
-          <Button
-            color="inherit"
-            onClick={() => handleNavigation("/services")}
-            sx={{ color: "#FFFFFF", marginX: 1 }}
-          >
-            Services
-          </Button>
-          <Button
-            color="inherit"
-            onClick={() => handleNavigation("/contact")}
-            sx={{ color: "#FFFFFF", marginX: 1 }}
-          >
-            Contact
+            Logout
           </Button>
         </Box>
       </Toolbar>
@@ -72,4 +70,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default NavbarInvalid;

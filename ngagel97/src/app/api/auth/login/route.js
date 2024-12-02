@@ -61,6 +61,13 @@ export async function POST(request) {
       path: "/",
     });
 
+    // Set role di cookies
+    response.cookies.set("role", user.role, {
+      httpOnly: false, // Agar bisa diakses oleh browser untuk rendering
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 12, // 12 hours
+      path: "/",
+    });
     return response;
   } catch (error) {
     return NextResponse.json(

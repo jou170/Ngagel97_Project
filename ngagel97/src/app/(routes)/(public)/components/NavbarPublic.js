@@ -47,10 +47,10 @@ const NavbarPublic = () => {
           </Button>
           <Button
             color="inherit"
-            onClick={() => handleNavigation("/product")}
+            onClick={() => handleNavigation("/about")}
             sx={{ color: "#FFFFFF", marginX: 1 }}
           >
-            Product
+            About
           </Button>
           <Button
             color="inherit"
