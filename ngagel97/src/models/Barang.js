@@ -12,7 +12,10 @@ const BarangSchema = new mongoose.Schema(
   { timestamps: true, _id: false }
 );
 
-BarangSchema.plugin(AutoIncrement(mongoose), { inc_field: "id" });
+BarangSchema.plugin(AutoIncrement(mongoose), {
+  inc_field: "id",
+  id: "id_barang",
+});
 
 const Barang = mongoose.models.Barang || mongoose.model("Barang", BarangSchema);
 export default Barang;

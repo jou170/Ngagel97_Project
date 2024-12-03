@@ -1,9 +1,9 @@
 import AddOn from "@/models/AddOn"; // Sesuaikan dengan lokasi model Anda
-import connectDB from "@/app/api/mongoose"; // Sesuaikan dengan lokasi file koneksi DB
+import dbConnect from "@/app/api/mongoose"; // Sesuaikan dengan lokasi file koneksi DB
 
 export async function POST(request) {
   try {
-    await connectDB(); // Pastikan koneksi DB berhasil
+    await dbConnect(); // Pastikan koneksi DB berhasil
 
     const { nama, harga, tipeHarga, deskripsi, gambar } = await request.json();
 
@@ -37,7 +37,7 @@ export async function POST(request) {
 
 export async function GET({ params }) {
   try {
-    await connectDB(); // Pastikan koneksi DB berhasil
+    await dbConnect(); // Pastikan koneksi DB berhasil
 
     // Jika params.id ada, ambil AddOn berdasarkan id
     if (params && params.id) {
@@ -72,7 +72,7 @@ export async function GET({ params }) {
 export async function PUT({ params, request }) {
   const { id } = params;
   try {
-    await connectDB(); // Pastikan koneksi DB berhasil
+    await dbConnect(); // Pastikan koneksi DB berhasil
 
     const updatedData = await request.json();
 
@@ -105,7 +105,7 @@ export async function PUT({ params, request }) {
 export async function DELETE({ params }) {
   const { id } = params;
   try {
-    await connectDB(); // Pastikan koneksi DB berhasil
+    await dbConnect(); // Pastikan koneksi DB berhasil
 
     const deletedAddOn = await AddOn.findOneAndUpdate(
       { id, deleted: false },

@@ -19,7 +19,7 @@ import {
   Box,
 } from "@mui/material";
 
-const AddProductPage = () => {
+const ItemForm = () => {
   const [error, setError] = useState("");
 
   const products = [
@@ -206,4 +206,4 @@ const labelStyle = {
   display: "block",
 };
 
-export default AddProductPage;
+export default ItemForm;

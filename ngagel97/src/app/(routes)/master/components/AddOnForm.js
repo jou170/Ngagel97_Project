@@ -113,6 +113,7 @@ export default function AddOnForm() {
       if (res.ok) {
         const responseData = await res.json();
         alert("Add-On berhasil disimpan!");
+        router.push("/master");
       } else {
         const errorData = await res.json();
         setError(errorData.error || "Add-On submission failed");

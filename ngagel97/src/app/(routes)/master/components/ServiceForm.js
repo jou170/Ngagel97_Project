@@ -5,9 +5,9 @@ import { Box, TextField, Button, Typography, Container } from "@mui/material";
 import { useForm } from "react-hook-form";
 import Joi from "joi";
 import { useRouter } from "next/navigation";
-import AddonCheckboxes from "../components/AddonCheckboxes";
+import AddonCheckboxes from "./AddonCheckboxes";
 
-export default function JasaForm() {
+export default function ServiceForm() {
   const [error, setError] = useState(""); // state untuk menyimpan error global
   const router = useRouter(); // Inisialisasi router untuk navigasi
   const [selectedFile, setSelectedFile] = useState(null);

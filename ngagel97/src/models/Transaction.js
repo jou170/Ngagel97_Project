@@ -82,7 +82,10 @@ const TransactionSchema = new mongoose.Schema(
   { timestamps: true, _id: false }
 );
 
-TransactionSchema.plugin(AutoIncrement(mongoose), { inc_field: "id" });
+TransactionSchema.plugin(AutoIncrement(mongoose), {
+  inc_field: "id",
+  id: "id_transaction",
+});
 
 const Transaction =
   mongoose.models.Transaction ||

@@ -208,15 +208,15 @@
 
 // export default Page;
 
-import React from 'react'
-import AddProductPage from '../../../components/AddProduct'
+import React from "react";
+import AddProductPage from "../../../components/ItemForm";
 
 const Addpage = () => {
   return (
     <div>
-      <AddProductPage/>
+      <AddProductPage />
     </div>
-  )
-}
+  );
+};
 
-export default Addpage
+export default Addpage;

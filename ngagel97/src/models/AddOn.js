@@ -17,10 +17,13 @@ const AddOnSchema = new mongoose.Schema(
     gambar: { type: String }, // Link ke gambar
     deleted: { type: Boolean, default: false }, // Soft delete
   },
-  { timestamps: true, _id: false }
+  { timestamps: true }
 );
 
-AddOnSchema.plugin(AutoIncrement(mongoose), { inc_field: "id" });
+AddOnSchema.plugin(AutoIncrement(mongoose), {
+  inc_field: "id",
+  id: "id_add_on",
+});
 
 const AddOn = mongoose.models.AddOn || mongoose.model("AddOn", AddOnSchema);
 export default AddOn;

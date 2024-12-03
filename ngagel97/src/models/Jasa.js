@@ -20,7 +20,10 @@ const JasaSchema = new mongoose.Schema(
   { timestamps: true, _id: false }
 );
 
-JasaSchema.plugin(AutoIncrement(mongoose), { inc_field: "id" });
+JasaSchema.plugin(AutoIncrement(mongoose), {
+  inc_field: "id",
+  id: "id_jasa",
+});
 
 const Jasa = mongoose.models.Jasa || mongoose.model("Jasa", JasaSchema);
 export default Jasa;
