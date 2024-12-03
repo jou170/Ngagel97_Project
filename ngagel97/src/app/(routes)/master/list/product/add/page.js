@@ -1,224 +1,222 @@
-"use client";
+// "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Container,
-} from "@mui/material";
-import { styled } from "@mui/system";
+// import React, { useState } from "react";
+// import Joi from "joi";
+// import { useForm } from "react-hook-form";
+// import {
+//   Container,
+//   Grid,
+//   TextField,
+//   Button,
+//   Typography,
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableContainer,
+//   TableHead,
+//   TableRow,
+//   Paper,
+//   Box,
+// } from "@mui/material";
 
-const PageLayout = styled(Box)({
-  display: "flex",
-  flexDirection: "column",
-  minHeight: "100vh",
-  backgroundColor: "#F5E6D3",
-});
+// const Page = () => {
+//   const [error, setError] = useState("");
 
-const HeaderContainer = styled(Box)({
-  padding: "20px",
-  borderRadius: "4px 4px 0 0",
-  textAlign: "center",
-  marginTop: "20px",
-});
+//   const products = [
+//     { id: 1, name: "Print A4", price: "Rp. 5.000,-", category: "Print" },
+//     { id: 2, name: "Print A3", price: "Rp. 10.000,-", category: "Print" },
+//     { id: 3, name: "Laminating", price: "Rp. 5.000,-", category: "Laminating" },
+//   ];
 
-const ContentContainer = styled(Box)({
-  display: "flex",
-  justifyContent: "space-between",
-  gap: "20px",
-  padding: "20px",
-  flexGrow: 1,
-});
+//   const {
+//     register,
+//     handleSubmit,
+//     formState: { errors },
+//     setError: setFormError,
+//     clearErrors,
+//   } = useForm();
 
-const FormContainer = styled(Box)({
-  flex: "1",
-  maxWidth: "30%",
-  backgroundColor: "#ffffff",
-  padding: "20px",
-  borderRadius: "10px",
-  boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-});
+//   const schema = Joi.object({
+//     name: Joi.string().min(3).max(30).required().messages({
+//       "string.empty": "Nama produk harus diisi",
+//       "string.min": "Nama produk harus memiliki minimal 3 karakter",
+//       "string.max": "Nama produk tidak boleh lebih dari 30 karakter",
+//     }),
+//     price: Joi.number().positive().required().messages({
+//       "number.base": "Harga produk harus berupa angka",
+//       "number.positive": "Harga produk harus bernilai positif",
+//       "any.required": "Harga produk harus diisi",
+//     }),
+//     description: Joi.string().allow("").max(500).messages({
+//       "string.max": "Deskripsi tidak boleh lebih dari 500 karakter",
+//     }),
+//     category: Joi.string().min(3).required().messages({
+//       "string.empty": "Kategori produk harus diisi",
+//       "string.min": "Kategori produk harus memiliki minimal 3 karakter",
+//     }),
+//   });
 
-const TableContainerStyled = styled(Box)({
-  flex: "2",
-  backgroundColor: "#ffffff",
-  padding: "20px",
-  borderRadius: "10px",
-  boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-});
+//   const onSubmit = async (data) => {
+//     const validation = schema.validate(data, { abortEarly: false });
 
-const ProductPage = () => {
-  const [products, setProducts] = useState([
-    { id: 1, name: "Print A4", price: 5000, category: "Print" },
-    { id: 2, name: "Print A3", price: 10000, category: "Print" },
-    { id: 3, name: "Laminating", price: 5000, category: "Laminating" },
-    { id: 0, name: "Laminating", price: 5000, category: "Laminating" },
-  ]);
+//     if (validation.error) {
+//       validation.error.details.forEach((err) => {
+//         setFormError(err.context.key, { message: err.message });
+//       });
+//       return;
+//     }
 
-  const [formValues, setFormValues] = useState({
-    name: "",
-    price: "",
-    category: "",
-  });
+//     clearErrors();
+//     alert("Produk berhasil ditambahkan!");
+//   };
 
-  const router = useRouter(); // Initialize useRouter from next/navigation
+//   return (
+//     <div
+//       style={{
+//         backgroundColor: "#F4E1D2",
+//         minHeight: "100vh",
+//         paddingTop: "10px",
+//       }}
+//     >
+//       {/* Main Content */}
+//       <Container
+//         maxWidth="lg"
+//         style={{
+//           display: "flex",
+//           justifyContent: "center",
+//           alignItems: "center",
+//           minHeight: "100vh",
+//           marginTop: "80px",
+//         }}
+//       >
+//         <Grid container spacing={3} justifyContent="center" alignItems="center">
+//           {/* Form Section */}
+//           <Grid item xs={12} md={4}>
+//             <Paper style={{ padding: "20px" }}>
+//               <Typography
+//                 variant="h5"
+//                 align="center"
+//                 sx={{ marginBottom: "20px" }}
+//               >
+//                 Tambah Produk
+//               </Typography>
 
-  const handleInputChange = (e) => {
-    setFormValues({ ...formValues, [e.target.name]: e.target.value });
-  };
+//               <form onSubmit={handleSubmit(onSubmit)}>
+//                 {[
+//                   "Nama Produk",
+//                   "Harga Produk",
+//                   "Deskripsi Produk",
+//                   "Kategori Produk",
+//                 ].map((field, idx) => (
+//                   <Box key={idx} sx={{ marginBottom: "10px" }}>
+//                     <label style={labelStyle}>{field}</label>
+//                     <TextField
+//                       fullWidth
+//                       multiline={field === "Deskripsi Produk"}
+//                       rows={field === "Deskripsi Produk" ? 4 : undefined}
+//                       {...register(field.toLowerCase().replace(" ", ""))}
+//                       error={!!errors[field.toLowerCase().replace(" ", "")]}
+//                       helperText={
+//                         errors[field.toLowerCase().replace(" ", "")]?.message
+//                       }
+//                     />
+//                   </Box>
+//                 ))}
 
-  const handleAddProduct = () => {
-    if (formValues.name && formValues.price && formValues.category) {
-      setProducts([
-        ...products,
-        {
-          id: products.length + 1,
-          ...formValues,
-          price: parseInt(formValues.price),
-        },
-      ]);
-      setFormValues({ name: "", price: "", category: "" });
-    }
-  };
+//                 <Box mt={2}>
+//                   <Button variant="outlined" color="primary" fullWidth>
+//                     Upload File
+//                   </Button>
+//                 </Box>
 
-  const handleDeleteProduct = (id) => {
-    setProducts(products.filter((product) => product.id !== id));
-  };
+//                 <Box mt={2}>
+//                   <Button
+//                     type="submit"
+//                     variant="contained"
+//                     fullWidth
+//                     sx={{ backgroundColor: "#493628" }}
+//                   >
+//                     Tambah
+//                   </Button>
+//                 </Box>
+//               </form>
+//             </Paper>
+//           </Grid>
 
-  const handleEditProduct = (id) => {
-    // Programmatically navigate to the product edit page
-    router.push(`/master/list/product/edit/${id}`);
-  };
+//           {/* Product List Section */}
+//           <Grid item xs={12} md={8}>
+//             <Paper style={{ padding: "20px" }}>
+//               <Typography
+//                 variant="h5"
+//                 align="center"
+//                 sx={{ marginBottom: "20px" }}
+//               >
+//                 Produk List
+//               </Typography>
+//               <TableContainer component={Paper}>
+//                 <Table>
+//                   <TableHead>
+//                     <TableRow>
+//                       {["ID", "Nama", "Harga", "Kategori", "Aksi"].map(
+//                         (col) => (
+//                           <TableCell key={col} sx={{ fontWeight: "bold" }}>
+//                             {col}
+//                           </TableCell>
+//                         )
+//                       )}
+//                     </TableRow>
+//                   </TableHead>
+//                   <TableBody>
+//                     {products.map((product) => (
+//                       <TableRow key={product.id}>
+//                         {Object.values(product).map((value, idx) => (
+//                           <TableCell key={idx}>{value}</TableCell>
+//                         ))}
+//                         <TableCell>
+//                           <Button
+//                             variant="contained"
+//                             color="primary"
+//                             style={{ marginRight: "10px" }}
+//                           >
+//                             Edit
+//                           </Button>
+//                           <Button variant="contained" color="error">
+//                             Hapus
+//                           </Button>
+//                         </TableCell>
+//                       </TableRow>
+//                     ))}
+//                   </TableBody>
+//                 </Table>
+//               </TableContainer>
+//             </Paper>
+//           </Grid>
+//         </Grid>
+//       </Container>
+//     </div>
+//   );
+// };
 
+// // Label Style
+// const labelStyle = {
+//   fontSize: "16px",
+//   fontWeight: "600",
+//   color: "#493628",
+//   marginBottom: "5px",
+//   display: "block",
+// };
+
+// export default Page;
+
+import React from 'react'
+import AddProductPage from '../../../components/AddProduct'
+
+const Addpage = () => {
   return (
-    <PageLayout>
-      {/* Header */}
-      <HeaderContainer>
-      <Box
-            sx={{
-              bgcolor: "#b08968",
-              p: 2,
-              borderRadius: "4px 4px 0 0",
-              textAlign: "center",
-            }}
-          >
-            <Typography variant="h6" sx={{ color: "white" }}>
-              Add Product
-            </Typography>
-          </Box>
+    <div>
+      <AddProductPage/>
+    </div>
+  )
+}
 
-      </HeaderContainer>
-
-      {/* Main Content */}
-      <Container maxWidth="lg">
-        <ContentContainer>
-          {/* Form Section */}
-          <FormContainer>
-            <Typography variant="h5" mb={2} color="black">
-              Tambah Produk
-            </Typography>
-            <TextField
-              label="Nama Produk"
-              name="name"
-              value={formValues.name}
-              onChange={handleInputChange}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              label="Harga Produk"
-              name="price"
-              type="number"
-              value={formValues.price}
-              onChange={handleInputChange}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              label="Kategori Produk"
-              name="category"
-              value={formValues.category}
-              onChange={handleInputChange}
-              fullWidth
-              margin="normal"
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth // Fixed: Ensures button width matches input fields
-              onClick={handleAddProduct}
-            >
-              Tambah
-            </Button>
-          </FormContainer>
-
-          {/* Table Section */}
-          <TableContainerStyled>
-            <Typography variant="h5" mb={2} color="black">
-              Daftar Produk
-            </Typography>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow sx={{ bgcolor: "#d7ccc8" }}>
-                    <TableCell><strong>ID</strong></TableCell>
-                    <TableCell><strong>Nama</strong></TableCell>
-                    <TableCell><strong>Harga</strong></TableCell>
-                    <TableCell><strong>Kategori</strong></TableCell>
-                    <TableCell><strong>Aksi</strong></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {products.map((product) => (
-                    <TableRow
-                      key={product.id}
-                      sx={{
-                        "&:nth-of-type(odd)": { bgcolor: "#fafafa" },
-                      }}
-                    >
-                      <TableCell>{product.id}</TableCell>
-                      <TableCell>{product.name}</TableCell>
-                      <TableCell>Rp. {product.price.toLocaleString()}</TableCell>
-                      <TableCell>{product.category}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          size="small"
-                          style={{ marginRight: "10px" }}
-                          onClick={() => handleEditProduct(product.id)} // Navigate on click
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          size="small"
-                          onClick={() => handleDeleteProduct(product.id)}
-                        >
-                          Hapus
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </TableContainerStyled>
-        </ContentContainer>
-      </Container>
-    </PageLayout>
-  );
-};
-
-export default ProductPage;
+export default Addpage
