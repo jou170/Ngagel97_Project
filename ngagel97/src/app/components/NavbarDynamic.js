@@ -32,7 +32,7 @@ const NavbarDynamic = () => {
   if (role === "user") {
     return <NavbarUser />;
   } else if (!role) {
-    return <NavbarInvalid />;
+    return <NavbarPublic />;
   }
 };
 

@@ -8,7 +8,13 @@ const JasaSchema = new mongoose.Schema(
     harga: { type: Number, required: true }, // Harga per satuan (misal per lembar untuk print)
     deskripsi: { type: String }, // Opsional, untuk informasi tambahan
     gambar: { type: String }, // Link ke gambar
-    addOns: [{ type: Number }], // Referensi ke AddOn
+    addOns: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "AddOn", // Referensi ke model AddOn
+        required: true,
+      },
+    ],
     deleted: { type: Boolean, default: false }, // Soft delete
   },
   { timestamps: true, _id: false }
