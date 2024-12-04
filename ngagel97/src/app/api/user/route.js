@@ -1,48 +1,22 @@
-import dbConnect from "@/app/api/mongoose";
+import connectDB from "@/app/api/mongoose";
 import User from "@/models/User";
 
-export default async function handler(req, res) {
-  await dbConnect(); // Hubungkan ke database
-
-  const {
-    method,
-    query: { id },
-  } = req; // `id` untuk update dan soft delete
-
+// Named export for GET method
+export async function GET() {
   try {
-    switch (method) {
-      case "PUT": // Change User Role
-        const { role } = req.body;
-        const updatedUser = await User.findByIdAndUpdate(
-          id,
-          { role },
-          { new: true }
-        );
-        if (!updatedUser)
-          return res.status(404).json({ message: "User not found" });
-        return res
-          .status(200)
-          .json({ message: "Role updated", user: updatedUser });
+    await connectDB(); // Pastikan koneksi DB berhasil
 
-      case "DELETE": // Soft Delete User
-        const softDeletedUser = await User.findByIdAndUpdate(
-          id,
-          { deleted: true },
-          { new: true }
-        );
-        if (!softDeletedUser)
-          return res.status(404).json({ message: "User not found" });
-        return res
-          .status(200)
-          .json({ message: "User soft deleted", user: softDeletedUser });
+    const users = await User.find();
 
-      default:
-        res.setHeader("Allow", ["PUT", "DELETE"]);
-        return res
-          .status(405)
-          .json({ message: `Method ${method} Not Allowed` });
-    }
+    return new Response(JSON.stringify(users), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    console.error(error);
+    return new Response(JSON.stringify({ error: "Failed to fetch Users" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

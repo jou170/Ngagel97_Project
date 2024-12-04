@@ -11,7 +11,7 @@ export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, deleted: false });
 
     // Cek apakah user ditemukan
     if (!user) {
