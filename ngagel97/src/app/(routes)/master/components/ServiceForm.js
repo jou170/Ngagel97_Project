@@ -25,18 +25,18 @@ export default function ServiceForm({ mode = "add", id }) {
 
   const schema = Joi.object({
     nama: Joi.string().min(3).required().messages({
-      "string.base": `"Nama" should be a type of 'text'`,
-      "string.empty": `"Nama" cannot be empty`,
-      "string.min": `"Nama" should have a minimum length of {#limit}`,
+      "string.base": `"Nama" harus berupa teks`,
+      "string.empty": `"Nama" tidak boleh kosong`,
+      "string.min": `"Nama" harus memiliki minimal {#limit} kata`,
     }),
     harga: Joi.number().min(100).positive().required().messages({
-      "number.base": `"Harga" should be a number`,
+      "number.base": `"Harga" harus berupa angka`,
       "number.min": `"Harga" minimal Rp 100,-`,
-      "number.positive": `"Harga" must be a positive number`,
-      "number.empty": `"Harga" cannot be empty`,
+      "number.positive": `"Harga" harus angka positive`,
+      "number.empty": `"Harga" tidak boleh kosong`,
     }),
     deskripsi: Joi.string().required().messages({
-      "string.base": `"Deskripsi" should be a type of 'text'`,
+      "string.base": `"Deskripsi" harus berupa teks'`,
     }),
   });
 
@@ -158,7 +158,7 @@ export default function ServiceForm({ mode = "add", id }) {
         >
           <Typography variant="body1">Nama :</Typography>
           <TextField
-            label="Enter jasa name"
+            label="masukkan nama jasa"
             variant="outlined"
             fullWidth
             value={watch("nama") || ""}
@@ -169,7 +169,7 @@ export default function ServiceForm({ mode = "add", id }) {
 
           <Typography variant="body1">Harga</Typography>
           <TextField
-            label="Enter jasa price"
+            label="masukkan harga jasa"
             variant="outlined"
             fullWidth
             type="number"
@@ -181,7 +181,7 @@ export default function ServiceForm({ mode = "add", id }) {
 
           <Typography variant="body1">Deskripsi</Typography>
           <TextField
-            label="Enter jasa description"
+            label="masukkan deskripsi jasa"
             variant="outlined"
             fullWidth
             value={watch("deskripsi") || ""}

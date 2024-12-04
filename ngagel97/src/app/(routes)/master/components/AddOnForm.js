@@ -48,7 +48,7 @@ export default function AddOnForm({ mode = "add", id }) {
       "string.required": `"Tipe Harga" harus diisi`,
     }),
     deskripsi: Joi.string().required().messages({
-      "string.base": `"Deskripsi" should be a type of 'text'`,
+      "string.base": `"Deskripsi" harus berupa teks`,
     }),
   });
 
@@ -167,7 +167,7 @@ export default function AddOnForm({ mode = "add", id }) {
         >
           <Typography variant="body1">Nama :</Typography>
           <TextField
-            label="Enter add-on name"
+            label="masukkan nama add-on"
             variant="outlined"
             fullWidth
             value={watch("nama") || ""}
@@ -178,7 +178,7 @@ export default function AddOnForm({ mode = "add", id }) {
 
           <Typography variant="body1">Harga</Typography>
           <TextField
-            label="Enter add-on price"
+            label="masukkan harga add-on"
             variant="outlined"
             fullWidth
             type="number"
@@ -205,7 +205,7 @@ export default function AddOnForm({ mode = "add", id }) {
 
           <Typography variant="body1">Deskripsi</Typography>
           <TextField
-            label="Enter add-on description"
+            label="masukkan deskripsi add-on"
             variant="outlined"
             fullWidth
             value={watch("deskripsi") || ""}
