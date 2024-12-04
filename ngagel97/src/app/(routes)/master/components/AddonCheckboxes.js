@@ -49,7 +49,7 @@ export default function AddonCheckboxes({ selectedAddons, setSelectedAddons }) {
   const getSelectedAddonsNames = () => {
     return selectedAddons
       .map((id) => {
-        const addon = addons.find((addon) => addon.id === parseInt(id));
+        const addon = addons.find((addon) => addon._id === id);
         return addon ? addon.nama : null;
       })
       .filter(Boolean) // Menyaring nilai null yang tidak ada nama
@@ -70,7 +70,8 @@ export default function AddonCheckboxes({ selectedAddons, setSelectedAddons }) {
         MenuProps={MenuProps}
       >
         {addons.map((addon) => (
-          <MenuItem key={addon.id} value={addon.id}>
+          <MenuItem key={addon._id} value={addon._id}>
+            <Checkbox checked={selectedAddons.includes(addon._id)} />
             <ListItemText primary={addon.nama} />
           </MenuItem>
         ))}

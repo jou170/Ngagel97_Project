@@ -4,8 +4,8 @@ import connectDB from "@/app/api/mongoose";
 export async function GET(request) {
   try {
     await connectDB();
-    const lastAddOn = await AddOn.findOne().sort({ id: -1 });
-    const nextId = lastAddOn ? lastAddOn.id + 1 : 1; // Jika belum ada AddOn, ID mulai dari 1
+    const lastAddOn = await AddOn.findOne().sort({ idAddon: -1 });
+    const nextId = lastAddOn ? lastAddOn.idAddon + 1 : 1; // Jika belum ada AddOn, ID mulai dari 1
     return new Response(JSON.stringify({ id_addon: nextId }), { status: 200 });
   } catch (error) {
     return new Response(

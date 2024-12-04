@@ -1,60 +1,65 @@
 "use client";
 
-import React, { useState } from "react";
-import Joi from "joi";
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
 import {
-  Container,
-  Grid,
+  Box,
   TextField,
   Button,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Box,
+  Container,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  FormHelperText,
 } from "@mui/material";
+import { useForm } from "react-hook-form";
+import Joi from "joi";
+import { useRouter } from "next/navigation";
 
-const ItemForm = () => {
+export default function ItemForm({ mode = "add", id }) {
   const [error, setError] = useState("");
-
-  const products = [
-    { id: 1, name: "Print A4", price: "Rp. 5.000,-", category: "Print" },
-    { id: 2, name: "Print A3", price: "Rp. 10.000,-", category: "Print" },
-    { id: 3, name: "Laminating", price: "Rp. 5.000,-", category: "Laminating" },
-  ];
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
     setError: setFormError,
-    clearErrors,
+    setValue,
   } = useForm();
 
   const schema = Joi.object({
-    name: Joi.string().min(3).max(30).required().messages({
-      "string.empty": "Nama produk harus diisi",
-      "string.min": "Nama produk harus memiliki minimal 3 karakter",
-      "string.max": "Nama produk tidak boleh lebih dari 30 karakter",
+    nama: Joi.string().min(3).required().messages({
+      "string.base": `"Nama" harus berupa teks`,
+      "string.empty": `"Nama" tidak boleh kosong`,
+      "string.min": `"Nama" minimal {#limit} karakter`,
     }),
-    price: Joi.number().positive().required().messages({
-      "number.base": "Harga produk harus berupa angka",
-      "number.positive": "Harga produk harus bernilai positif",
-      "any.required": "Harga produk harus diisi",
+    harga: Joi.number().min(100).positive().required().messages({
+      "number.base": `"Harga" harus berupa angka`,
+      "number.min": `"Harga" minimal Rp 100,-`,
+      "number.positive": `"Harga" harus angka positif`,
     }),
-    description: Joi.string().allow("").max(500).messages({
-      "string.max": "Deskripsi tidak boleh lebih dari 500 karakter",
-    }),
-    category: Joi.string().min(3).required().messages({
-      "string.empty": "Kategori produk harus diisi",
-      "string.min": "Kategori produk harus memiliki minimal 3 karakter",
+    deskripsi: Joi.string().required().messages({
+      "string.base": `"Deskripsi" should be a type of 'text'`,
     }),
   });
+
+  const fetchBarangData = async (id) => {
+    try {
+      const res = await fetch(`/api/barang/${id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setValue("nama", data.nama);
+        setValue("harga", data.harga);
+        setValue("deskripsi", data.deskripsi);
+      } else {
+        throw new Error("Gagal mengambil data.");
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
 
   const onSubmit = async (data) => {
     const validation = schema.validate(data, { abortEarly: false });
@@ -66,144 +71,102 @@ const ItemForm = () => {
       return;
     }
 
-    clearErrors();
-    alert("Produk berhasil ditambahkan!");
+    setError("");
+
+    try {
+      const method = mode === "add" ? "POST" : "PUT";
+      const endpoint = mode === "add" ? "/api/barang" : `/api/barang/${id}`;
+      const res = await fetch(endpoint, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data }),
+      });
+
+      if (res.ok) {
+        alert(
+          `Barang berhasil ${mode === "add" ? "ditambahkan" : "diperbarui"}!`
+        );
+        router.push("/master/item");
+      } else {
+        const errorData = await res.json();
+        setError(errorData.error || "Barang submission failed");
+      }
+    } catch (error) {
+      setError("Gagal menyimpan perubahan pada Add On. Silahkan coba lagi.");
+    }
   };
 
+  useEffect(() => {
+    if (mode === "edit" && id) {
+      fetchBarangData(id);
+    }
+  }, [mode, id]);
+
   return (
-    <div
-      style={{
-        backgroundColor: "#F4E1D2",
-        minHeight: "100vh",
-        paddingTop: "10px",
-      }}
-    >
-      {/* Main Content */}
-      <Container
-        maxWidth="lg"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          marginTop: "80px",
-        }}
+    <Container maxWidth="sm">
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        marginTop={5}
       >
-        <Grid container spacing={3} justifyContent="center" alignItems="center">
-          {/* Form Section */}
-          <Grid item xs={12} md={4}>
-            <Paper style={{ padding: "20px" }}>
-              <Typography
-                variant="h5"
-                align="center"
-                sx={{ marginBottom: "20px" }}
-              >
-                Tambah Produk
-              </Typography>
+        <Typography variant="h4" gutterBottom>
+          {mode === "add" ? "Tambah Barang" : "Edit Barang"}
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          gap={2}
+          width="100%"
+        >
+          <Typography variant="body1">Nama :</Typography>
+          <TextField
+            label="Enter Barang name"
+            variant="outlined"
+            fullWidth
+            value={watch("nama") || ""}
+            {...register("nama")}
+            error={!!errors.nama}
+            helperText={errors.nama?.message}
+          />
 
-              <form onSubmit={handleSubmit(onSubmit)}>
-                {[
-                  "Nama Produk",
-                  "Harga Produk",
-                  "Deskripsi Produk",
-                  "Kategori Produk",
-                ].map((field, idx) => (
-                  <Box key={idx} sx={{ marginBottom: "10px" }}>
-                    <label style={labelStyle}>{field}</label>
-                    <TextField
-                      fullWidth
-                      multiline={field === "Deskripsi Produk"}
-                      rows={field === "Deskripsi Produk" ? 4 : undefined}
-                      {...register(field.toLowerCase().replace(" ", ""))}
-                      error={!!errors[field.toLowerCase().replace(" ", "")]}
-                      helperText={
-                        errors[field.toLowerCase().replace(" ", "")]?.message
-                      }
-                    />
-                  </Box>
-                ))}
+          <Typography variant="body1">Harga</Typography>
+          <TextField
+            label="Enter Barang price"
+            variant="outlined"
+            fullWidth
+            type="number"
+            value={watch("harga") || ""}
+            {...register("harga")}
+            error={!!errors.harga}
+            helperText={errors.harga?.message}
+          />
 
-                <Box mt={2}>
-                  <Button variant="outlined" color="primary" fullWidth>
-                    Upload File
-                  </Button>
-                </Box>
+          <Typography variant="body1">Deskripsi</Typography>
+          <TextField
+            label="Enter Barang description"
+            variant="outlined"
+            fullWidth
+            value={watch("deskripsi") || ""}
+            {...register("deskripsi")}
+            error={!!errors.deskripsi}
+            helperText={errors.deskripsi?.message}
+          />
 
-                <Box mt={2}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    fullWidth
-                    sx={{ backgroundColor: "#493628" }}
-                  >
-                    Tambah
-                  </Button>
-                </Box>
-              </form>
-            </Paper>
-          </Grid>
-
-          {/* Product List Section */}
-          <Grid item xs={12} md={8}>
-            <Paper style={{ padding: "20px" }}>
-              <Typography
-                variant="h5"
-                align="center"
-                sx={{ marginBottom: "20px" }}
-              >
-                Produk List
-              </Typography>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      {["ID", "Nama", "Harga", "Kategori", "Aksi"].map(
-                        (col) => (
-                          <TableCell key={col} sx={{ fontWeight: "bold" }}>
-                            {col}
-                          </TableCell>
-                        )
-                      )}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {products.map((product) => (
-                      <TableRow key={product.id}>
-                        {Object.values(product).map((value, idx) => (
-                          <TableCell key={idx}>{value}</TableCell>
-                        ))}
-                        <TableCell>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            style={{ marginRight: "10px" }}
-                          >
-                            Edit
-                          </Button>
-                          <Button variant="contained" color="error">
-                            Hapus
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Container>
-    </div>
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            color="success"
+            sx={{ marginTop: 2, borderRadius: 3 }}
+          >
+            {mode === "add" ? "Tambah Barang" : "Perbarui Barang"}
+          </Button>
+        </Box>
+      </Box>
+    </Container>
   );
-};
-
-// Label Style
-const labelStyle = {
-  fontSize: "16px",
-  fontWeight: "600",
-  color: "#493628",
-  marginBottom: "5px",
-  display: "block",
-};
-
-export default ItemForm;
+}

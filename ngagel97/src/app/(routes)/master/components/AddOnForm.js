@@ -17,43 +17,60 @@ import { useForm } from "react-hook-form";
 import Joi from "joi";
 import { useRouter } from "next/navigation";
 
-export default function AddOnForm() {
-  const [error, setError] = useState(""); // state untuk menyimpan error global
-  const router = useRouter(); // Inisialisasi router untuk navigasi
+export default function AddOnForm({ mode = "add", id }) {
+  const [error, setError] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [lastImagePath, setLastImagePath] = useState(null);
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
     setError: setFormError,
-    setValue, // setValue untuk memperbarui nilai form
+    setValue,
   } = useForm();
 
-  // Schema validasi untuk form add-on
   const schema = Joi.object({
     nama: Joi.string().min(3).required().messages({
-      "string.base": `"Nama" should be a type of 'text'`,
-      "string.empty": `"Nama" cannot be empty`,
-      "string.min": `"Nama" should have a minimum length of {#limit}`,
+      "string.base": `"Nama" harus berupa teks`,
+      "string.empty": `"Nama" tidak boleh kosong`,
+      "string.min": `"Nama" minimal {#limit} karakter`,
     }),
     harga: Joi.number().min(100).positive().required().messages({
-      "number.base": `"Harga" should be a number`,
+      "number.base": `"Harga" harus berupa angka`,
       "number.min": `"Harga" minimal Rp 100,-`,
-      "number.positive": `"Harga" must be a positive number`,
-      "number.empty": `"Harga" cannot be empty`,
+      "number.positive": `"Harga" harus angka positif`,
     }),
     tipeHarga: Joi.string().valid("bundle", "lembar").required().messages({
-      "any.only": `"Tipe Harga" should be either 'bundle' or 'lembar'`,
+      "any.only": `"Tipe Harga" hanya bisa 'bundle' atau 'lembar'`,
+      "string.required": `"Tipe Harga" harus diisi`,
     }),
-    deskripsi: Joi.string().optional().messages({
+    deskripsi: Joi.string().required().messages({
       "string.base": `"Deskripsi" should be a type of 'text'`,
     }),
   });
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+  const fetchAddOnData = async (id) => {
+    try {
+      const res = await fetch(`/api/addon/${id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setValue("nama", data.nama);
+        setValue("harga", data.harga);
+        setValue("tipeHarga", data.tipeHarga);
+        setValue("deskripsi", data.deskripsi);
+        setLastImagePath(data.gambar);
+      } else {
+        throw new Error("Gagal mengambil data.");
+      }
+    } catch (error) {
+      setError(error.message);
+    }
   };
+
+  const handleFileChange = (e) => setSelectedFile(e.target.files[0]);
 
   const uploadImage = async (file, id_addon) => {
     if (!file) return null;
@@ -71,11 +88,10 @@ export default function AddOnForm() {
       return data.filePath;
     } else {
       const data = await res.json();
-      throw new Error(data.error || "Failed to upload image");
+      throw new Error(data.error || "Upload gagal");
     }
   };
 
-  // Fungsi submit untuk menangani form submission
   const onSubmit = async (data) => {
     const validation = schema.validate(data, { abortEarly: false });
 
@@ -86,54 +102,48 @@ export default function AddOnForm() {
       return;
     }
 
-    setError(""); // Clear error jika validasi berhasil
-    let filePath = null;
+    setError("");
+    let filePath = lastImagePath;
 
     try {
-      // Step 1: Upload gambar jika ada
       if (selectedFile) {
-        // Dapatkan id_addon terlebih dahulu
-        const response = await fetch("/api/addon/next-id", {
-          method: "GET",
-        });
-        const { id_addon } = await response.json();
-
-        // Upload gambar dengan id_addon
+        const id_addon = mode === "add" ? await fetchNextId() : id;
         filePath = await uploadImage(selectedFile, id_addon);
-        if (!filePath) throw new Error("Upload gambar gagal");
       }
 
-      // Step 2: Simpan Add-On dengan file path (jika ada)
-      const res = await fetch("/api/addon", {
-        method: "POST",
+      const method = mode === "add" ? "POST" : "PUT";
+      const endpoint = mode === "add" ? "/api/addon" : `/api/addon/${id}`;
+      const res = await fetch(endpoint, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...data, gambar: filePath }),
       });
 
       if (res.ok) {
-        const responseData = await res.json();
-        alert("Add-On berhasil disimpan!");
-        router.push("/master");
+        alert(
+          `Add-On berhasil ${mode === "add" ? "ditambahkan" : "diperbarui"}!`
+        );
+        router.push("/master/addon");
       } else {
         const errorData = await res.json();
         setError(errorData.error || "Add-On submission failed");
       }
     } catch (error) {
-      setError(
-        "An error occurred while submitting the add-on. Please try again."
-      );
+      setError("Gagal menyimpan perubahan pada Add On. Silahkan coba lagi.");
     }
   };
 
-  // Fungsi untuk menangani perubahan nilai tipeHarga
-  const handleTipeHargaChange = (event) => {
-    setValue("tipeHarga", event.target.value); // Memperbarui nilai form untuk tipeHarga
+  const fetchNextId = async () => {
+    const res = await fetch("/api/addon/next-id");
+    const { id_addon } = await res.json();
+    return id_addon;
   };
 
   useEffect(() => {
-    // Set nilai default untuk tipeHarga
-    setValue("tipeHarga", ""); // Pastikan nilai default kosong atau salah satu dari opsi
-  }, [setValue]);
+    if (mode === "edit" && id) {
+      fetchAddOnData(id);
+    }
+  }, [mode, id]);
 
   return (
     <Container maxWidth="sm">
@@ -144,7 +154,7 @@ export default function AddOnForm() {
         marginTop={5}
       >
         <Typography variant="h4" gutterBottom>
-          Add Add-On
+          {mode === "add" ? "Tambah Add-On" : "Edit Add-On"}
         </Typography>
         <Box
           component="form"
@@ -160,6 +170,7 @@ export default function AddOnForm() {
             label="Enter add-on name"
             variant="outlined"
             fullWidth
+            value={watch("nama") || ""}
             {...register("nama")}
             error={!!errors.nama}
             helperText={errors.nama?.message}
@@ -171,6 +182,7 @@ export default function AddOnForm() {
             variant="outlined"
             fullWidth
             type="number"
+            value={watch("harga") || ""}
             {...register("harga")}
             error={!!errors.harga}
             helperText={errors.harga?.message}
@@ -180,9 +192,8 @@ export default function AddOnForm() {
             <InputLabel>Tipe Harga</InputLabel>
             <Select
               label="Tipe Harga"
-              defaultValue={""} // set default value jika tipeHarga tidak terisi
-              onChange={handleTipeHargaChange} // Handle perubahan
-              {...register("tipeHarga")} // Menghubungkan dengan react-hook-form
+              value={watch("tipeHarga") || ""}
+              {...register("tipeHarga")}
             >
               <MenuItem value="bundle">Bundle</MenuItem>
               <MenuItem value="lembar">Lembar</MenuItem>
@@ -197,6 +208,7 @@ export default function AddOnForm() {
             label="Enter add-on description"
             variant="outlined"
             fullWidth
+            value={watch("deskripsi") || ""}
             {...register("deskripsi")}
             error={!!errors.deskripsi}
             helperText={errors.deskripsi?.message}
@@ -204,20 +216,16 @@ export default function AddOnForm() {
 
           <Typography variant="body1">Upload Gambar:</Typography>
           <input type="file" accept="image/*" onChange={handleFileChange} />
-          {error && (
-            <Typography color="error" variant="body2">
-              {error}
-            </Typography>
-          )}
+          {error && <Typography color="error">{error}</Typography>}
 
           <Button
             type="submit"
             variant="contained"
             fullWidth
             color="success"
-            sx={{ marginTop: 2, borderRadius: 3, backgroundColor: "#493628" }}
+            sx={{ marginTop: 2, borderRadius: 3 }}
           >
-            Submit Add-On
+            {mode === "add" ? "Tambah Add-On" : "Perbarui Add-On"}
           </Button>
         </Box>
       </Box>

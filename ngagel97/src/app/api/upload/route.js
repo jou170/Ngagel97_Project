@@ -21,10 +21,12 @@ export const POST = async (req) => {
   if (file) {
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Pastikan direktori upload ada
+    // Jika folder sudah ada, hapus terlebih dahulu
     if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
+      fs.rmSync(uploadPath, { recursive: true, force: true });
     }
+    // Pastikan direktori upload ada
+    fs.mkdirSync(uploadPath, { recursive: true });
 
     // Menyimpan file dengan nama yang diberikan dalam form data
     const filePath = path.resolve(uploadPath, file.name);
@@ -33,7 +35,10 @@ export const POST = async (req) => {
     return NextResponse.json({
       success: true,
       name: file.name,
-      filePath: filePath.replace(process.cwd(), ""), // Mengembalikan path relatif dari root proyek
+      filePath: filePath
+        .replace(process.cwd(), "")
+        .replaceAll("\\", "/")
+        .replace("/public", ""), // Ganti \ jadi / lalu hapus "/public" dari URL// Mengembalikan path relatif dari root proyek
     });
   } else {
     return NextResponse.json({

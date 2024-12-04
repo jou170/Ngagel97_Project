@@ -1,11 +1,13 @@
-import React from 'react'
+"use client";
 
-const Addpage = () => {
+import ItemForm from "../../components/ItemForm";
+
+const AddItemPage = () => {
   return (
     <div>
-        ini add page
+      <ItemForm />
     </div>
-  )
-}
+  );
+};
 
-export default Addpage
+export default AddItemPage;

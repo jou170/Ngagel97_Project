@@ -1,23 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, TextField, Button, Typography, Container } from "@mui/material";
 import { useForm } from "react-hook-form";
 import Joi from "joi";
 import { useRouter } from "next/navigation";
 import AddonCheckboxes from "./AddonCheckboxes";
 
-export default function ServiceForm() {
+export default function ServiceForm({ mode = "add", id }) {
   const [error, setError] = useState(""); // state untuk menyimpan error global
-  const router = useRouter(); // Inisialisasi router untuk navigasi
+  const [lastImagePath, setLastImagePath] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedAddons, setSelectedAddons] = useState([]); // State untuk menyimpan add-ons yang dipilih
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
     setError: setFormError,
+    setValue,
   } = useForm();
 
   const schema = Joi.object({
@@ -32,14 +35,30 @@ export default function ServiceForm() {
       "number.positive": `"Harga" must be a positive number`,
       "number.empty": `"Harga" cannot be empty`,
     }),
-    deskripsi: Joi.string().optional().messages({
+    deskripsi: Joi.string().required().messages({
       "string.base": `"Deskripsi" should be a type of 'text'`,
     }),
   });
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+  const fetchServiceData = async (id) => {
+    try {
+      const res = await fetch(`/api/jasa/${id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setValue("nama", data.nama);
+        setValue("harga", data.harga);
+        setValue("deskripsi", data.deskripsi);
+        setLastImagePath(data.gambar);
+        setSelectedAddons(data.addOns);
+      } else {
+        throw new Error("Gagal mengambil data.");
+      }
+    } catch (error) {
+      setError(error.message);
+    }
   };
+
+  const handleFileChange = (e) => setSelectedFile(e.target.files[0]);
 
   const uploadImage = async (file, id_jasa) => {
     if (!file) return null;
@@ -71,47 +90,51 @@ export default function ServiceForm() {
       return;
     }
 
-    setError(""); // Clear error jika validasi berhasil
-    let filePath = null;
+    setError("");
+    let filePath = lastImagePath;
 
     try {
-      // Step 1: Upload gambar jika ada
       if (selectedFile) {
-        const response = await fetch("/api/jasa/next-id", {
-          method: "GET",
-        });
-        const { id_jasa } = await response.json();
-
-        // Upload gambar dengan id_jasa
+        const id_jasa = mode === "add" ? await fetchNextId() : id;
         filePath = await uploadImage(selectedFile, id_jasa);
-        if (!filePath) throw new Error("Upload gambar gagal");
       }
 
-      // Step 2: Simpan Jasa dengan file path (jika ada) dan selectedAddons
-      const res = await fetch("/api/jasa", {
-        method: "POST",
+      const method = mode === "add" ? "POST" : "PUT";
+      const endpoint = mode === "add" ? "/api/jasa" : `/api/jasa/${id}`;
+      const res = await fetch(endpoint, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
+          addOns: selectedAddons,
           gambar: filePath,
-          addOns: selectedAddons, // Pass selectedAddons here
         }),
       });
-
       if (res.ok) {
-        const responseData = await res.json();
-        alert("Jasa berhasil disimpan!");
-        // router.push("/service"); // Redirect ke halaman jasa setelah berhasil
+        alert(
+          `Jasa berhasil ${mode === "add" ? "ditambahkan" : "diperbarui"}!`
+        );
+        router.push("/master/service");
       } else {
         const errorData = await res.json();
         setError(errorData.error || "Jasa submission failed");
       }
     } catch (error) {
-      setError(
-        "An error occurred while submitting the jasa. Please try again."
-      );
+      setError("Gagal menyimpan perubahan pada Jasa. Silahkan coba lagi.");
     }
   };
+
+  const fetchNextId = async () => {
+    const res = await fetch("/api/jasa/next-id");
+    const { id_jasa } = await res.json();
+    return id_jasa;
+  };
+
+  useEffect(() => {
+    if (mode === "edit" && id) {
+      fetchServiceData(id);
+    }
+  }, [mode, id]);
 
   return (
     <Container maxWidth="sm">
@@ -138,6 +161,7 @@ export default function ServiceForm() {
             label="Enter jasa name"
             variant="outlined"
             fullWidth
+            value={watch("nama") || ""}
             {...register("nama")}
             error={!!errors.nama}
             helperText={errors.nama?.message}
@@ -149,6 +173,7 @@ export default function ServiceForm() {
             variant="outlined"
             fullWidth
             type="number"
+            value={watch("harga") || ""}
             {...register("harga")}
             error={!!errors.harga}
             helperText={errors.harga?.message}
@@ -159,6 +184,7 @@ export default function ServiceForm() {
             label="Enter jasa description"
             variant="outlined"
             fullWidth
+            value={watch("deskripsi") || ""}
             {...register("deskripsi")}
             error={!!errors.deskripsi}
             helperText={errors.deskripsi?.message}

@@ -67,7 +67,7 @@ const MasterNavbar = () => {
             <MenuItem
               onClick={handleProductsMenuClose}
               component="a"
-              href="/master/list/product"
+              href="/master/item"
             >
               Barang
             </MenuItem>
@@ -83,7 +83,7 @@ const MasterNavbar = () => {
               component="a"
               href="/master/addon"
             >
-              Jasa Tambahan
+              Add-On
             </MenuItem>
           </Menu>
 

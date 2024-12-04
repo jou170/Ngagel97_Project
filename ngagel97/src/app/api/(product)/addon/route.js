@@ -35,27 +35,13 @@ export async function POST(request) {
   }
 }
 
-export async function GET({ params }) {
+export async function GET() {
   try {
     await dbConnect(); // Pastikan koneksi DB berhasil
 
-    // Jika params.id ada, ambil AddOn berdasarkan id
-    if (params && params.id) {
-      const addOn = await AddOn.findOne({ _id: params.id, deleted: false });
-      if (!addOn) {
-        return new Response(JSON.stringify({ message: "AddOn not found" }), {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      return new Response(JSON.stringify(addOn), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    // Jika tidak ada params.id, ambil semua AddOns
+    // Ambil semua AddOns yang belum dihapus
     const addOns = await AddOn.find({ deleted: false });
+
     return new Response(JSON.stringify(addOns), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -63,70 +49,6 @@ export async function GET({ params }) {
   } catch (error) {
     console.error(error);
     return new Response(JSON.stringify({ error: "Failed to fetch AddOns" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-}
-
-export async function PUT({ params, request }) {
-  const { id } = params;
-  try {
-    await dbConnect(); // Pastikan koneksi DB berhasil
-
-    const updatedData = await request.json();
-
-    const updatedAddOn = await AddOn.findOneAndUpdate(
-      { id, deleted: false },
-      updatedData,
-      { new: true }
-    );
-
-    if (!updatedAddOn) {
-      return new Response(JSON.stringify({ message: "AddOn not found" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    return new Response(
-      JSON.stringify({ message: "AddOn updated", addOn: updatedAddOn }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
-  } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify({ error: "Failed to update AddOn" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-}
-
-export async function DELETE({ params }) {
-  const { id } = params;
-  try {
-    await dbConnect(); // Pastikan koneksi DB berhasil
-
-    const deletedAddOn = await AddOn.findOneAndUpdate(
-      { id, deleted: false },
-      { deleted: true },
-      { new: true }
-    );
-
-    if (!deletedAddOn) {
-      return new Response(JSON.stringify({ message: "AddOn not found" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    return new Response(
-      JSON.stringify({ message: "AddOn deleted", addOn: deletedAddOn }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
-  } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify({ error: "Failed to delete AddOn" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

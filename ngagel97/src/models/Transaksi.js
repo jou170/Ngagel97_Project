@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import AutoIncrement from "mongoose-sequence";
 
-const TransactionSchema = new mongoose.Schema(
+const TransaksiSchema = new mongoose.Schema(
   {
-    id: { type: Number, unique: true, required: true }, // ID auto increment
+    idTransaksi: { type: Number }, // ID auto increment
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -40,6 +40,7 @@ const TransactionSchema = new mongoose.Schema(
         nama: { type: String, required: true }, // Nama jasa saat transaksi
         harga: { type: Number, required: true }, // Harga jasa per lembar saat transaksi
         lembar: { type: Number, required: true }, // Jumlah lembar yang diproses
+        file: { type: String }, // file yang dikirim
         qty: { type: Number, required: true }, // Berapa kali dicopy
         addOns: [
           {
@@ -79,15 +80,13 @@ const TransactionSchema = new mongoose.Schema(
     subtotal: { type: Number, required: true }, // Total seluruh barang + jasa (termasuk AddOn)
     total: { type: Number, required: true }, // Total setelah menambahkan ongkir (untuk online)
   },
-  { timestamps: true, _id: false }
+  { timestamps: true }
 );
 
-TransactionSchema.plugin(AutoIncrement(mongoose), {
-  inc_field: "id",
-  id: "id_transaction",
+TransaksiSchema.plugin(AutoIncrement(mongoose), {
+  inc_field: "idTransaksi",
 });
 
-const Transaction =
-  mongoose.models.Transaction ||
-  mongoose.model("Transaction", TransactionSchema);
-export default Transaction;
+const Transaksi =
+  mongoose.models.Transaksi || mongoose.model("Transaksi", TransaksiSchema);
+export default Transaksi;

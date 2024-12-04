@@ -3,18 +3,17 @@ import AutoIncrement from "mongoose-sequence";
 
 const BarangSchema = new mongoose.Schema(
   {
-    id: { type: Number, unique: true, required: true },
+    idBarang: { type: Number },
     nama: { type: String, required: true },
     harga: { type: Number, required: true }, // Harga per unit (misal per lembar untuk fotokopi) atau harga 1 buku tulis, dll
     deskripsi: { type: String }, // Opsional, untuk informasi tambahan
     deleted: { type: Boolean, default: false }, // Soft delete
   },
-  { timestamps: true, _id: false }
+  { timestamps: true }
 );
 
 BarangSchema.plugin(AutoIncrement(mongoose), {
-  inc_field: "id",
-  id: "id_barang",
+  inc_field: "idBarang",
 });
 
 const Barang = mongoose.models.Barang || mongoose.model("Barang", BarangSchema);

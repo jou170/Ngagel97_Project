@@ -1,11 +1,7 @@
-import React from 'react'
+"use client";
 
 const ServicesPage = () => {
-  return (
-    <div>
-      ini service 
-    </div>
-  )
-}
+  return <div>ini menampilkan semua jasa</div>;
+};
 
-export default ServicesPage
+export default ServicesPage;
