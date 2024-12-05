@@ -170,7 +170,7 @@ const StatusPage = () => {
                           onClick={() =>
                             handleUpdateRole(
                               user._id,
-                              user.role === "Admin" ? "User" : "Admin"
+                              user.role === "admin" ? "customer" : "admin"
                             )
                           }
                           sx={{ mr: 1 }}

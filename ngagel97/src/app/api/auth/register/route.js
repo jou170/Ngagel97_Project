@@ -29,7 +29,7 @@ export async function POST(request) {
       password: hashedPassword,
       name,
       phone_number,
-      role: "user", // Default role
+      role: "customer", // Default role
     });
 
     // Save the new user to the database

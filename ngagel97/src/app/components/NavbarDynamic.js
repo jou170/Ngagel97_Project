@@ -29,7 +29,7 @@ const NavbarDynamic = () => {
     // Cleanup interval saat komponen unmount
     return () => clearInterval(interval);
   }, []);
-  if (role === "user") {
+  if (role === "customer") {
     return <NavbarUser />;
   } else if (!role) {
     return <NavbarPublic />;

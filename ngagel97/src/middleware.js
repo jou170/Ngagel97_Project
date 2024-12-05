@@ -54,7 +54,7 @@ export async function middleware(request) {
       }
 
       if (
-        role.toLowerCase() === "user" &&
+        role.toLowerCase() === "customer" &&
         (pathname.startsWith("/master") || pathname.startsWith("/admin"))
       ) {
         return NextResponse.redirect(new URL("/home", request.url));
