@@ -159,13 +159,22 @@ const ServicesPage = () => {
         {filteredServices.map((service) => (
           <Grid2 key={service.idJasa} xs={12} sm={6} md={4}>
             <Card sx={{ width: 380, height: 400 }}>
-              {service.gambar && (
+              {service.gambar ? (
                 <Image
-                  src={
-                    service.gambar ||
-                    "https://via.placeholder.com/380x200.png?text=No+Image+Available"
-                  }
+                  src={service.gambar}
                   alt={service.nama || "Gambar Jasa"}
+                  width={380}
+                  height={200}
+                  style={{
+                    objectFit: "cover",
+                    borderTopLeftRadius: "4px",
+                    borderTopRightRadius: "4px",
+                  }}
+                />
+              ) : (
+                <Image
+                  src="/image/380x200.png" // Use the local placeholder image
+                  alt="Gambar Jasa"
                   width={380}
                   height={200}
                   style={{
@@ -183,7 +192,11 @@ const ServicesPage = () => {
                   Harga: Rp{service.harga}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Deskripsi : {service.deskripsi}
+                  Deskripsi :{" "}
+                  {service.deskripsi
+                    ? service.deskripsi.split(" ").slice(0, 5).join(" ") +
+                      (service.deskripsi.split(" ").length > 5 ? "..." : "")
+                    : "Deskripsi tidak tersedia"}
                 </Typography>
                 <div
                   style={{

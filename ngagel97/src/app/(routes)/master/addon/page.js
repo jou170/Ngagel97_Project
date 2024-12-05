@@ -164,13 +164,22 @@ const AddOnPage = () => {
         {filteredAddOns.map((addon) => (
           <Grid2 key={addon.idAddon} xs={12} sm={6} md={3}>
             <Card sx={{ width: 380, height: 450 }}>
-              {addon.gambar && (
+              {addon.gambar ? (
                 <Image
-                  src={
-                    addon.gambar ||
-                    "https://via.placeholder.com/380x200.png?text=No+Image+Available"
-                  }
+                  src={addon.gambar}
                   alt={addon.nama || "Gambar Addon"}
+                  width={380}
+                  height={200}
+                  style={{
+                    objectFit: "cover",
+                    borderTopLeftRadius: "4px",
+                    borderTopRightRadius: "4px",
+                  }}
+                />
+              ) : (
+                <Image
+                  src="/image/380x200.png" // Use the local placeholder image
+                  alt="Gambar Addon"
                   width={380}
                   height={200}
                   style={{

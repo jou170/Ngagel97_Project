@@ -161,22 +161,6 @@ const ItemPage = () => {
         {filteredItems.map((item) => (
           <Grid2 key={item.idBarang} xs={12} sm={6} md={4} lg={3}>
             <Card sx={{ width: 380, height: 180 }}>
-              {item.gambar && (
-                <Image
-                  src={
-                    item.gambar ||
-                    "https://via.placeholder.com/380x200.png?text=No+Image+Available"
-                  }
-                  alt={item.nama || "Gambar Barang"}
-                  width={380}
-                  height={200}
-                  style={{
-                    objectFit: "cover",
-                    borderTopLeftRadius: "4px",
-                    borderTopRightRadius: "4px",
-                  }}
-                />
-              )}
               <CardContent sx={{ padding: 2 }}>
                 <Typography
                   variant="h6"
