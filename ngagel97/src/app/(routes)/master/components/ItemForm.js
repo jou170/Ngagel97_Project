@@ -41,7 +41,7 @@ export default function ItemForm({ mode = "add", id }) {
       "number.positive": `"Harga" harus angka positif`,
     }),
     deskripsi: Joi.string().required().messages({
-      "string.base": `"Deskripsi" should be a type of 'text'`,
+      "string.base": `"Deskripsi" harus berupa teks`,
     }),
   });
 
@@ -124,7 +124,7 @@ export default function ItemForm({ mode = "add", id }) {
         >
           <Typography variant="body1">Nama :</Typography>
           <TextField
-            label="Enter Barang name"
+            label="masukkan nama Barang "
             variant="outlined"
             fullWidth
             value={watch("nama") || ""}
@@ -135,7 +135,7 @@ export default function ItemForm({ mode = "add", id }) {
 
           <Typography variant="body1">Harga</Typography>
           <TextField
-            label="Enter Barang price"
+            label="amsukkan harga Barang"
             variant="outlined"
             fullWidth
             type="number"
@@ -147,7 +147,7 @@ export default function ItemForm({ mode = "add", id }) {
 
           <Typography variant="body1">Deskripsi</Typography>
           <TextField
-            label="Enter Barang description"
+            label="masukkan deskripsi Barang"
             variant="outlined"
             fullWidth
             value={watch("deskripsi") || ""}
