@@ -9,7 +9,7 @@ import AddonCheckboxes from "./AddonCheckboxes";
 
 export default function ServiceForm({ mode = "add", id }) {
   const [error, setError] = useState(""); // state untuk menyimpan error global
-  const [lastImagePath, setLastImagePath] = useState(null);
+  const [lastImageUrl, setLastImageUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedAddons, setSelectedAddons] = useState([]); // State untuk menyimpan add-ons yang dipilih
   const router = useRouter();
@@ -48,7 +48,7 @@ export default function ServiceForm({ mode = "add", id }) {
         setValue("nama", data.nama);
         setValue("harga", data.harga);
         setValue("deskripsi", data.deskripsi);
-        setLastImagePath(data.gambar);
+        setLastImageUrl(data.gambar);
         setSelectedAddons(data.addOns);
       } else {
         throw new Error("Gagal mengambil data.");
@@ -60,23 +60,31 @@ export default function ServiceForm({ mode = "add", id }) {
 
   const handleFileChange = (e) => setSelectedFile(e.target.files[0]);
 
-  const uploadImage = async (file, id_jasa) => {
+  const uploadImage = async (file, lastUrl) => {
     if (!file) return null;
 
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch(`/api/upload?filepath=jasa/${id_jasa}`, {
+    let filepath = lastUrl.replace(
+      "https://mnyziu33qakbhpjn.public.blob.vercel-storage.com/",
+      ""
+    );
+    await fetch(`/api/upload?filepath=${filepath}`, {
+      method: "DELETE",
+    });
+
+    const res = await fetch(`/api/upload`, {
       method: "POST",
       body: formData,
     });
 
     if (res.ok) {
       const data = await res.json();
-      return data.filePath;
+      return data.url;
     } else {
       const data = await res.json();
-      throw new Error(data.error || "Failed to upload image");
+      throw new Error(data.error || "Upload gagal");
     }
   };
 
@@ -91,12 +99,16 @@ export default function ServiceForm({ mode = "add", id }) {
     }
 
     setError("");
-    let filePath = lastImagePath;
+
+    let imageUrl = lastImageUrl;
 
     try {
       if (selectedFile) {
-        const id_jasa = mode === "add" ? await fetchNextId() : id;
-        filePath = await uploadImage(selectedFile, id_jasa);
+        if (lastImageUrl) {
+          imageUrl = await uploadImage(selectedFile, lastImageUrl);
+        } else {
+          imageUrl = await uploadImage(selectedFile, "");
+        }
       }
 
       const method = mode === "add" ? "POST" : "PUT";
@@ -107,7 +119,7 @@ export default function ServiceForm({ mode = "add", id }) {
         body: JSON.stringify({
           ...data,
           addOns: selectedAddons,
-          gambar: filePath,
+          gambar: imageUrl,
         }),
       });
       if (res.ok) {
@@ -122,12 +134,6 @@ export default function ServiceForm({ mode = "add", id }) {
     } catch (error) {
       setError("Gagal menyimpan perubahan pada Jasa. Silahkan coba lagi.");
     }
-  };
-
-  const fetchNextId = async () => {
-    const res = await fetch("/api/jasa/next-id");
-    const { id_jasa } = await res.json();
-    return id_jasa;
   };
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from "react";
 import {
   Table,
@@ -25,10 +25,10 @@ const StatusPage = () => {
       try {
         const response = await fetch("/api/user");
         console.log(response);
-        
+
         const data = await response.json();
-        const filteredUsers = data.filter(user => user.role !== 'master');
-        
+        const filteredUsers = data.filter((user) => user.role !== "master");
+
         setUsers(filteredUsers); // Set users data to state
         setLoading(false);
       } catch (error) {
@@ -40,57 +40,56 @@ const StatusPage = () => {
   }, []);
 
   // Function to update user role
-const handleUpdateRole = async (userId, newRole) => {
-  try {
-    const response = await fetch(`/api/user/${userId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ role: newRole }),
-    });
+  const handleUpdateRole = async (userId, newRole) => {
+    try {
+      const response = await fetch(`/api/user/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ role: newRole }),
+      });
 
-    if (!response.ok) {
-      throw new Error("Failed to update role");
+      if (!response.ok) {
+        throw new Error("Failed to update role");
+      }
+
+      const data = await response.json();
+      alert(data.message); // Show success message
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === userId ? { ...user, role: newRole } : user
+        )
+      );
+    } catch (error) {
+      console.error("Error updating role:", error);
+      alert("Failed to update role");
     }
+  };
 
-    const data = await response.json();
-    alert(data.message); // Show success message
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user._id === userId ? { ...user, role: newRole } : user
-      )
-    );
-  } catch (error) {
-    console.error("Error updating role:", error);
-    alert("Failed to update role");
-  }
-};
+  // Function to ban or unban user
+  const handleToggleBan = async (userId, currentStatus) => {
+    try {
+      const response = await fetch(`/api/user/${userId}`, {
+        method: "DELETE",
+      });
 
-// Function to ban or unban user
-const handleToggleBan = async (userId, currentStatus) => {
-  try {
-    const response = await fetch(`/api/user/${userId}`, {
-      method: "DELETE",
-    });
+      if (!response.ok) {
+        throw new Error("Failed to update user status");
+      }
 
-    if (!response.ok) {
-      throw new Error("Failed to update user status");
+      const data = await response.json();
+      alert(data.message); // Show success message
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === userId ? { ...user, deleted: !user.deleted } : user
+        )
+      );
+    } catch (error) {
+      console.error("Error banning/unbanning user:", error);
+      alert("Failed to update user status");
     }
-
-    const data = await response.json();
-    alert(data.message); // Show success message
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user._id === userId ? { ...user, deleted: !user.deleted } : user
-      )
-    );
-  } catch (error) {
-    console.error("Error banning/unbanning user:", error);
-    alert("Failed to update user status");
-  }
-};
-
+  };
 
   // Function to get status color
   const getStatusColor = (status) => {
@@ -98,12 +97,25 @@ const handleToggleBan = async (userId, currentStatus) => {
   };
 
   return (
-    <div style={{ backgroundColor: "#F5E6D3", minHeight: "100vh", padding: "20px" }}>
+    <div
+      style={{
+        backgroundColor: "#F5E6D3",
+        minHeight: "100vh",
+        padding: "20px",
+      }}
+    >
       <Container maxWidth="lg">
         {/* Header */}
-        <Box sx={{ bgcolor: "#b08968", p: 2, borderRadius: "4px 4px 0 0", textAlign: "center" }}>
+        <Box
+          sx={{
+            bgcolor: "#b08968",
+            p: 2,
+            borderRadius: "4px 4px 0 0",
+            textAlign: "center",
+          }}
+        >
           <Typography variant="h6" sx={{ color: "white" }}>
-            User Status Report
+            Status User
           </Typography>
         </Box>
 
@@ -116,16 +128,29 @@ const handleToggleBan = async (userId, currentStatus) => {
               <Table>
                 <TableHead>
                   <TableRow sx={{ bgcolor: "#d7ccc8" }}>
-                    <TableCell align="center"><strong>Email</strong></TableCell>
-                    <TableCell align="center"><strong>Name</strong></TableCell>
-                    <TableCell align="center"><strong>Role</strong></TableCell>
-                    <TableCell align="center"><strong>Status</strong></TableCell>
-                    <TableCell align="center"><strong>Actions</strong></TableCell>
+                    <TableCell align="center">
+                      <strong>Email</strong>
+                    </TableCell>
+                    <TableCell align="center">
+                      <strong>Name</strong>
+                    </TableCell>
+                    <TableCell align="center">
+                      <strong>Role</strong>
+                    </TableCell>
+                    <TableCell align="center">
+                      <strong>Status</strong>
+                    </TableCell>
+                    <TableCell align="center">
+                      <strong>Actions</strong>
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {users.map((user, index) => (
-                    <TableRow key={index} sx={{ "&:nth-of-type(odd)": { bgcolor: "#fafafa" } }}>
+                    <TableRow
+                      key={index}
+                      sx={{ "&:nth-of-type(odd)": { bgcolor: "#fafafa" } }}
+                    >
                       <TableCell align="center">{user.email}</TableCell>
                       <TableCell align="center">{user.name}</TableCell>
                       <TableCell align="center">{user.role}</TableCell>
@@ -142,7 +167,12 @@ const handleToggleBan = async (userId, currentStatus) => {
                         <Button
                           variant="contained"
                           color="primary"
-                          onClick={() => handleUpdateRole(user._id, user.role === "Admin" ? "User" : "Admin")}
+                          onClick={() =>
+                            handleUpdateRole(
+                              user._id,
+                              user.role === "Admin" ? "User" : "Admin"
+                            )
+                          }
                           sx={{ mr: 1 }}
                         >
                           Change Role
@@ -152,7 +182,7 @@ const handleToggleBan = async (userId, currentStatus) => {
                           color={!user.deleted ? "error" : "success"}
                           onClick={() => handleToggleBan(user._id, user.status)}
                         >
-                          {!user.deleted  ? "Ban" : "Unban"}
+                          {!user.deleted ? "Ban" : "Unban"}
                         </Button>
                       </TableCell>
                     </TableRow>

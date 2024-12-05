@@ -30,40 +30,40 @@ export default function RegisterPage() {
 
   const schema = Joi.object({
     name: Joi.string().min(3).required().messages({
-      "string.base": `"Name" should be a type of 'text'`,
-      "string.empty": `"Name" cannot be empty`,
-      "string.min": `"Name" should have a minimum length of {#limit}`,
+      "string.base": `"Nama" harus berupa teks`,
+      "string.empty": `"Nama" wajib diisi`,
+      "string.min": `"Nama" minimal {#limit} karakter`,
     }),
     email: Joi.string()
       .pattern(new RegExp(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/))
       .required()
       .messages({
-        "string.base": `"Email" should be a type of 'text'`,
-        "string.pattern.base": `"Email" must be a valid email`,
-        "string.empty": `"Email" cannot be empty`,
+        "string.base": `"Email" harus berupa teks`,
+        "string.pattern.base": `"Email" harus valid`,
+        "string.empty": `"Email" wajib diisi`,
       }),
     password: Joi.string()
       .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$"))
       .required()
       .messages({
-        "string.base": `"Password" should be a type of 'text'`,
-        "string.pattern.base": `"Password" must be at least 8 characters long, and contain at least one lowercase letter, one uppercase letter, and one number.`,
-        "string.empty": `"Password" cannot be empty`,
+        "string.base": `"Password" harus berupa teks`,
+        "string.pattern.base": `"Password" minimal 8 karakter, mengandung setidaknya 1 huruf kecil, 1 huruf besar, dan 1 angka.`,
+        "string.empty": `"Password" wajib diisi`,
       }),
     confirmPassword: Joi.string()
       .valid(Joi.ref("password"))
       .required()
       .messages({
-        "any.only": `"Confirm Password" must match "password"`,
-        "string.empty": `"Confirm Password" cannot be empty`,
+        "any.only": `"Konfirmasi Password" harus sama dengan "Password"`,
+        "string.empty": `"Konfirmasi Password" wajib diisi`,
       }),
     phoneNumber: Joi.string()
       .pattern(/^[0-9]{10,15}$/)
       .required()
       .messages({
-        "string.base": `"Phone Number" should be a type of 'text'`,
-        "string.pattern.base": `"Phone Number" should be a valid phone number`,
-        "string.empty": `"Phone Number" cannot be empty`,
+        "string.base": `"Nomor Telepon" harus berupa teks`,
+        "string.pattern.base": `"Nomor Telepon" harus valid`,
+        "string.empty": `"Nomor Telepon" wajib diisi`,
       }),
   });
 
@@ -90,14 +90,15 @@ export default function RegisterPage() {
 
       if (res.ok) {
         const responseData = await res.json();
-        // console.log(responseData); // Debugging response
         router.push("/login"); // Redirect after successful registration
       } else {
         const errorData = await res.json();
-        setError(errorData.error || "Registration failed");
+        setError(
+          errorData.error || "Gagal melakukan registrasi. Silahkan coba lagi."
+        );
       }
     } catch (error) {
-      setError("An error occurred while registering. Please try again.");
+      setError("Gagal melakukan registrasi. Silahkan coba lagi.");
     }
   };
 
@@ -119,7 +120,7 @@ export default function RegisterPage() {
             style={{ marginBottom: "20px" }}
           />
           <Typography variant="h4" gutterBottom>
-            Register
+            Registrasi
           </Typography>
           <Box
             component="form"
@@ -131,10 +132,10 @@ export default function RegisterPage() {
             width="100%"
           >
             <Typography variant="body1" sx={{ color: "black" }}>
-              Name:
+              Nama:
             </Typography>
             <TextField
-              label="Enter your name"
+              label="Masukkan nama"
               variant="outlined"
               fullWidth
               {...register("name")}
@@ -145,7 +146,7 @@ export default function RegisterPage() {
               Email:
             </Typography>
             <TextField
-              label="Enter your email"
+              label="Masukkan email"
               variant="outlined"
               fullWidth
               type="email"
@@ -157,7 +158,7 @@ export default function RegisterPage() {
               Password:
             </Typography>
             <TextField
-              label="Enter your password"
+              label="Masukkan password"
               variant="outlined"
               fullWidth
               type="password"
@@ -166,10 +167,10 @@ export default function RegisterPage() {
               helperText={errors.password?.message}
             />
             <Typography variant="body1" sx={{ color: "black" }}>
-              Confirm Password:
+              Konfirmasi Password:
             </Typography>
             <TextField
-              label="Confirm your password"
+              label="Masukkan ulang password"
               variant="outlined"
               fullWidth
               type="password"
@@ -178,10 +179,10 @@ export default function RegisterPage() {
               helperText={errors.confirmPassword?.message}
             />
             <Typography variant="body1" sx={{ color: "black" }}>
-              Phone Number:
+              Nomor Telepon:
             </Typography>
             <TextField
-              label="Enter your phone number"
+              label="Masukkan nomor telepon"
               variant="outlined"
               fullWidth
               {...register("phoneNumber")}
@@ -193,21 +194,25 @@ export default function RegisterPage() {
                 {error}
               </Typography>
             )}
+            <Typography variant="body2" marginTop={1} sx={{ color: "black" }}>
+              {"Sudah punya akun? "}
+              <Link href="/login" underline="hover" sx={{ color: "black" }}>
+                Login di sini.
+              </Link>
+            </Typography>
             <Button
               type="submit"
               variant="contained"
               fullWidth
               color="success"
-              sx={{ marginTop: 2, borderRadius: 3, backgroundColor: "#493628" }}
+              sx={{
+                marginBottom: 2,
+                borderRadius: 3,
+                backgroundColor: "#493628",
+              }}
             >
-              Register
+              Registrasi
             </Button>
-            <Typography variant="body2" marginTop={1} sx={{ color: "black" }}>
-              Already have an account?{" "}
-              <Link href="/login" underline="hover" sx={{ color: "black" }}>
-                Login here
-              </Link>
-            </Typography>
           </Box>
         </Box>
       </Container>

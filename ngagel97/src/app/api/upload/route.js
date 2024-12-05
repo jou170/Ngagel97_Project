@@ -6,7 +6,7 @@ export async function POST(req) {
     const form = await req.formData();
     const file = form.get("file");
 
-    if (!file || !file.name) {
+    if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
@@ -23,20 +23,17 @@ export async function POST(req) {
 
 export async function DELETE(req) {
   const { searchParams } = new URL(req.url);
-  const filePath = searchParams.get("filepath"); // Ambil 'filepath' dari query params
-
-  if (!filePath) {
-    return NextResponse.json(
-      { error: "Filepath is required" },
-      { status: 400 }
-    );
-  }
-
+  const filePath = searchParams.get("filepath");
+  let message = "No file path provided";
   try {
-    await del(filePath); // Hapus file
+    if (filePath) {
+      await del(filePath); // Hapus file
+      message = "File deleted successfully";
+    }
+
     return NextResponse.json({
       success: true,
-      message: "File deleted successfully",
+      message: message,
     });
   } catch (error) {
     return NextResponse.json(

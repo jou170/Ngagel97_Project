@@ -128,7 +128,7 @@ const MasterNavbar = () => {
             underline="none"
             sx={{ color: "#FFFFFF", fontSize: "18px" }}
           >
-            User Status
+            USER
           </Link>
         </Box>
       </Toolbar>

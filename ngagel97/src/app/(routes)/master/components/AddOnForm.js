@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 export default function AddOnForm({ mode = "add", id }) {
   const [error, setError] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
-  const [lastImagePath, setLastImagePath] = useState(null);
+  const [lastImageUrl, setlastImageUrl] = useState(null);
   const router = useRouter();
 
   const {
@@ -61,7 +61,7 @@ export default function AddOnForm({ mode = "add", id }) {
         setValue("harga", data.harga);
         setValue("tipeHarga", data.tipeHarga);
         setValue("deskripsi", data.deskripsi);
-        setLastImagePath(data.gambar);
+        setlastImageUrl(data.gambar);
       } else {
         throw new Error("Gagal mengambil data.");
       }
@@ -72,20 +72,28 @@ export default function AddOnForm({ mode = "add", id }) {
 
   const handleFileChange = (e) => setSelectedFile(e.target.files[0]);
 
-  const uploadImage = async (file, id_addon) => {
+  const uploadImage = async (file, lastUrl) => {
     if (!file) return null;
 
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch(`/api/upload?filepath=addon/${id_addon}`, {
+    let filepath = lastUrl.replace(
+      "https://mnyziu33qakbhpjn.public.blob.vercel-storage.com/",
+      ""
+    );
+    await fetch(`/api/upload?filepath=${filepath}`, {
+      method: "DELETE",
+    });
+
+    const res = await fetch(`/api/upload`, {
       method: "POST",
       body: formData,
     });
 
     if (res.ok) {
       const data = await res.json();
-      return data.filePath;
+      return data.url;
     } else {
       const data = await res.json();
       throw new Error(data.error || "Upload gagal");
@@ -103,12 +111,15 @@ export default function AddOnForm({ mode = "add", id }) {
     }
 
     setError("");
-    let filePath = lastImagePath;
+    let imageUrl = lastImageUrl;
 
     try {
       if (selectedFile) {
-        const id_addon = mode === "add" ? await fetchNextId() : id;
-        filePath = await uploadImage(selectedFile, id_addon);
+        if (lastImageUrl) {
+          imageUrl = await uploadImage(selectedFile, lastImageUrl);
+        } else {
+          imageUrl = await uploadImage(selectedFile, "");
+        }
       }
 
       const method = mode === "add" ? "POST" : "PUT";
@@ -116,7 +127,7 @@ export default function AddOnForm({ mode = "add", id }) {
       const res = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, gambar: filePath }),
+        body: JSON.stringify({ ...data, gambar: imageUrl }),
       });
 
       if (res.ok) {
@@ -131,12 +142,6 @@ export default function AddOnForm({ mode = "add", id }) {
     } catch (error) {
       setError("Gagal menyimpan perubahan pada Add On. Silahkan coba lagi.");
     }
-  };
-
-  const fetchNextId = async () => {
-    const res = await fetch("/api/addon/next-id");
-    const { id_addon } = await res.json();
-    return id_addon;
   };
 
   useEffect(() => {

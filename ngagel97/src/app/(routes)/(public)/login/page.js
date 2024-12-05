@@ -37,16 +37,12 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        console.log("Login successful:", data.message);
-
-        // Redirect ke halaman home setelah login
         router.push("/home");
       } else {
-        // Tampilkan pesan error dari response API
-        setError(data.error || "Login failed");
+        setError("Gagal melakukan login. Silahkan coba lagi.");
       }
     } catch (error) {
-      setError("An error occurred while logging in. Please try again.");
+      setError("Gagal melakukan login. Silahkan coba lagi.");
     }
   };
 
@@ -82,7 +78,7 @@ export default function LoginPage() {
             Email:
           </Typography>
           <TextField
-            label="Enter your email"
+            label="Masukkan email"
             variant="outlined"
             name="email"
             fullWidth
@@ -94,7 +90,7 @@ export default function LoginPage() {
             Password:
           </Typography>
           <TextField
-            label="Enter your password"
+            label="Masukkan password"
             name="password"
             type="password"
             variant="outlined"
@@ -110,9 +106,9 @@ export default function LoginPage() {
           )}
 
           <Typography variant="body2" marginTop={1} sx={{ color: "black" }}>
-            Don&apos;t have an account?{" "}
+            {"Tidak punya akun? "}
             <Link href="/register" underline="hover" sx={{ color: "black" }}>
-              Click here to register
+              Registrasi di sini.
             </Link>
           </Typography>
 
@@ -122,7 +118,7 @@ export default function LoginPage() {
             color="success"
             fullWidth
             sx={{
-              marginTop: 2,
+              marginBottom: 2,
               borderRadius: 3,
               backgroundColor: "#493628",
             }}
