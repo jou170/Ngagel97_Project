@@ -37,6 +37,7 @@ export default function ServiceForm({ mode = "add", id }) {
     }),
     deskripsi: Joi.string().required().messages({
       "string.base": `"Deskripsi" harus berupa teks'`,
+      "string.empty": `"Deskripsi" tidak boleh kosong`,
     }),
   });
 
@@ -151,7 +152,7 @@ export default function ServiceForm({ mode = "add", id }) {
         marginTop={5}
       >
         <Typography variant="h4" gutterBottom>
-          Add Jasa
+        {mode === "add" ? "Tambah Jasa" : "Edit Jasa"}
         </Typography>
         <Box
           component="form"
@@ -162,9 +163,9 @@ export default function ServiceForm({ mode = "add", id }) {
           gap={2}
           width="100%"
         >
-          <Typography variant="body1">Nama :</Typography>
+          <Typography variant="body1">Nama</Typography>
           <TextField
-            label="masukkan nama jasa"
+            label="Masukkan Nama Jasa"
             variant="outlined"
             fullWidth
             value={watch("nama") || ""}
@@ -175,7 +176,7 @@ export default function ServiceForm({ mode = "add", id }) {
 
           <Typography variant="body1">Harga</Typography>
           <TextField
-            label="masukkan harga jasa"
+            label="Masukkan Harga Jasa"
             variant="outlined"
             fullWidth
             type="number"
@@ -187,7 +188,7 @@ export default function ServiceForm({ mode = "add", id }) {
 
           <Typography variant="body1">Deskripsi</Typography>
           <TextField
-            label="masukkan deskripsi jasa"
+            label="Masukkan Deskripsi Jasa"
             variant="outlined"
             fullWidth
             value={watch("deskripsi") || ""}
@@ -196,7 +197,7 @@ export default function ServiceForm({ mode = "add", id }) {
             helperText={errors.deskripsi?.message}
           />
 
-          <Typography variant="body1">Upload Gambar:</Typography>
+          <Typography variant="body1">Upload Gambar</Typography>
           <input type="file" accept="image/*" onChange={handleFileChange} />
 
           <AddonCheckboxes
@@ -204,7 +205,7 @@ export default function ServiceForm({ mode = "add", id }) {
             setSelectedAddons={setSelectedAddons}
           />
 
-          <Button type="submit" variant="contained" fullWidth>
+          <Button type="submit" variant="contained" fullWidth sx={{backgroundColor: "#493628"}}>
             Submit
           </Button>
 

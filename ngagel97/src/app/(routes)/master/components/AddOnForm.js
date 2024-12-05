@@ -35,7 +35,7 @@ export default function AddOnForm({ mode = "add", id }) {
   const schema = Joi.object({
     nama: Joi.string().min(3).required().messages({
       "string.base": `"Nama" harus berupa teks`,
-      "string.empty": `"Nama" tidak boleh kosong`,
+      "string.empty": `"Nama" harus diisi`,
       "string.min": `"Nama" minimal {#limit} karakter`,
     }),
     harga: Joi.number().min(100).positive().required().messages({
@@ -45,10 +45,11 @@ export default function AddOnForm({ mode = "add", id }) {
     }),
     tipeHarga: Joi.string().valid("bundle", "lembar").required().messages({
       "any.only": `"Tipe Harga" hanya bisa 'bundle' atau 'lembar'`,
-      "string.required": `"Tipe Harga" harus diisi`,
+      "string.empty": `"Tipe Harga" harus diisi`,
     }),
     deskripsi: Joi.string().required().messages({
       "string.base": `"Deskripsi" harus berupa teks`,
+      "string.empty": `"Deskripsi" harus diisi`,
     }),
   });
 
@@ -170,9 +171,9 @@ export default function AddOnForm({ mode = "add", id }) {
           gap={2}
           width="100%"
         >
-          <Typography variant="body1">Nama :</Typography>
+          <Typography variant="body1">Nama</Typography>
           <TextField
-            label="masukkan nama add-on"
+            label="Masukkan Nama Add-on"
             variant="outlined"
             fullWidth
             value={watch("nama") || ""}
@@ -183,7 +184,7 @@ export default function AddOnForm({ mode = "add", id }) {
 
           <Typography variant="body1">Harga</Typography>
           <TextField
-            label="masukkan harga add-on"
+            label="Masukkan Harga Add-on"
             variant="outlined"
             fullWidth
             type="number"
@@ -210,7 +211,7 @@ export default function AddOnForm({ mode = "add", id }) {
 
           <Typography variant="body1">Deskripsi</Typography>
           <TextField
-            label="masukkan deskripsi add-on"
+            label="Masukkan Deskripsi Add-on"
             variant="outlined"
             fullWidth
             value={watch("deskripsi") || ""}
@@ -219,7 +220,7 @@ export default function AddOnForm({ mode = "add", id }) {
             helperText={errors.deskripsi?.message}
           />
 
-          <Typography variant="body1">Upload Gambar:</Typography>
+          <Typography variant="body1">Upload Gambar</Typography>
           <input type="file" accept="image/*" onChange={handleFileChange} />
           {error && <Typography color="error">{error}</Typography>}
 
@@ -227,8 +228,7 @@ export default function AddOnForm({ mode = "add", id }) {
             type="submit"
             variant="contained"
             fullWidth
-            color="success"
-            sx={{ marginTop: 2, borderRadius: 3 }}
+            sx={{ marginTop: 2, borderRadius: 3, backgroundColor: "#493628"}}
           >
             {mode === "add" ? "Tambah Add-On" : "Perbarui Add-On"}
           </Button>

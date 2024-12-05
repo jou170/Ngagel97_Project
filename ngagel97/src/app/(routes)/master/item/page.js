@@ -7,10 +7,10 @@ import {
   Typography,
   Card,
   CardContent,
-  CardMedia,
   Box,
   TextField,
 } from "@mui/material";
+import Image from "next/image";
 import Link from "next/link";
 
 const ItemPage = () => {
@@ -80,37 +80,79 @@ const ItemPage = () => {
   }
 
   return (
-    <Box sx={{ padding: "20px", backgroundColor: "#D6C0B3", minHeight: "100vh" }}>
-      {/* Header dengan judul dan search bar */}
+    <Box
+      sx={{ padding: "20px", backgroundColor: "#D6C0B3", minHeight: "100vh" }}
+    >
+      {/* Kotak Header */}
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 4,
+          backgroundColor: "#AB886D",
+          padding: "10px",
+          borderRadius: "8px",
+          marginBottom: "20px",
         }}
       >
-        <Typography
-          variant="h4"
-          sx={{ color: "#333", fontWeight: "bold" }}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
         >
-          Koleksi Barang
-        </Typography>
-        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Search:
-          </Typography>
-          <TextField
-            variant="outlined"
-            placeholder="Ketik nama barang..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+          <Typography
+            variant="h4"
+            gutterBottom
             sx={{
-              backgroundColor: "#fff",
-              borderRadius: 1,
-              width: "250px",
+              color: "white",
+              textTransform: "uppercase",
+              marginTop: "10px",
             }}
-          />
+          >
+            Koleksi Barang
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: "24px" }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                window.location.href = "/master/item/add";
+              }}
+              sx={{
+                textTransform: "none",
+                backgroundColor: "#493628",
+                fontSize: "16px",
+                padding: "12px 36px",
+                "&:hover": {
+                  backgroundColor: "#493628",
+                },
+              }}
+            >
+              Add Barang
+            </Button>
+            <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Typography
+                variant="body1"
+                component="span"
+                sx={{ fontWeight: "bold", color: "white" }}
+              >
+                Search:
+              </Typography>
+              <TextField
+                variant="outlined"
+                placeholder="Ketik nama barang..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: "8px",
+                  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                  },
+                }}
+              />
+            </Box>
+          </Box>
         </Box>
       </Box>
 
@@ -118,31 +160,23 @@ const ItemPage = () => {
       <Grid2 container spacing={4} justifyContent="center">
         {filteredItems.map((item) => (
           <Grid2 key={item.idBarang} xs={12} sm={6} md={4} lg={3}>
-            <Card
-              sx={{
-                height: "100%",
-                borderRadius: 3,
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                transition: "transform 0.2s, box-shadow 0.2s",
-                "&:hover": {
-                  transform: "scale(1.03)",
-                  boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.2)",
-                },
-              }}
-            >
-              {/* {item.gambar && (
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image={item.gambar}
+            <Card sx={{ width: 380, height: 180 }}>
+              {item.gambar && (
+                <Image
+                  src={
+                    item.gambar ||
+                    "https://via.placeholder.com/380x200.png?text=No+Image+Available"
+                  }
                   alt={item.nama || "Gambar Barang"}
-                  sx={{
+                  width={380}
+                  height={200}
+                  style={{
                     objectFit: "cover",
-                    borderTopLeftRadius: 12,
-                    borderTopRightRadius: 12,
+                    borderTopLeftRadius: "4px",
+                    borderTopRightRadius: "4px",
                   }}
                 />
-              )} */}
+              )}
               <CardContent sx={{ padding: 2 }}>
                 <Typography
                   variant="h6"
@@ -167,11 +201,15 @@ const ItemPage = () => {
                     overflow: "hidden",
                   }}
                 >
-                  {item.deskripsi}
+                  Deskripsi :{" "}
+                  {item.deskripsi
+                    ? item.deskripsi.split(" ").slice(0, 5).join(" ") +
+                      (item.deskripsi.split(" ").length > 5 ? "..." : "")
+                    : "Deskripsi tidak tersedia"}
                 </Typography>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Box sx={{ display: "flex", justifyContent: "start" }}>
                   <Link href={`/master/item/${item.idBarang}`} passHref>
-                    <Button variant="contained" color="primary" size="small">
+                    <Button variant="contained" color="primary" size="small" sx={{marginRight: "10px"}}> 
                       Detail
                     </Button>
                   </Link>

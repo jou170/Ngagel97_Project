@@ -7,10 +7,10 @@ import {
   Typography,
   Card,
   CardContent,
-  CardMedia,
   TextField,
   Box,
 } from "@mui/material";
+import Image from "next/image";
 import Link from "next/link";
 
 const AddOnPage = () => {
@@ -25,7 +25,7 @@ const AddOnPage = () => {
         const response = await fetch("/api/addon");
         const data = await response.json();
         setAddOns(data);
-        setFilteredAddOns(data); // Awalnya semua data ditampilkan
+        setFilteredAddOns(data);
         setLoading(false);
       } catch (error) {
         console.error("Gagal mengambil data add-ons:", error);
@@ -43,9 +43,9 @@ const AddOnPage = () => {
         addon.nama.toLowerCase().includes(lowerCaseQuery)
       );
       setFilteredAddOns(filtered);
-    }, 500); // Delay 500ms untuk performa
+    }, 500);
 
-    return () => clearTimeout(delayDebounceFn); // Bersihkan timeout
+    return () => clearTimeout(delayDebounceFn);
   }, [searchQuery, addOns]);
 
   const handleDelete = async (id) => {
@@ -83,59 +83,105 @@ const AddOnPage = () => {
 
   return (
     <div style={{ padding: "20px", backgroundColor: "#D6C0B3" }}>
-      {/* Header dan Search Bar */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+      <Box
+        sx={{
+          backgroundColor: "#AB886D",
+          padding: "10px",
+          borderRadius: "8px",
           marginBottom: "20px",
         }}
       >
-        <Typography
-          variant="h4"
-          gutterBottom
-          sx={{ color: "#333", textTransform: "uppercase" }}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
         >
-          Koleksi Add-On
-        </Typography>
-        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <Typography
-            variant="body1"
-            component="span"
-            sx={{ fontWeight: "bold" }}
-          >
-            Search:
-          </Typography>
-          <TextField
-            variant="outlined"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Ketik nama add-on..."
+            variant="h4"
+            gutterBottom
             sx={{
-              width: "100%",
-              maxWidth: "300px",
-              backgroundColor: "white",
+              color: "white",
+              textTransform: "uppercase",
+              marginTop: "10px",
             }}
-          />
-        </Box>
-      </div>
+          >
+            Koleksi Add-On
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: "24px" }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                window.location.href = "/master/addon/add";
+              }}
+              sx={{
+                textTransform: "none",
+                backgroundColor: "#493628",
+                fontSize: "16px",
+                padding: "12px 36px",
+                "&:hover": {
+                  backgroundColor: "#493628",
+                },
+              }}
+            >
+              Add Add-on
+            </Button>
+            <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Typography
+                variant="body1"
+                component="span"
+                sx={{ fontWeight: "bold", color: "white" }}
+              >
+                Search:
+              </Typography>
+              <TextField
+                variant="outlined"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Ketik nama add-on..."
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: "8px",
+                  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                  },
+                }}
+              />
+            </Box>
+          </Box>
+        </div>
+      </Box>
 
       {/* Daftar Add-On */}
-      <Grid2 container spacing={3} justifyContent="center" alignItems="stretch">
+      <Grid2
+        container
+        spacing={3}
+        sx={{ display: "flex", justifyContent: "center" }}
+      >
         {filteredAddOns.map((addon) => (
-          <Grid2 key={addon.idAddon} xs={12} sm={6} md={4}>
-            <Card sx={{ height: "100%", cursor: "pointer" }}>
+          <Grid2 key={addon.idAddon} xs={12} sm={6} md={3}>
+            <Card sx={{ width: 380, height: 450 }}>
               {addon.gambar && (
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={addon.gambar}
+                <Image
+                  src={
+                    addon.gambar ||
+                    "https://via.placeholder.com/380x200.png?text=No+Image+Available"
+                  }
                   alt={addon.nama || "Gambar Addon"}
+                  width={380}
+                  height={200}
+                  style={{
+                    objectFit: "cover",
+                    borderTopLeftRadius: "4px",
+                    borderTopRightRadius: "4px",
+                  }}
                 />
               )}
-              <CardContent>
-                <Typography variant="h5" component="div" gutterBottom>
+              <CardContent sx={{ padding: "16px", flexGrow: 1 }}>
+                <Typography variant="h6" component="div" gutterBottom>
                   {addon.nama}
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
@@ -144,24 +190,39 @@ const AddOnPage = () => {
                 <Typography variant="body2" color="text.secondary">
                   Tipe Harga: {addon.tipeHarga}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {addon.deskripsi}
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ marginTop: "8px" }}
+                >
+                  Deskripsi :{" "}
+                  {addon.deskripsi
+                    ? addon.deskripsi.split(" ").slice(0, 5).join(" ") +
+                      (addon.deskripsi.split(" ").length > 5 ? "..." : "")
+                    : "Deskripsi tidak tersedia"}
                 </Typography>
+
                 <div
                   style={{
                     display: "flex",
-                    justifyContent: "space-between",
-                    gap: "8px",
+                    justifyContent: "start",
+                    marginTop: "16px",
                   }}
                 >
                   <Link href={`/master/addon/${addon.idAddon}`} passHref>
-                    <Button variant="contained" color="primary">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      sx={{ marginRight: "10px" }}
+                    >
                       Detail
                     </Button>
                   </Link>
                   <Button
                     variant="contained"
                     color="error"
+                    size="small"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDelete(addon.idAddon);

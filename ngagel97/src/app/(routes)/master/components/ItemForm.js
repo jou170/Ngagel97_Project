@@ -39,9 +39,11 @@ export default function ItemForm({ mode = "add", id }) {
       "number.base": `"Harga" harus berupa angka`,
       "number.min": `"Harga" minimal Rp 100,-`,
       "number.positive": `"Harga" harus angka positif`,
+      "number.empty": `"Harga" tidak boleh kosong`,
     }),
     deskripsi: Joi.string().required().messages({
       "string.base": `"Deskripsi" harus berupa teks`,
+      "string.empty": `"Deskripsi" tidak boleh kosong`,
     }),
   });
 
@@ -122,9 +124,9 @@ export default function ItemForm({ mode = "add", id }) {
           gap={2}
           width="100%"
         >
-          <Typography variant="body1">Nama :</Typography>
+          <Typography variant="body1">Nama</Typography>
           <TextField
-            label="masukkan nama Barang "
+            label="Masukkan Nama Barang "
             variant="outlined"
             fullWidth
             value={watch("nama") || ""}
@@ -135,7 +137,7 @@ export default function ItemForm({ mode = "add", id }) {
 
           <Typography variant="body1">Harga</Typography>
           <TextField
-            label="amsukkan harga Barang"
+            label="Masukkan Harga Barang"
             variant="outlined"
             fullWidth
             type="number"
@@ -147,7 +149,7 @@ export default function ItemForm({ mode = "add", id }) {
 
           <Typography variant="body1">Deskripsi</Typography>
           <TextField
-            label="masukkan deskripsi Barang"
+            label="Masukkan Deskripsi Barang"
             variant="outlined"
             fullWidth
             value={watch("deskripsi") || ""}
@@ -161,7 +163,7 @@ export default function ItemForm({ mode = "add", id }) {
             variant="contained"
             fullWidth
             color="success"
-            sx={{ marginTop: 2, borderRadius: 3 }}
+            sx={{ marginTop: 2, borderRadius: 3, backgroundColor: "#493628" }}
           >
             {mode === "add" ? "Tambah Barang" : "Perbarui Barang"}
           </Button>
