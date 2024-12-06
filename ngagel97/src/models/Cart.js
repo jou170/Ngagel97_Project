@@ -7,7 +7,6 @@ const cartSchema = new mongoose.Schema(
       ref: "User",
       required: false,
     }, // Relasi ke User
-    alamat: { type: String }, // Alamat untuk transaksi online
     ongkir: { type: Number, default: 0 }, // Ongkos kirim untuk online
     items: [
       {

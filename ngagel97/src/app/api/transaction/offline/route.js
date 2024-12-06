@@ -41,7 +41,7 @@ export async function POST(req) {
           nama: item.product.nama,
           harga: item.product.harga,
           qty: item.jumlah,
-          subtotal: item.product.harga * item.jumlah * item.lembar,
+          subtotal: item.product.harga * item.jumlah * item.lembar, //tambah subtotal add on
           lembar: item.lembar,
           addOns: item.addOnsDetails.map((aon) => {
             return {

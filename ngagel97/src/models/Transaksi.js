@@ -11,6 +11,7 @@ const TransaksiSchema = new mongoose.Schema(
     }, // Relasi ke User
     isOnline: { type: Boolean, required: true }, // True untuk transaksi online, false untuk offline
     alamat: { type: String }, // Alamat untuk transaksi online
+    notes: { type: String },
     ongkir: { type: Number, default: 0 }, // Ongkos kirim untuk online
     status: {
       type: String,
@@ -42,6 +43,7 @@ const TransaksiSchema = new mongoose.Schema(
         lembar: { type: Number, required: true }, // Jumlah lembar yang diproses
         file: { type: String }, // file yang dikirim
         qty: { type: Number, required: true }, // Berapa kali dicopy
+        notes: { type: String },
         addOns: [
           {
             addOnId: {
