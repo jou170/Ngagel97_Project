@@ -70,6 +70,7 @@ export async function POST(req) {
     // Buat dokumen transaksi baru
     const newTransaksi = new Transaksi({
       isOnline: false,
+      status: "completed",
       barang: brg || [],
       jasa: js || [],
       addOns: ao || [],
