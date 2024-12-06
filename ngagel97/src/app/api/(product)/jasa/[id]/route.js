@@ -18,7 +18,7 @@ export async function GET(request, { params }) {
     await connectDB(); // Pastikan koneksi DB berhasil
 
     // Ambil jasa berdasarkan id
-    const jasa = await Jasa.findOne({ idJasa: params.id, deleted: false });
+    const jasa = await Jasa.findOne({ idJasa: id, deleted: false });
 
     if (!jasa) {
       return new Response(JSON.stringify({ message: "Jasa not found" }), {
