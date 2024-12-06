@@ -1,17 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Typography, Card, CardContent, CardMedia, CircularProgress, Alert } from "@mui/material";
+import { useParams } from "next/navigation";
+import {
+  Container,
+  Typography,
+  Card,
+  CardContent,
+  CardMedia,
+  CircularProgress,
+  Alert,
+  TextField,
+  Button,
+  Box,
+} from "@mui/material";
 
-const ProductDetail = ({ params }) => {
+const ProductDetail = () => {
+  const { id } = useParams();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [uploadedFile, setUploadedFile] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`/api/jasa/${params.id}`);
+        const response = await fetch(`/api/jasa/${id}`);
         if (!response.ok) throw new Error("Failed to fetch service details");
         const data = await response.json();
         setService(data);
@@ -23,7 +38,24 @@ const ProductDetail = ({ params }) => {
     };
 
     fetchProduct();
-  }, [params.id]);
+  }, [id]);
+
+  const handleFileUpload = (event) => {
+    setUploadedFile(event.target.files[0]);
+  };
+
+  const handleAddToCart = () => {
+    const cartItem = {
+      id: service.id,
+      name: service.nama,
+      price: service.harga,
+      quantity,
+      file: uploadedFile,
+    };
+
+    console.log("Added to cart:", cartItem);
+    alert("Item added to cart!");
+  };
 
   if (loading) {
     return (
@@ -65,9 +97,43 @@ const ProductDetail = ({ params }) => {
           <Typography variant="body1" color="text.secondary" paragraph>
             {service.deskripsi}
           </Typography>
-          <Typography variant="h6" component="p">
+          <Typography variant="h6" component="p" gutterBottom>
             <strong>Price:</strong> ${service.harga}
           </Typography>
+
+          {/* Quantity Input */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, marginBottom: 2 }}>
+            <TextField
+              label="Quantity"
+              type="number"
+              value={quantity}
+              onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+              sx={{ width: "100px" }}
+            />
+          </Box>
+
+          {/* File Upload */}
+          <Box sx={{ marginBottom: 2 }}>
+            <Typography variant="body1" gutterBottom>
+              Upload File:
+            </Typography>
+            <TextField type="file" onChange={handleFileUpload} />
+            {uploadedFile && (
+              <Typography variant="body2" sx={{ marginTop: 1 }}>
+                Selected File: {uploadedFile.name}
+              </Typography>
+            )}
+          </Box>
+
+          {/* Add to Cart Button */}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleAddToCart}
+            disabled={!service || (uploadedFile && uploadedFile.size > 5000000) || "File Too Large"} // Example size limit: 5MB
+          >
+            Add to Cart
+          </Button>
         </CardContent>
       </Card>
     </Container>
