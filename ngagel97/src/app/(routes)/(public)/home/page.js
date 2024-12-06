@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Box, Grid, Typography, Card, CardContent, CircularProgress } from "@mui/material";
+import { Box, Typography, Card, CardContent, CircularProgress } from "@mui/material";
+import Grid2 from "@mui/material/Grid2";
 import Image from "next/image";
 
 const HomePage = () => {
@@ -52,8 +53,8 @@ const HomePage = () => {
       </Box>
 
       {/* Icons Section */}
-      <Grid container spacing={2} justifyContent="center" mb={4}>
-        <Grid item xs={6} sm={3}>
+      <Grid2 container spacing={2} justifyContent="center" mb={4}>
+        <Grid2 xs={6} sm={3}>
           <Box textAlign="center">
             <Image
               src="/path/to/icon1.png"
@@ -64,8 +65,8 @@ const HomePage = () => {
             />
             <Typography variant="body1">High Digital Printing</Typography>
           </Box>
-        </Grid>
-        <Grid item xs={6} sm={3}>
+        </Grid2>
+        <Grid2 xs={6} sm={3}>
           <Box textAlign="center">
             <Image
               src="/path/to/icon2.png"
@@ -76,8 +77,8 @@ const HomePage = () => {
             />
             <Typography variant="body1">Great Quality</Typography>
           </Box>
-        </Grid>
-        <Grid item xs={6} sm={3}>
+        </Grid2>
+        <Grid2 xs={6} sm={3}>
           <Box textAlign="center">
             <Image
               src="/path/to/icon3.png"
@@ -88,8 +89,8 @@ const HomePage = () => {
             />
             <Typography variant="body1">Handled With Care</Typography>
           </Box>
-        </Grid>
-        <Grid item xs={6} sm={3}>
+        </Grid2>
+        <Grid2 xs={6} sm={3}>
           <Box textAlign="center">
             <Image
               src="/path/to/icon4.png"
@@ -100,8 +101,8 @@ const HomePage = () => {
             />
             <Typography variant="body1">Fast Delivery</Typography>
           </Box>
-        </Grid>
-      </Grid>
+        </Grid2>
+      </Grid2>
 
       {/* Services Section */}
       <Typography variant="h6" fontWeight="bold" mb={2}>
@@ -112,9 +113,9 @@ const HomePage = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <Grid container spacing={2}>
+        <Grid2 container spacing={2}>
           {services.map((service) => (
-            <Grid item xs={12} sm={6} md={3} key={service._id}>
+            <Grid2 xs={12} sm={6} md={3} key={service._id}>
               <Card
                 sx={{
                   cursor: "pointer",
@@ -126,13 +127,31 @@ const HomePage = () => {
                 }}
                 onClick={() => handleCardClick(service.idJasa)}
               >
-                <Image
-                  src={service.gambar}
-                  alt={service.nama}
-                  width={300}
-                  height={200}
-                  style={{ objectFit: "cover", borderRadius: "4px 4px 0 0" }}
-                />
+                {service.gambar ? (
+                  <Image
+                    src={service.gambar}
+                    alt={service.nama || "Gambar Jasa"}
+                    width={380}
+                    height={200}
+                    style={{
+                      objectFit: "cover",
+                      borderTopLeftRadius: "4px",
+                      borderTopRightRadius: "4px",
+                    }}
+                  />
+                ) : (
+                  <Image
+                    src="/image/380x200.png" // Use the local placeholder image
+                    alt="Gambar Jasa"
+                    width={380}
+                    height={200}
+                    style={{
+                      objectFit: "cover",
+                      borderTopLeftRadius: "4px",
+                      borderTopRightRadius: "4px",
+                    }}
+                  />
+                )}
                 <CardContent>
                   <Typography variant="body1" textAlign="center" fontWeight="bold">
                     {service.nama}
@@ -142,9 +161,9 @@ const HomePage = () => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
+            </Grid2>
           ))}
-        </Grid>
+        </Grid2>
       )}
     </Box>
   );
