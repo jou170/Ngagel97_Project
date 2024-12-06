@@ -2,7 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Box, Typography, Card, CardContent, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  CircularProgress,
+} from "@mui/material";
 import Grid2 from "@mui/material/Grid2";
 import Image from "next/image";
 
@@ -153,11 +159,19 @@ const HomePage = () => {
                   />
                 )}
                 <CardContent>
-                  <Typography variant="body1" textAlign="center" fontWeight="bold">
+                  <Typography
+                    variant="body1"
+                    textAlign="center"
+                    fontWeight="bold"
+                  >
                     {service.nama}
                   </Typography>
-                  <Typography variant="body2" textAlign="center" color="textSecondary">
-                    {service.description || "No description available"}
+                  <Typography
+                    variant="body2"
+                    textAlign="center"
+                    color="textSecondary"
+                  >
+                    {service.deskripsi || "No description available"}
                   </Typography>
                 </CardContent>
               </Card>
