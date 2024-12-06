@@ -1,26 +1,34 @@
 "use client";
 
-import React from "react";
-import { useRouter } from "next/navigation"; // Use next/navigation
-import { Box, Grid, Typography, Card, CardContent } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Box, Grid, Typography, Card, CardContent, CircularProgress } from "@mui/material";
 import Image from "next/image";
 
 const HomePage = () => {
-  const router = useRouter(); // Initialize router from next/navigation
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  const services = [
-    { id: "P001", name: "Printer A4", image: "/path/to/image1.jpg" },
-    { id: "P002", name: "Printer A3", image: "/path/to/image2.jpg" },
-    { id: "P003", name: "Fotocopy A3", image: "/path/to/image3.jpg" },
-    { id: "P004", name: "Jilid", image: "/path/to/image4.jpg" },
-    { id: "P005", name: "Printer A4", image: "/path/to/image5.jpg" },
-    { id: "P006", name: "Printer A3", image: "/path/to/image6.jpg" },
-    { id: "P007", name: "Fotocopy A3", image: "/path/to/image7.jpg" },
-    { id: "P008", name: "Jilid", image: "/path/to/image8.jpg" },
-  ];
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch("/api/jasa");
+        if (!response.ok) throw new Error("Failed to fetch data");
+        const data = await response.json();
+        setServices(data);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleCardClick = (id) => {
-    router.push(`/product/${id}`); // Navigate to the product page with the dynamic ID
+    fetchServices();
+  }, []);
+
+  const handleCardClick = (idjasa) => {
+    router.push(`/product/${idjasa}`);
   };
 
   return (
@@ -30,15 +38,16 @@ const HomePage = () => {
         sx={{
           width: "100%",
           height: 200,
-          backgroundColor: "#f0f0f0",
+          background: "linear-gradient(90deg, #3f51b5, #1a237e)",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           mb: 4,
+          color: "white",
         }}
       >
         <Typography variant="h4" fontWeight="bold">
-          Foto Copy Hitam Putih
+          Explore Our High-Quality Services
         </Typography>
       </Box>
 
@@ -96,31 +105,47 @@ const HomePage = () => {
 
       {/* Services Section */}
       <Typography variant="h6" fontWeight="bold" mb={2}>
-        Our Service
+        Our Services
       </Typography>
-      <Grid container spacing={2}>
-        {services.map((service) => (
-          <Grid item xs={6} sm={3} key={service.id}>
-            <Card
-              sx={{ cursor: "pointer" }} // Add cursor pointer to indicate clickable
-              onClick={() => handleCardClick(service.id)} // Handle click event
-            >
-              <Image
-                src={service.image}
-                alt={service.name}
-                width={300}
-                height={140}
-                style={{ objectFit: "cover" }}
-              />
-              <CardContent>
-                <Typography variant="body1" textAlign="center">
-                  {service.name}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      {loading ? (
+        <Box display="flex" justifyContent="center" mt={4}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Grid container spacing={2}>
+          {services.map((service) => (
+            <Grid item xs={12} sm={6} md={3} key={service._id}>
+              <Card
+                sx={{
+                  cursor: "pointer",
+                  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+                  transition: "transform 0.2s",
+                  "&:hover": {
+                    transform: "scale(1.05)",
+                  },
+                }}
+                onClick={() => handleCardClick(service.idJasa)}
+              >
+                <Image
+                  src={service.gambar}
+                  alt={service.nama}
+                  width={300}
+                  height={200}
+                  style={{ objectFit: "cover", borderRadius: "4px 4px 0 0" }}
+                />
+                <CardContent>
+                  <Typography variant="body1" textAlign="center" fontWeight="bold">
+                    {service.nama}
+                  </Typography>
+                  <Typography variant="body2" textAlign="center" color="textSecondary">
+                    {service.description || "No description available"}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Box>
   );
 };
