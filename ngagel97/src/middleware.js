@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-const PUBLIC_ROUTES = ["/register", "/login", "/home", "/about"]; // public routes
+const PUBLIC_ROUTES = ["/register", "/login", "/home", "/about", "/test"]; // public routes
 const STATIC_FILE_EXTENSIONS = [
   ".png",
   ".jpg",
