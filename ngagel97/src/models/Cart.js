@@ -20,6 +20,7 @@ const cartSchema = new mongoose.Schema(
         lembar: { type: Number, required: true }, // Jumlah lembar yang diproses
         file: { type: String }, // file yang dikirim
         qty: { type: Number, required: true }, // Berapa kali dicopy
+        notes: { type: String },
         addOns: [
           {
             addOnId: {
