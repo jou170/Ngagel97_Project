@@ -1,69 +1,70 @@
-import dbConnect from "@/app/api/mongoose";
+import connectDB from "@/app/api/mongoose";
 import Cart from "@/models/Cart";
+import { NextResponse } from "next/server";
+import { jwtVerify } from "jose";
 
-export default async function handler(req, res) {
-  const { email, productId, add_on, cart_qty, cart_notes } = req.body;
-
-  await dbConnect();
+export async function POST(req) {
+  const token = req.cookies.get("token");
+  console.log(token);
+  
+  if (!token) {
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+  const { items } =
+    await req.json();
+    console.log(items);
+    
 
   try {
-    if (req.method === "POST") {
-      // Tambahkan produk ke cart
-      let cart = await Cart.findOne({ email });
-      if (!cart) {
-        const newCart = new Cart({
-          email,
-          items: [{ product: productId, add_on, cart_qty, cart_notes }],
-        });
-        await newCart.save();
-        return res
-          .status(201)
-          .json({ message: "Product added to cart", cart: newCart });
-      }
+    // Decode JWT
+    const { payload } = await jwtVerify(
+      token.value,
+      new TextEncoder().encode(process.env.JWT_SECRET)
+    );
+    const userId = payload.userId;
 
-      cart.items.push({ product: productId, add_on, cart_qty, cart_notes });
-      await cart.save();
-      return res.status(200).json({ message: "Product added to cart", cart });
-    }
+    await connectDB();
 
-    if (req.method === "PUT") {
-      // Update produk dalam cart
-      const { itemId, cart_qty, cart_notes } = req.body; // `itemId` adalah ID item dalam array items
+    // Parse body dari request
 
-      const cart = await Cart.findOne({ email });
-      if (!cart) return res.status(404).json({ message: "Cart not found" });
 
-      const itemIndex = cart.items.findIndex(
-        (item) => item._id.toString() === itemId
+    if (!items) {
+      return NextResponse.json(
+        { success: false, message: "Data jasa, subtotal, dan qty wajib diisi." },
+        { status: 400 }
       );
-      if (itemIndex === -1)
-        return res.status(404).json({ message: "Item not found" });
-
-      // Update item di cart
-      if (cart_qty) cart.items[itemIndex].cart_qty = cart_qty;
-      if (cart_notes) cart.items[itemIndex].cart_notes = cart_notes;
-
-      await cart.save();
-      return res
-        .status(200)
-        .json({ message: "Cart updated successfully", cart });
     }
 
-    if (req.method === "DELETE") {
-      // Hapus produk dari cart
-      const { itemId } = req.body; // `itemId` adalah ID item dalam array items
+    // Cek apakah user sudah memiliki cart
+    let userCart = await Cart.findOne({ userId });
 
-      const cart = await Cart.findOne({ email });
-      if (!cart) return res.status(404).json({ message: "Cart not found" });
-
-      cart.items = cart.items.filter((item) => item._id.toString() !== itemId);
-      await cart.save();
-
-      return res.status(200).json({ message: "Item removed from cart", cart });
+    if (userCart) {
+      // Tambahkan item ke cart yang sudah ada
+      userCart.items.push(items);
+    } else {
+      // Buat cart baru jika belum ada
+      userCart = new Cart({
+        userId,
+        items: [
+          items,
+        ],
+      });
     }
 
-    res.status(405).json({ message: "Method Not Allowed" });
+    await userCart.save();
+
+    return NextResponse.json(
+      { success: true, data: userCart },
+      { status: 201 }
+    );
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error add to cart:", error);
+    return NextResponse.json(
+      { success: false, message: "Gagal add to cart.", error: error.message },
+      { status: 500 }
+    );
   }
 }
