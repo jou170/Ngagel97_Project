@@ -1,11 +1,11 @@
 "use client";
+
 import React, { useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 
 const PdfPageCounter = () => {
   const [pageCount, setPageCount] = useState(null);
   const [error, setError] = useState(null);
-  // pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
   pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
   const handleFileChange = (event) => {
     const file = event.target.files[0];

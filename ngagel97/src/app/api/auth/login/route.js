@@ -32,7 +32,7 @@ export async function POST(request) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid password",
+          message: "Password salah",
           data: null,
           error: "Incorrect password",
         },
@@ -55,7 +55,7 @@ export async function POST(request) {
 
     // Set token di cookies
     response.cookies.set("token", token, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 12, // 12 hours
       path: "/",
@@ -63,7 +63,7 @@ export async function POST(request) {
 
     // Set role di cookies
     response.cookies.set("role", user.role, {
-      httpOnly: false, // Agar bisa diakses oleh browser untuk rendering
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 12, // 12 hours
       path: "/",

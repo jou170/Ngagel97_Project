@@ -39,7 +39,7 @@ export default function LoginPage() {
       if (res.ok && data.success) {
         router.push("/home");
       } else {
-        setError("Gagal melakukan login. Silahkan coba lagi.");
+        setError(data.message || "Gagal melakukan login. Silahkan coba lagi.");
       }
     } catch (error) {
       setError("Gagal melakukan login. Silahkan coba lagi.");

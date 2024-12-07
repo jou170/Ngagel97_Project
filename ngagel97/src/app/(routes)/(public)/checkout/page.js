@@ -56,14 +56,14 @@ const CheckoutPage = () => {
           },
           body: JSON.stringify({
             userLat: position[0],
-            userLng: position[1]
+            userLng: position[1],
           }),
         });
-    
+
         if (!response.ok) {
           throw new Error("Failed to calculate shipping");
         }
-    
+
         const data = await response.json();
         setShippingCost(data.shippingCost);
       } catch (error) {
@@ -143,11 +143,11 @@ const CheckoutPage = () => {
               </Typography>
             </Box>
             <Box display="flex" justifyContent="space-between" mb={1}>
-  <Typography variant="body2">Ongkos Kirim:</Typography>
-  <Typography variant="body2">
-    Rp. {shippingCost.toLocaleString()}
-  </Typography>
-</Box>
+              <Typography variant="body2">Ongkos Kirim:</Typography>
+              <Typography variant="body2">
+                Rp. {shippingCost.toLocaleString()}
+              </Typography>
+            </Box>
 
             <Divider sx={{ my: 1 }} />
             <Box display="flex" justifyContent="space-between">
