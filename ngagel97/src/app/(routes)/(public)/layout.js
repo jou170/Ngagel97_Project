@@ -1,5 +1,12 @@
-export default function UserLayout({
-  children, // will be a page or nested layout
-}) {
-  return <section>{children}</section>;
+"use client";
+
+import ResponsiveAppBar from "./components/ResponsiveAppBar";
+
+export default function UserLayout({ children }) {
+  return (
+    <section>
+      <ResponsiveAppBar />
+      {children}
+    </section>
+  );
 }
