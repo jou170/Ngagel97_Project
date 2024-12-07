@@ -17,48 +17,24 @@ import SendIcon from "@mui/icons-material/Send";
 import Divider from "@mui/material/Divider";
 import AddIcon from "@mui/icons-material/Add";
 
-const products = [
-  {
-    link: "/master/addon",
-    text: "Addon",
-    icon: <InboxIcon />,
-    subMenu: [
-      { link: "/master/addon/add", text: "Add Addon", icon: <AddIcon /> },
-    ],
-  },
-  {
-    link: "/master/service",
-    text: "Service",
-    icon: <PrintIcon />,
-    subMenu: [
-      { link: "/master/service/add", text: "Add Service", icon: <AddIcon /> },
-    ],
-  },
-  {
-    link: "/master/item",
-    text: "Item",
-    icon: <DraftsIcon />,
-    subMenu: [
-      { link: "/master/item/add", text: "Add Item", icon: <AddIcon /> },
-    ],
-  },
-];
-
 const menu = [
-  { link: "/master", text: "Dashboard", icon: <PersonIcon /> },
-  { link: "/master/user", text: "User", icon: <PersonIcon /> },
+  { link: "/admin", text: "Dashboard", icon: <PersonIcon /> },
+  { link: "/admin/order", text: "Orders", icon: <PersonIcon /> },
   {
-    text: "Reports",
+    text: "Transactions",
     icon: <BarChartIcon />,
     children: [
-      { link: "/master/report/sales", text: "Sales", icon: <InboxIcon /> },
-      { link: "/master/report/delivery", text: "Delivery", icon: <SendIcon /> },
-      { link: "/master/report/daily", text: "Daily", icon: <DraftsIcon /> },
+      {
+        link: "/admin/transaction/offline",
+        text: "Offline",
+        icon: <InboxIcon />,
+      },
+      { link: "/admin/report/history", text: "History", icon: <SendIcon /> },
     ],
   },
 ];
 
-export default function MasterDrawer() {
+export default function AdminDrawer() {
   const [open, setOpen] = React.useState({});
 
   const handleClick = (text) => {
@@ -134,43 +110,6 @@ export default function MasterDrawer() {
             renderListItems([item])
           )
         )}
-      </List>
-      <Divider />
-      <List
-        key={"b"}
-        sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-        component="nav"
-        aria-labelledby="nested-list-subheader"
-        subheader={
-          <ListSubheader component="div" id="nested-list-subheader">
-            Products
-          </ListSubheader>
-        }
-      >
-        {products.map((product) => (
-          <React.Fragment key={product.text}>
-            {" "}
-            {/* Tambahkan key pada Fragment */}
-            {/* Produk Utama */}
-            <ListItemButton component="a" href={product.link}>
-              <ListItemIcon>{product.icon}</ListItemIcon>
-              <ListItemText primary={product.text} />
-            </ListItemButton>
-            {/* Menu Tambahan */}
-            {product.subMenu &&
-              product.subMenu.map((sub, index) => (
-                <ListItemButton
-                  key={`${product.text}-${index}`} // Kombinasi agar unik
-                  sx={{ pl: 4 }}
-                  component="a"
-                  href={sub.link}
-                >
-                  <ListItemIcon>{sub.icon}</ListItemIcon>
-                  <ListItemText primary={sub.text} />
-                </ListItemButton>
-              ))}
-          </React.Fragment>
-        ))}
       </List>
     </Box>
   );

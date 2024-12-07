@@ -7,20 +7,39 @@ import {
   Button,
   Typography,
   Link,
-  AppBar,
-  Toolbar,
   Container,
+  Card as MuiCard,
 } from "@mui/material";
-import Image from "next/image";
+import { styled } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import Joi from "joi";
 import { useForm } from "react-hook-form";
+
+// Custom Styled Card (similar to Login)
+const Card = styled(MuiCard)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignSelf: "center",
+  width: "100%",
+  padding: theme.spacing(4),
+  gap: theme.spacing(2),
+  margin: "auto",
+  [theme.breakpoints.up("sm")]: {
+    maxWidth: "450px",
+  },
+  boxShadow:
+    "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
+  ...theme.applyStyles("dark", {
+    boxShadow:
+      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
+  }),
+}));
 
 export default function RegisterPage() {
   const router = useRouter();
   const [error, setError] = useState("");
 
-  // Use react-hook-form
+  // react-hook-form setup
   const {
     register,
     handleSubmit,
@@ -77,7 +96,7 @@ export default function RegisterPage() {
       return;
     }
 
-    setError(""); // Clear error if any
+    setError(""); // Clear previous errors
 
     try {
       const res = await fetch("/api/auth/register", {
@@ -89,8 +108,7 @@ export default function RegisterPage() {
       });
 
       if (res.ok) {
-        const responseData = await res.json();
-        router.push("/login"); // Redirect after successful registration
+        router.push("/login");
       } else {
         const errorData = await res.json();
         setError(
@@ -103,119 +121,109 @@ export default function RegisterPage() {
   };
 
   return (
-    <>
-      {/* Registration Form */}
-      <Container maxWidth="sm">
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          marginTop={5}
-        >
-          <Image
-            src="/image/HumanLogoLogin.png"
-            alt="Logo"
-            width={150}
-            height={150}
-            style={{ marginBottom: "20px" }}
-          />
-          <Typography variant="h4" gutterBottom>
-            Registrasi
+    <Container
+      maxWidth="sm"
+      sx={{ display: "flex", justifyContent: "center", minHeight: "100vh" }}
+    >
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        width="100%"
+      >
+        <Card variant="outlined">
+          <Typography
+            component="h1"
+            variant="h4"
+            sx={{
+              textAlign: "center",
+              fontSize: "clamp(2rem, 10vw, 2.15rem)",
+              fontWeight: 700,
+            }}
+          >
+            Register
           </Typography>
+
           <Box
             component="form"
             onSubmit={handleSubmit(onSubmit)}
-            display="flex"
-            flexDirection="column"
-            alignItems="flex-start"
-            gap={2}
-            width="100%"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              width: "100%",
+            }}
           >
-            <Typography variant="body1" sx={{ color: "black" }}>
-              Nama:
-            </Typography>
             <TextField
-              label="Masukkan nama"
-              variant="outlined"
+              label="Nama"
               fullWidth
               {...register("name")}
               error={!!errors.name}
               helperText={errors.name?.message}
             />
-            <Typography variant="body1" sx={{ color: "black" }}>
-              Email:
-            </Typography>
             <TextField
-              label="Masukkan email"
-              variant="outlined"
-              fullWidth
+              label="Email"
               type="email"
+              fullWidth
               {...register("email")}
               error={!!errors.email}
               helperText={errors.email?.message}
             />
-            <Typography variant="body1" sx={{ color: "black" }}>
-              Password:
-            </Typography>
             <TextField
-              label="Masukkan password"
-              variant="outlined"
-              fullWidth
+              label="Password"
               type="password"
+              fullWidth
               {...register("password")}
               error={!!errors.password}
               helperText={errors.password?.message}
             />
-            <Typography variant="body1" sx={{ color: "black" }}>
-              Konfirmasi Password:
-            </Typography>
             <TextField
-              label="Masukkan ulang password"
-              variant="outlined"
-              fullWidth
+              label="Konfirmasi Password"
               type="password"
+              fullWidth
               {...register("confirmPassword")}
               error={!!errors.confirmPassword}
               helperText={errors.confirmPassword?.message}
             />
-            <Typography variant="body1" sx={{ color: "black" }}>
-              Nomor Telepon:
-            </Typography>
             <TextField
-              label="Masukkan nomor telepon"
-              variant="outlined"
+              label="Nomor Telepon"
               fullWidth
               {...register("phoneNumber")}
               error={!!errors.phoneNumber}
               helperText={errors.phoneNumber?.message}
             />
+
             {error && (
-              <Typography color="error" variant="body2">
+              <Typography
+                color="error"
+                variant="body2"
+                sx={{ textAlign: "center" }}
+              >
                 {error}
               </Typography>
             )}
-            <Typography variant="body2" marginTop={1} sx={{ color: "black" }}>
-              {"Sudah punya akun? "}
-              <Link href="/login" underline="hover" sx={{ color: "black" }}>
-                Login di sini.
-              </Link>
-            </Typography>
+
             <Button
               type="submit"
-              variant="contained"
               fullWidth
-              color="success"
+              variant="contained"
               sx={{
-                marginBottom: 2,
-                borderRadius: 3,
                 backgroundColor: "#493628",
+                color: "#fff",
+                "&:hover": { backgroundColor: "#5a4632" },
               }}
             >
-              Registrasi
+              Register
             </Button>
           </Box>
-        </Box>
-      </Container>
-    </>
+          <Typography sx={{ textAlign: "center" }}>
+            {"Already have an account? "}
+            <Link href="/login" sx={{ color: "inherit" }} underline="hover">
+              Login here
+            </Link>
+          </Typography>
+        </Card>
+      </Box>
+    </Container>
   );
 }

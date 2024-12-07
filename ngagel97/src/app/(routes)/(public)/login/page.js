@@ -7,31 +7,51 @@ import {
   Button,
   Typography,
   Link,
+  Checkbox,
+  FormControlLabel,
   Container,
+  Card as MuiCard,
 } from "@mui/material";
-import Image from "next/image";
+import { styled } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
+
+// Custom Styled Card
+const Card = styled(MuiCard)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignSelf: "center",
+  width: "100%",
+  padding: theme.spacing(4),
+  gap: theme.spacing(2),
+  margin: "auto",
+  [theme.breakpoints.up("sm")]: {
+    maxWidth: "450px",
+  },
+  boxShadow:
+    "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
+}));
 
 export default function LoginPage() {
   const router = useRouter(); // Hook untuk navigasi
   const emailRef = useRef(null); // Ref untuk email
   const passwordRef = useRef(null); // Ref untuk password
   const [error, setError] = useState("");
+  const [rememberMe, setRememberMe] = useState(false); // State untuk remember me
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Mencegah reload halaman
-    setError(""); // Reset error sebelum mencoba login
+    event.preventDefault();
+    setError("");
 
     try {
-      const email = emailRef.current.value; // Ambil nilai dari emailRef
-      const password = passwordRef.current.value; // Ambil nilai dari passwordRef
+      const email = emailRef.current.value;
+      const password = passwordRef.current.value;
 
       const res = await fetch(`/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }), // Kirim data sebagai body
+        body: JSON.stringify({ email, password, rememberMe }), // Kirim nilai rememberMe ke API
       });
 
       const data = await res.json();
@@ -47,85 +67,101 @@ export default function LoginPage() {
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container
+      maxWidth="sm"
+      sx={{ display: "flex", justifyContent: "center", minHeight: "90vh" }}
+    >
       <Box
         display="flex"
         flexDirection="column"
-        alignItems="center"
-        marginTop={5}
+        justifyContent="center"
+        width="100%"
       >
-        <Image
-          src="/image/HumanLogoLogin.png"
-          alt="Logo"
-          width={150}
-          height={150}
-          style={{ marginBottom: "20px" }}
-        />
-        <Typography variant="h4" gutterBottom>
-          Login
-        </Typography>
-
-        <Box
-          component="form"
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          gap={2}
-          width="100%"
-          onSubmit={handleSubmit}
-        >
-          <Typography variant="h6" sx={{ color: "black" }}>
-            Email:
-          </Typography>
-          <TextField
-            label="Masukkan email"
-            variant="outlined"
-            name="email"
-            fullWidth
-            required
-            inputRef={emailRef} // Assign ref
-          />
-
-          <Typography variant="h6" sx={{ color: "black" }}>
-            Password:
-          </Typography>
-          <TextField
-            label="Masukkan password"
-            name="password"
-            type="password"
-            variant="outlined"
-            fullWidth
-            required
-            inputRef={passwordRef} // Assign ref
-          />
-
-          {error && (
-            <Typography color="error" variant="body2" sx={{ marginTop: 1 }}>
-              {error}
-            </Typography>
-          )}
-
-          <Typography variant="body2" marginTop={1} sx={{ color: "black" }}>
-            {"Tidak punya akun? "}
-            <Link href="/register" underline="hover" sx={{ color: "black" }}>
-              Registrasi di sini.
-            </Link>
-          </Typography>
-
-          <Button
-            type="submit"
-            variant="contained"
-            color="success"
-            fullWidth
+        <Card variant="outlined">
+          <Typography
+            component="h1"
+            variant="h4"
             sx={{
-              marginBottom: 2,
-              borderRadius: 3,
-              backgroundColor: "#493628",
+              textAlign: "center",
+              fontSize: "clamp(2rem, 10vw, 2.15rem)",
+              fontWeight: 700,
             }}
           >
             Login
-          </Button>
-        </Box>
+          </Typography>
+
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              width: "100%",
+            }}
+          >
+            <TextField
+              label="Email"
+              id="outlined-required"
+              fullWidth
+              required
+              inputRef={emailRef}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              id="outlined-required"
+              fullWidth
+              required
+              inputRef={passwordRef}
+            />
+
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+              }
+              label="Remember Me"
+            />
+
+            {error && (
+              <Typography
+                color="error"
+                variant="body2"
+                sx={{ textAlign: "center" }}
+              >
+                {error}
+              </Typography>
+            )}
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{
+                backgroundColor: "#493628",
+                color: "#fff",
+                "&:hover": { backgroundColor: "#5a4632" },
+              }}
+            >
+              Login
+            </Button>
+          </Box>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Typography sx={{ textAlign: "center" }}>
+              {"Don't have an account?  "}
+              <Link
+                href="/register"
+                sx={{ color: "inherit" }}
+                underline="hover"
+              >
+                Register here
+              </Link>
+            </Typography>
+          </Box>
+        </Card>
       </Box>
     </Container>
   );

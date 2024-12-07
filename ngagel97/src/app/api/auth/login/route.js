@@ -9,7 +9,7 @@ export async function POST(request) {
   await connectDB();
 
   try {
-    const { email, password } = await request.json();
+    const { email, password, rememberMe } = await request.json();
 
     const user = await User.findOne({ email, deleted: false });
 
@@ -18,7 +18,7 @@ export async function POST(request) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid email",
+          message: "Email tidak",
           data: null,
           error: "User not found",
         },
@@ -43,7 +43,7 @@ export async function POST(request) {
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       SECRET_KEY,
-      { expiresIn: "12h" }
+      { expiresIn: rememberMe ? "365d" : "12h" }
     );
 
     const response = NextResponse.json({
@@ -57,7 +57,7 @@ export async function POST(request) {
     response.cookies.set("token", token, {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 12, // 12 hours
+      maxAge: rememberMe ? 60 * 60 * 24 * 365 : 60 * 60 * 12, // 1 tahun atau 12 jam
       path: "/",
     });
 
@@ -65,7 +65,7 @@ export async function POST(request) {
     response.cookies.set("role", user.role, {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 12, // 12 hours
+      maxAge: rememberMe ? 60 * 60 * 24 * 365 : 60 * 60 * 12, // 1 tahun atau 12 jam
       path: "/",
     });
     return response;

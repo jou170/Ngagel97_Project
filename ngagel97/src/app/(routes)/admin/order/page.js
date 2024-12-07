@@ -33,7 +33,7 @@ const TransactionHistoryPage = () => {
       }}
     >
       <Typography variant="h4" mb={3} color="black">
-        INI KHUSUS YANG SUDAH SELESAI SUPAYA BISA DILIHAT LAGI
+        INI NANTI TAMPILKAN SEMUA PESANAN YANG BELUM SELESAI
       </Typography>
 
       <Box display="flex" flexDirection="column" gap="20px">
