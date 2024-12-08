@@ -11,9 +11,12 @@ import {
   FormControlLabel,
   Container,
   Card as MuiCard,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 // Custom Styled Card
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -32,11 +35,12 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 export default function LoginPage() {
-  const router = useRouter(); // Hook untuk navigasi
-  const emailRef = useRef(null); // Ref untuk email
-  const passwordRef = useRef(null); // Ref untuk password
+  const router = useRouter();
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
   const [error, setError] = useState("");
-  const [rememberMe, setRememberMe] = useState(false); // State untuk remember me
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -51,7 +55,7 @@ export default function LoginPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password, rememberMe }), // Kirim nilai rememberMe ke API
+        body: JSON.stringify({ email, password, rememberMe }),
       });
 
       const data = await res.json();
@@ -109,11 +113,23 @@ export default function LoginPage() {
             />
             <TextField
               label="Password"
-              type="password"
-              id="outlined-required"
+              type={showPassword ? "text" : "password"} // Toggle between "text" and "password"
+              id="outlined-password"
               fullWidth
               required
               inputRef={passwordRef}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
 
             <FormControlLabel
