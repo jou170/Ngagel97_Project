@@ -36,7 +36,7 @@ const DeliveryPage = () => {
         {/* Header */}
         <Box
           sx={{
-            bgcolor: "#b08968",
+            bgcolor: "#AB886D",
             p: 2,
             borderRadius: "4px 4px 0 0",
             textAlign: "center",

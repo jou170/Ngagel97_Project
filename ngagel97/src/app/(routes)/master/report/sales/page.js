@@ -93,8 +93,8 @@ const SalesPage = () => {
                 Filter
               </Button>
               <Button
-                variant="outlined"
-                sx={{ color: "#b08968" }}
+                variant="contained"
+                sx={{ bgcolor: "#C50102", color: "white" }}
                 onClick={() => setFilteredData(transactions)} // Reset the filtered data
               >
                 Reset

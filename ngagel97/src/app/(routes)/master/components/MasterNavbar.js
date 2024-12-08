@@ -54,7 +54,7 @@ const MasterNavbar = () => {
         <Box sx={{ display: "flex", alignItems: "center", gap: "20px" }}>
           {/* Menu Produk */}
           <Button
-            sx={{ color: "#FFFFFF", fontSize: "18px" }}
+            sx={{ color: "#FFFFFF", marginX: 1 }}
             onClick={handleProductsMenuOpen}
           >
             Produk
@@ -89,7 +89,7 @@ const MasterNavbar = () => {
 
           {/* Menu Laporan */}
           <Button
-            sx={{ color: "#FFFFFF", fontSize: "18px" }}
+            sx={{ color: "#FFFFFF", marginX: 1 }}
             onClick={handleReportsMenuOpen}
           >
             Laporan
@@ -126,7 +126,7 @@ const MasterNavbar = () => {
           <Link
             href="/master/status"
             underline="none"
-            sx={{ color: "#FFFFFF", fontSize: "18px" }}
+            sx={{ color: "#FFFFFF", marginX: 1 }}
           >
             USER
           </Link>

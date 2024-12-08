@@ -166,14 +166,14 @@ const StatusPage = () => {
                       <TableCell align="center">
                         <Button
                           variant="contained"
-                          color="primary"
+                          color="white"
                           onClick={() =>
                             handleUpdateRole(
                               user._id,
                               user.role === "admin" ? "customer" : "admin"
                             )
                           }
-                          sx={{ mr: 1 }}
+                          sx={{ mr: 1,bgcolor: "#493628", color: "white" }}
                         >
                           Change Role
                         </Button>

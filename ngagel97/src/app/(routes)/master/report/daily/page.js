@@ -73,7 +73,7 @@ const DailySalesPage = () => {
           {/* Header */}
           <Box
             sx={{
-              bgcolor: "#b08968",
+              bgcolor: "#AB886D",
               p: 2,
               borderRadius: "4px 4px 0 0",
               textAlign: "center",
@@ -101,14 +101,14 @@ const DailySalesPage = () => {
               />
               <Button
                 variant="contained"
-                sx={{ bgcolor: "#b08968", color: "white" }}
+                sx={{ bgcolor: "#493628", color: "white" }}
                 onClick={handleFilter}
               >
                 Filter
               </Button>
               <Button
-                variant="outlined"
-                sx={{ color: "#b08968" }}
+                variant="contained"
+                sx={{ bgcolor: "#C50102", color: "white" }}
                 onClick={() => setFilteredData(data)}
               >
                 Reset

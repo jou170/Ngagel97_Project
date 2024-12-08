@@ -37,21 +37,13 @@ const AdminNavbar = () => {
         <Box sx={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <Button
             onClick={() => handleNavigation("/admin/transaction/history")}
-            sx={{
-              color: "#FFFFFF",
-              fontSize: "18px",
-              textTransform: "none",
-            }}
+            sx={{ color: "#FFFFFF", marginX: 1 }}
           >
             Transaction History
           </Button>
           <Button
             onClick={() => handleNavigation("/admin/transaction/offline")}
-            sx={{
-              color: "#FFFFFF",
-              fontSize: "18px",
-              textTransform: "none",
-            }}
+            sx={{ color: "#FFFFFF", marginX: 1 }}
           >
             Offline Transaction
           </Button>

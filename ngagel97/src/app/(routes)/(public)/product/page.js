@@ -26,7 +26,7 @@ const ProductList = () => {
         category_name: "Electronics",
       },
       product_name: "Wireless Headphones",
-      product_price: 99.99,
+      product_price: 5000,
       product_description: "High-quality wireless headphones with noise cancellation.",
     },
     {
@@ -36,7 +36,7 @@ const ProductList = () => {
         category_name: "Appliances",
       },
       product_name: "Smart Vacuum Cleaner",
-      product_price: 199.99,
+      product_price: 2000,
       product_description: "Automatic vacuum cleaner with smart home integration.",
     },
     {
@@ -46,13 +46,18 @@ const ProductList = () => {
         category_name: "Fitness",
       },
       product_name: "Fitness Tracker",
-      product_price: 49.99,
+      product_price: 6000,
       product_description: "Wearable fitness tracker with heart rate monitor.",
     },
   ];
 
   const handleDetailClick = (productId) => {
     router.push(`/product/detail/${productId}`);
+  };
+
+  const truncateDescription = (description) => {
+    const words = description.split(" ");
+    return words.length > 5 ? words.slice(0, 5).join(" ") + " ..." : description;
   };
 
   return (
@@ -79,7 +84,7 @@ const ProductList = () => {
                 <TableCell>{product.category.category_name}</TableCell>
                 <TableCell>{product.product_name}</TableCell>
                 <TableCell>{product.product_price.toFixed(2)}</TableCell>
-                <TableCell>{product.product_description}</TableCell>
+                <TableCell>{truncateDescription(product.product_description)}</TableCell>
                 <TableCell>
                   <Button
                     variant="contained"

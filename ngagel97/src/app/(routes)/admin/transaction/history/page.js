@@ -7,7 +7,7 @@ const orders = [
     id: 1,
     // image: "https://via.placeholder.com/80x100", // Replace with your image URL
     title: "Order Title 1",
-    total: "$50",
+    total: "Rp. 2000,-",
     date: "2024-11-01",
     time: "10:00 AM",
     status: "Delivered",
@@ -16,7 +16,7 @@ const orders = [
     id: 2,
     // image: "https://via.placeholder.com/80x100",
     title: "Order Title 2",
-    total: "$30",
+    total: "Rp. 2000,-",
     date: "2024-11-02",
     time: "2:00 PM",
     status: "Delivered",
@@ -70,7 +70,7 @@ const TransactionHistoryPage = () => {
             {/* Right: Order Status */}
             <Box textAlign="right">
               <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                Order has arrived since {order.date}, {order.time}
+                Order sudah sampai pada {order.date}, {order.time}
               </Typography>
               <Button
                 variant="contained"
