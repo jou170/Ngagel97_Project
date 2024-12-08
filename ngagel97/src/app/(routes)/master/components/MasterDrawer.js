@@ -8,20 +8,25 @@ import Collapse from "@mui/material/Collapse";
 import Box from "@mui/material/Box";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
 import DraftsIcon from "@mui/icons-material/Drafts";
 import PrintIcon from "@mui/icons-material/Print";
-import BarChartIcon from "@mui/icons-material/BarChart";
 import PersonIcon from "@mui/icons-material/Person";
-import SendIcon from "@mui/icons-material/Send";
 import Divider from "@mui/material/Divider";
 import AddIcon from "@mui/icons-material/Add";
+import HomeIcon from "@mui/icons-material/Home";
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import SummarizeIcon from '@mui/icons-material/Summarize';
+import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
+import CreateIcon from '@mui/icons-material/Create';
 
 const products = [
   {
     link: "/master/addon",
     text: "Addon",
-    icon: <InboxIcon />,
+    icon: <AttachFileIcon/>,
     subMenu: [
       { link: "/master/addon/add", text: "Add Addon", icon: <AddIcon /> },
     ],
@@ -29,7 +34,7 @@ const products = [
   {
     link: "/master/service",
     text: "Service",
-    icon: <PrintIcon />,
+    icon: <MiscellaneousServicesIcon />,
     subMenu: [
       { link: "/master/service/add", text: "Add Service", icon: <AddIcon /> },
     ],
@@ -37,7 +42,7 @@ const products = [
   {
     link: "/master/item",
     text: "Item",
-    icon: <DraftsIcon />,
+    icon: <CreateIcon />,
     subMenu: [
       { link: "/master/item/add", text: "Add Item", icon: <AddIcon /> },
     ],
@@ -45,15 +50,15 @@ const products = [
 ];
 
 const menu = [
-  { link: "/master", text: "Dashboard", icon: <PersonIcon /> },
-  { link: "/master/user", text: "User", icon: <PersonIcon /> },
+  { link: "/master", text: "Dashboard", icon: <HomeIcon /> },
+  { link: "/master/user", text: "User", icon:  <PersonIcon /> },
   {
     text: "Reports",
-    icon: <BarChartIcon />,
+    icon: <SummarizeIcon />,
     children: [
-      { link: "/master/report/sales", text: "Sales", icon: <InboxIcon /> },
-      { link: "/master/report/delivery", text: "Delivery", icon: <SendIcon /> },
-      { link: "/master/report/daily", text: "Daily", icon: <DraftsIcon /> },
+      { link: "/master/report/sales", text: "Sales", icon: <TrendingUpIcon /> },
+      { link: "/master/report/delivery", text: "Delivery", icon: <FlightTakeoffIcon /> },
+      { link: "/master/report/daily", text: "Daily", icon: <QueryStatsIcon /> },
     ],
   },
 ];
@@ -71,7 +76,7 @@ export default function MasterDrawer() {
   const renderListItems = (items) => {
     return items.map((item, index) => (
       <ListItemButton
-        key={`list-${item.text}-${index}`} // Tambahkan indeks jika diperlukan
+        key={`list-${item.text}-${index}`}
         component="a"
         href={item.link}
       >

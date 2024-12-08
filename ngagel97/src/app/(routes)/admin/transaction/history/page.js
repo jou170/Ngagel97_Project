@@ -27,7 +27,7 @@ const TransactionHistoryPage = () => {
   return (
     <Box
       sx={{
-        backgroundColor: "#f4e4d8",
+        // backgroundColor: "#f4e4d8",
         minHeight: "100vh",
         padding: "20px",
       }}

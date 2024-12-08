@@ -8,7 +8,7 @@ import Collapse from "@mui/material/Collapse";
 import Box from "@mui/material/Box";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
+import InboxIcon from '@mui/icons-material/Inbox';
 import DraftsIcon from "@mui/icons-material/Drafts";
 import PrintIcon from "@mui/icons-material/Print";
 import BarChartIcon from "@mui/icons-material/BarChart";
@@ -16,20 +16,23 @@ import PersonIcon from "@mui/icons-material/Person";
 import SendIcon from "@mui/icons-material/Send";
 import Divider from "@mui/material/Divider";
 import AddIcon from "@mui/icons-material/Add";
+import HomeIcon from '@mui/icons-material/Home';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import HistoryIcon from '@mui/icons-material/History';
 
 const menu = [
-  { link: "/admin", text: "Dashboard", icon: <PersonIcon /> },
-  { link: "/admin/order", text: "Orders", icon: <PersonIcon /> },
+  { link: "/admin", text: "Dashboard", icon: <HomeIcon /> },
+  { link: "/admin/order", text: "Orders", icon: <InboxIcon /> },
   {
     text: "Transactions",
     icon: <BarChartIcon />,
     children: [
       {
         link: "/admin/transaction/offline",
-        text: "Offline",
-        icon: <InboxIcon />,
+        text: "Offline Transaction",
+        icon: <ReceiptLongIcon />,
       },
-      { link: "/admin/report/history", text: "History", icon: <SendIcon /> },
+      { link: "/admin/transaction/history", text: "History", icon: <HistoryIcon /> },
     ],
   },
 ];
