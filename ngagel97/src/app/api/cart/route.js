@@ -68,3 +68,46 @@ export async function POST(req) {
     );
   }
 }
+
+export async function GET(req) {
+  const token = req.cookies.get("token");
+
+  if (!token) {
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  try {
+    // Decode JWT
+    const { payload } = await jwtVerify(
+      token.value,
+      new TextEncoder().encode(process.env.JWT_SECRET)
+    );
+    const userId = payload.userId;
+
+    await connectDB();
+
+    let userCart = await Cart.findOne({ userId });
+
+    // Jika cart tidak ditemukan, return cart kosong
+    if (!userCart) {
+      return NextResponse.json(
+        { success: true, data: { items: [] } }, // Pastikan ada properti "items"
+        { status: 200 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: true, data: { items: userCart.items } }, // Pastikan ada properti "items"
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error fetch cart:", error);
+    return NextResponse.json(
+      { success: false, message: "Error fetch cart", error: error.message },
+      { status: 500 }
+    );
+  }
+}
