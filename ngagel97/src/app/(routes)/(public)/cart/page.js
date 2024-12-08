@@ -39,10 +39,19 @@ const CartPage = () => {
     );
   };
 
-  const handleRemoveItem = (id) => {
-    setCartItems((prevItems) =>
-      prevItems.filter((item) => item.jasaId !== id)
-    );
+  const handleRemoveItem = async (id) => {
+    const res = await fetch(`/api/cart/${id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (res.ok) {
+      // Update state to remove the deleted item
+      setCartItems((prevItems) => prevItems.filter((item, index) => index !== id));
+      alert("Cart item deleted successfully!");
+    } else {
+      alert("Failed to delete cart item.");
+    }
   };
 
   const handleCheckout = () => {
@@ -114,7 +123,7 @@ const CartPage = () => {
               color="error"
               onClick={(e) => {
                 e.stopPropagation(); // Hentikan klik propagasi ke card
-                handleRemoveItem(item.jasaId);
+                handleRemoveItem(index); // Pass index to identify the item
               }}
               sx={{ ml: 2 }}
             >

@@ -131,3 +131,66 @@ export async function PUT(req, { params }) {
       );
     }
   }
+
+  export async function DELETE(req, { params }) {
+    const token = req.cookies.get("token"); // Ambil token dari cookies
+    const { id } = await params; // Ambil id dari route dinamis (cart/[id])
+  
+    // Pengecekan jika token tidak ada
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+  
+    try {
+      // Decode JWT
+      const { payload } = await jwtVerify(
+        token.value,
+        new TextEncoder().encode(process.env.JWT_SECRET)
+      );
+      const userId = payload.userId;
+  
+      // Koneksi ke database
+      await connectDB();
+  
+      // Cari cart berdasarkan userId
+      const userCart = await Cart.findOne({ userId });
+  
+      // Jika cart tidak ditemukan atau tidak memiliki items
+      if (!userCart || !userCart.items) {
+        return NextResponse.json(
+          { success: true, data: null, message: "Cart is empty or not found" },
+          { status: 200 }
+        );
+      }
+  
+      // Cek apakah item yang diminta ada dalam cart
+      const cartItem = userCart.items[id];
+  
+      if (!cartItem) {
+        return NextResponse.json(
+          { success: false, message: "Item not found" },
+          { status: 404 }
+        );
+      }
+  
+      // Hapus item dari array items
+      userCart.items.splice(id, 1);
+  
+      // Simpan perubahan
+      await userCart.save();
+  
+      return NextResponse.json(
+        { success: true, message: "Cart item deleted successfully" },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error("Error deleting cart item:", error);
+      return NextResponse.json(
+        { success: false, message: "Error deleting cart item", error: error.message },
+        { status: 500 }
+      );
+    }
+  }
