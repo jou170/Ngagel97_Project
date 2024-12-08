@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ItemForm from "../../components/ItemForm";
+import { CircularProgress } from "@mui/material";
 
 const EditItemPage = ({ params }) => {
   const [id, setId] = useState(null);
@@ -17,7 +18,7 @@ const EditItemPage = ({ params }) => {
   }, [params]);
 
   if (!id) {
-    return <div>Loading...</div>; // Render loading jika id belum tersedia
+    return <CircularProgress />;
   }
 
   return (

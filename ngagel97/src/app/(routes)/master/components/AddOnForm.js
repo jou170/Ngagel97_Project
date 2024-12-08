@@ -12,6 +12,7 @@ import {
   InputLabel,
   FormControl,
   FormHelperText,
+  Alert,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import Joi from "joi";
@@ -151,6 +152,7 @@ export default function AddOnForm({ mode = "add", id }) {
     }
   }, [mode, id]);
 
+  if (error) return <Alert severity="error">{error}</Alert>;
   return (
     <Container maxWidth="sm">
       <Box
@@ -228,7 +230,7 @@ export default function AddOnForm({ mode = "add", id }) {
             type="submit"
             variant="contained"
             fullWidth
-            sx={{ marginTop: 2, borderRadius: 3, backgroundColor: "#493628"}}
+            sx={{ marginTop: 2, borderRadius: 3, backgroundColor: "#493628" }}
           >
             {mode === "add" ? "Tambah Add-On" : "Perbarui Add-On"}
           </Button>

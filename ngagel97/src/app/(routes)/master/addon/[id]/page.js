@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AddOnForm from "../../components/AddOnForm";
+import { CircularProgress } from "@mui/material";
 
 const EditAddOnPage = ({ params }) => {
   const [id, setId] = useState(null);
@@ -17,7 +18,7 @@ const EditAddOnPage = ({ params }) => {
   }, [params]);
 
   if (!id) {
-    return <div>Loading...</div>; // Render loading jika id belum tersedia
+    return <CircularProgress />;
   }
 
   return (

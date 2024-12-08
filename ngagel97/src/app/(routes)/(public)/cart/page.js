@@ -39,7 +39,27 @@ const CartPage = () => {
     );
   };
 
+  const deleteFile = async (lastUrl) => {
+    let filepath = lastUrl.replace(
+      "https://mnyziu33qakbhpjn.public.blob.vercel-storage.com/",
+      ""
+    );
+
+    await fetch(`/api/upload?filepath=${filepath}`, {
+      method: "DELETE",
+    });
+  };
+
   const handleRemoveItem = async (id) => {
+    // console.log(cartItems[id].file);
+
+    // Delete file dulu
+    try {
+      await deleteFile(cartItems[id].file);
+    } catch (error) {
+      throw new Error("Cart item not found.");
+    }
+
     const res = await fetch(`/api/cart/${id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -47,7 +67,9 @@ const CartPage = () => {
 
     if (res.ok) {
       // Update state to remove the deleted item
-      setCartItems((prevItems) => prevItems.filter((item, index) => index !== id));
+      setCartItems((prevItems) =>
+        prevItems.filter((item, index) => index !== id)
+      );
       alert("Cart item deleted successfully!");
     } else {
       alert("Failed to delete cart item.");
@@ -134,7 +156,12 @@ const CartPage = () => {
       ) : (
         <Typography variant="h6">Cart is empty.</Typography>
       )}
-      <Box display="flex" justifyContent="space-between" mt={3} alignItems="center">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        mt={3}
+        alignItems="center"
+      >
         <Typography variant="h6" fontWeight="bold">
           Total: Rp. {totalPrice.toFixed(2)}
         </Typography>

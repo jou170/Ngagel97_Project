@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -15,10 +15,10 @@ import {
   Box,
   Checkbox,
   FormControlLabel,
-  Grid,
+  Grid2,
   IconButton,
 } from "@mui/material";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // Import the back icon
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"; // Import the back icon
 import * as pdfjsLib from "pdfjs-dist";
 
 const CartDetail = () => {
@@ -29,6 +29,7 @@ const CartDetail = () => {
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [lastFileUrl, setLastFileUrl] = useState(null);
   const [pageCount, setPageCount] = useState(null);
   const [notes, setNotes] = useState("");
   const [selectedAddOns, setSelectedAddOns] = useState([]);
@@ -46,18 +47,18 @@ const CartDetail = () => {
         const cartRes = await fetch(`/api/cart/${id}`);
         if (!cartRes.ok) throw new Error("Failed to fetch cart details");
         const cartData = await cartRes.json();
-  
+
         if (cartData.success) {
           const cartItemData = cartData.data; // Cart data
           setCartItem(cartItemData);
           setQuantity(cartItemData.qty || 1);
-          setUploadedFile(cartItemData.file || null);
-          setPageCount(cartItemData.lembar/ quantity || null);
+          setLastFileUrl(cartItemData.file || null);
+          setPageCount(cartItemData.lembar / quantity || null);
           setNotes(cartItemData.notes || "");
-          
+
           // Pre-set selected add-ons based on cart data
           setSelectedAddOns(cartItemData.addOns || []);
-  
+
           // After fetching cart data, get the service using idJasa from cart
           fetchServiceData(cartItemData.jasaId);
         } else {
@@ -69,10 +70,9 @@ const CartDetail = () => {
         setLoading(false);
       }
     };
-  
+
     fetchCartData();
   }, [id]);
-  
 
   const fetchServiceData = async (idJasa) => {
     try {
@@ -125,6 +125,12 @@ const CartDetail = () => {
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
+      if (file.type !== "application/pdf") {
+        setError("Only PDF files are allowed.");
+        event.target.value = null;
+        return;
+      }
+
       setUploadedFile(file);
 
       const fileReader = new FileReader();
@@ -145,70 +151,111 @@ const CartDetail = () => {
     setSelectedAddOns((prev) => {
       // Check if the add-on is already selected
       const isAlreadySelected = prev.some((a) => a.addOnId === addon._id);
-      
+
       if (isAlreadySelected) {
         // If selected, remove from selectedAddOns
         return prev.filter((a) => a.addOnId !== addon._id);
       } else {
         // If not selected, add to selectedAddOns
-        return [...prev, { addOnId: addon._id, nama: addon.nama, harga: addon.harga }];
+        return [
+          ...prev,
+          { addOnId: addon._id, nama: addon.nama, harga: addon.harga },
+        ];
       }
     });
   };
-  
+
+  const updateFile = async (file, lastUrl) => {
+    if (!file) return null;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    let filepath = lastUrl.replace(
+      "https://mnyziu33qakbhpjn.public.blob.vercel-storage.com/",
+      ""
+    );
+    await fetch(`/api/upload?filepath=${filepath}`, {
+      method: "DELETE",
+    });
+
+    const res = await fetch(`/api/upload`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return data.url;
+    } else {
+      const data = await res.json();
+      throw new Error(data.error || "Failed to upload the PDF file.");
+    }
+  };
 
   const handleUpdateCart = async () => {
-    let faon = filteredAddOnList.filter((item) => selectedAddOns.find((it) => it.addOnId == item._id));
-    let subAddOn = 0;
-    console.log(selectedAddOns);
-    
-    for(const aon of faon){
-      console.log(aon);
-      
-      if(aon.tipeHarga == "lembar"){
-        subAddOn += aon.harga * pageCount * quantity;
+    try {
+      let newFileUrl = await updateFile(uploadedFile, lastFileUrl);
+
+      let faon = filteredAddOnList.filter((item) =>
+        selectedAddOns.find((it) => it.addOnId == item._id)
+      );
+      let subAddOn = 0;
+      console.log(selectedAddOns);
+
+      for (const aon of faon) {
+        console.log(aon);
+
+        if (aon.tipeHarga == "lembar") {
+          subAddOn += aon.harga * pageCount * quantity;
+        } else {
+          subAddOn += aon.harga * quantity;
+        }
       }
-      else{
-        subAddOn += aon.harga * quantity;
-      }
-    } 
-    let addons = faon.map((i) => {
+      let addons = faon.map((i) => {
         return {
           addOnId: i._id,
           nama: i.nama,
           harga: i.harga,
           qty: i.tipeHarga == "lembar" ? quantity * pageCount : quantity,
           tipeHarga: i.tipeHarga,
-          subtotal: i.tipeHarga == "lembar" ? i.harga * quantity * pageCount : i.harga * quantity,
-        }
+          subtotal:
+            i.tipeHarga == "lembar"
+              ? i.harga * quantity * pageCount
+              : i.harga * quantity,
+        };
       });
       console.log(addons);
-      
-    const updatedCartData = {
-      qty: quantity,
-      lembar: pageCount * quantity,
-      file: uploadedFile ? uploadedFile.name : cartItem.file,
-      notes: notes,
-      addOns: addons,
-      subtotal: Number.parseInt(cartItem.harga) * pageCount * quantity + subAddOn
-    };
 
-    const res = await fetch(`/api/cart/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedCartData),
-    });
+      const updatedCartData = {
+        qty: quantity,
+        lembar: pageCount * quantity,
+        file: uploadedFile ? newFileUrl : lastFileUrl,
+        notes: notes,
+        addOns: addons,
+        subtotal:
+          Number.parseInt(cartItem.harga) * pageCount * quantity + subAddOn,
+      };
 
-    if (res.ok) {
-      alert("Cart updated successfully!");
-      router.push('/cart');
-    } else {
-      alert("Failed to update cart.");
+      const res = await fetch(`/api/cart/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedCartData),
+      });
+
+      if (res.ok) {
+        alert("Cart updated successfully!");
+        router.push("/cart");
+      } else {
+        alert("Failed to update cart.");
+      }
+    } catch (error) {
+      setError(error);
     }
   };
 
   const handleBack = () => {
-    router.push('/cart'); // Navigate back to /cart
+    router.push("/cart"); // Navigate back to /cart
   };
 
   if (loading) return <CircularProgress />;
@@ -218,8 +265,8 @@ const CartDetail = () => {
   return (
     <Container sx={{ marginTop: 4 }}>
       <Card>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+        <Grid2 container spacing={2}>
+          <Grid2 size={{ xs: 12, md: 6 }}>
             <Box sx={{ position: "relative" }}>
               <IconButton
                 onClick={handleBack}
@@ -229,7 +276,7 @@ const CartDetail = () => {
                   left: 10,
                   color: "white",
                   backgroundColor: "rgba(0, 0, 0, 0.5)",
-                  "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.7)" }
+                  "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.7)" },
                 }}
               >
                 <ArrowBackIcon />
@@ -241,8 +288,8 @@ const CartDetail = () => {
                 sx={{ height: 400, width: 400, objectFit: "contain" }}
               />
             </Box>
-          </Grid>
-          <Grid item xs={12} md={6}>
+          </Grid2>
+          <Grid2 size={{ xs: 12, md: 6 }}>
             <CardContent>
               <Typography variant="h4">{cartItem.nama}</Typography>
               <Typography gutterBottom>Price: Rp. {cartItem.harga}</Typography>
@@ -278,10 +325,12 @@ const CartDetail = () => {
                   control={
                     <Checkbox
                       onChange={() => toggleAddOn(addon)}
-                      checked={selectedAddOns.some((a) => a.addOnId === addon._id)}
+                      checked={selectedAddOns.some(
+                        (a) => a.addOnId === addon._id
+                      )}
                     />
                   }
-                  label={`${addon.nama} - Rp. ${addon.harga}`}
+                  label={`${addon.nama} - Rp ${addon.harga},-/${addon.tipeHarga}`}
                 />
               ))}
 
@@ -304,8 +353,8 @@ const CartDetail = () => {
                 Update Cart
               </Button>
             </CardContent>
-          </Grid>
-        </Grid>
+          </Grid2>
+        </Grid2>
       </Card>
     </Container>
   );

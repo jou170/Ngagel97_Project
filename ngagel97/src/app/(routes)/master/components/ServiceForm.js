@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box, TextField, Button, Typography, Container } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Container,
+  Alert,
+} from "@mui/material";
 import { useForm } from "react-hook-form";
 import Joi from "joi";
 import { useRouter } from "next/navigation";
@@ -143,6 +150,7 @@ export default function ServiceForm({ mode = "add", id }) {
     }
   }, [mode, id]);
 
+  if (error) return <Alert severity="error">{error}</Alert>;
   return (
     <Container maxWidth="sm">
       <Box
@@ -152,7 +160,7 @@ export default function ServiceForm({ mode = "add", id }) {
         marginTop={5}
       >
         <Typography variant="h4" gutterBottom>
-        {mode === "add" ? "Tambah Jasa" : "Edit Jasa"}
+          {mode === "add" ? "Tambah Jasa" : "Edit Jasa"}
         </Typography>
         <Box
           component="form"
@@ -205,7 +213,12 @@ export default function ServiceForm({ mode = "add", id }) {
             setSelectedAddons={setSelectedAddons}
           />
 
-          <Button type="submit" variant="contained" fullWidth sx={{backgroundColor: "#493628"}}>
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{ backgroundColor: "#493628" }}
+          >
             Submit
           </Button>
 

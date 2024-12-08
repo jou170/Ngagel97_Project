@@ -11,6 +11,7 @@ import {
   InputLabel,
   FormControl,
   FormHelperText,
+  Alert,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import Joi from "joi";
@@ -104,6 +105,7 @@ export default function ItemForm({ mode = "add", id }) {
     }
   }, [mode, id]);
 
+  if (error) return <Alert severity="error">{error}</Alert>;
   return (
     <Container maxWidth="sm">
       <Box

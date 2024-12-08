@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   Container,
   Typography,
@@ -15,7 +15,7 @@ import {
   Box,
   Checkbox,
   FormControlLabel,
-  Grid,
+  Grid2,
 } from "@mui/material";
 import * as pdfjsLib from "pdfjs-dist";
 
@@ -30,8 +30,9 @@ const ProductDetail = () => {
   const [addOnList, setAddOnList] = useState([]);
   const [filteredAddOnList, setFilteredAddOnList] = useState([]);
   const [selectedAddOns, setSelectedAddOns] = useState([]);
-  const [notes, setNotes] = useState(""); // State untuk notes
+  const [notes, setNotes] = useState("");
   const [isFormValid, setIsFormValid] = useState(false);
+  const router = useRouter();
 
   pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
@@ -82,6 +83,12 @@ const ProductDetail = () => {
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
+      if (file.type !== "application/pdf") {
+        setError("Only PDF files are allowed.");
+        event.target.value = null; // Reset file input
+        return;
+      }
+
       setUploadedFile(file);
 
       const fileReader = new FileReader();
@@ -98,72 +105,106 @@ const ProductDetail = () => {
     }
   };
 
-  const handleAddToCart = async () => {
-    let faon = filteredAddOnList.filter((item) => selectedAddOns.find((it) => it.id == item._id));
-    let subAddOn = 0;
-    for(const aon of faon){
-      console.log(aon);
-      
-      if(aon.tipeHarga == "lembar"){
-        subAddOn += aon.harga * pageCount * quantity;
-      }
-      else{
-        subAddOn += aon.harga * quantity;
-      }
-    } 
-    console.log(faon);
-    let items = {};
-    if(selectedAddOns){
-      items = {
-        jasaId: service._id,
-        nama: service.nama,
-        harga: service.harga,
-        lembar: pageCount,
-        file: uploadedFile ? uploadedFile.name : null,
-        qty: quantity,
-        notes: notes,
-        subtotal: Number.parseInt(service.harga) * pageCount * quantity + subAddOn,
-        addOns: faon.map((i) => {
-          return {
-            addOnId: i._id,
-            nama: i.nama,
-            harga: i.harga,
-            qty: i.tipeHarga == "lembar" ? quantity * pageCount : quantity,
-            tipeHarga: i.tipeHarga,
-            subtotal: i.tipeHarga == "lembar" ? i. harga * quantity * pageCount : i.harga * quantity,
-          }
-        })
-      }
-    }
-    else{
-      items = {
-        jasaId: service._id,
-        nama: service.nama,
-        harga: service.harga,
-        lembar: pageCount,
-        file: uploadedFile ? uploadedFile.name : null,
-        qty: quantity,
-        subtotal: Number.parseInt(service.harga) * pageCount * quantity + subAddOn
-      }
-    }
-    
-    console.log(items);
-    
-    const cartData = {items};
+  const uploadFile = async (file) => {
+    if (!file) return null;
 
-    console.log(cartData);
-    
+    const formData = new FormData();
+    formData.append("file", file);
 
-    const res = await fetch("/api/cart", {
+    const res = await fetch(`/api/upload`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(cartData),
+      body: formData,
     });
 
     if (res.ok) {
-      alert("Item added to cart!");
+      const data = await res.json();
+      return data.url;
     } else {
-      alert("Failed to add item to cart.");
+      const data = await res.json();
+      throw new Error(data.error || "Failed to upload the PDF file.");
+    }
+  };
+
+  const handleAddToCart = async () => {
+    let fileUrl = "";
+    try {
+      // prioritas cek file dulu
+      fileUrl = await uploadFile(uploadedFile);
+
+      // cek addon nya
+      let faon = filteredAddOnList.filter((item) =>
+        selectedAddOns.find((it) => it.id == item._id)
+      );
+      let subAddOn = 0;
+      for (const aon of faon) {
+        console.log(aon);
+
+        if (aon.tipeHarga == "lembar") {
+          subAddOn += aon.harga * pageCount * quantity;
+        } else {
+          subAddOn += aon.harga * quantity;
+        }
+      }
+      console.log(faon);
+      let items = {};
+      if (selectedAddOns) {
+        items = {
+          jasaId: service._id,
+          nama: service.nama,
+          harga: service.harga,
+          lembar: pageCount,
+          file: fileUrl,
+          qty: quantity,
+          notes: notes,
+          subtotal:
+            Number.parseInt(service.harga) * pageCount * quantity + subAddOn,
+          addOns: faon.map((i) => {
+            return {
+              addOnId: i._id,
+              nama: i.nama,
+              harga: i.harga,
+              qty: i.tipeHarga == "lembar" ? quantity * pageCount : quantity,
+              tipeHarga: i.tipeHarga,
+              subtotal:
+                i.tipeHarga == "lembar"
+                  ? i.harga * quantity * pageCount
+                  : i.harga * quantity,
+            };
+          }),
+        };
+      } else {
+        items = {
+          jasaId: service._id,
+          nama: service.nama,
+          harga: service.harga,
+          lembar: pageCount,
+          file: fileUrl,
+          qty: quantity,
+          subtotal:
+            Number.parseInt(service.harga) * pageCount * quantity + subAddOn,
+        };
+      }
+
+      console.log(items);
+
+      const cartData = { items };
+
+      console.log(cartData);
+
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cartData),
+      });
+
+      if (res.ok) {
+        alert("Item added to cart!");
+        router.push("/cart");
+      } else {
+        alert("Failed to add item to cart.");
+      }
+    } catch (error) {
+      setError(error);
     }
   };
 
@@ -181,19 +222,19 @@ const ProductDetail = () => {
   return (
     <Container sx={{ marginTop: 4 }}>
       <Card>
-        <Grid container spacing={2}>
+        <Grid2 container spacing={2}>
           {/* Gambar Jasa */}
-          <Grid item xs={12} md={6}>
+          <Grid2 size={{ xs: 12, md: 6 }}>
             <CardMedia
               component="img"
               image={service.gambar}
               alt={service.nama}
               sx={{ height: 400, objectFit: "contain" }}
             />
-          </Grid>
+          </Grid2>
 
           {/* Input dan Kontrol */}
-          <Grid item xs={12} md={6}>
+          <Grid2 size={{ xs: 12, md: 6 }}>
             <CardContent>
               <Typography variant="h4">{service.nama}</Typography>
               <Typography gutterBottom>Price: Rp. {service.harga}</Typography>
@@ -209,7 +250,7 @@ const ProductDetail = () => {
                 sx={{ marginBottom: 2 }}
               />
 
-              <Typography>Upload File:</Typography>
+              <Typography>Upload File: PDF*</Typography>
               <TextField
                 type="file"
                 accept="application/pdf"
@@ -218,10 +259,10 @@ const ProductDetail = () => {
                 sx={{ marginBottom: 2 }}
               />
               {uploadedFile && (
-              <Typography variant="body2" sx={{ marginTop: 1 }}>
-                {pageCount !== null && `Pages: ${pageCount}`}
-              </Typography>
-            )}
+                <Typography variant="body2" sx={{ marginTop: 1 }}>
+                  {pageCount !== null && `Pages: ${pageCount}`}
+                </Typography>
+              )}
 
               {filteredAddOnList.map((addon) => (
                 <FormControlLabel
@@ -232,7 +273,7 @@ const ProductDetail = () => {
                       checked={selectedAddOns.some((a) => a.id === addon._id)}
                     />
                   }
-                  label={`${addon.nama} - Rp. ${addon.harga}`}
+                  label={`${addon.nama} - Rp ${addon.harga},-/${addon.tipeHarga}`}
                 />
               ))}
 
@@ -257,8 +298,8 @@ const ProductDetail = () => {
                 Add to Cart
               </Button>
             </CardContent>
-          </Grid>
-        </Grid>
+          </Grid2>
+        </Grid2>
       </Card>
     </Container>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Typography, Button, Paper, Divider, Grid } from "@mui/material";
+import { Box, Typography, Button, Paper, Divider, Grid2 } from "@mui/material";
 import Image from "next/image";
 
 // Sample data for products
@@ -43,9 +43,9 @@ const PaymentPage = () => {
         Pembayaran
       </Typography>
 
-      <Grid container spacing={3}>
+      <Grid2 container spacing={3}>
         {/* Left: Payment Methods */}
-        <Grid item xs={12} md={6}>
+        <Grid2 size={{ xs: 12, md: 6 }}>
           <Typography
             variant="h6"
             mb={2}
@@ -110,10 +110,10 @@ const PaymentPage = () => {
               </Box>
             ))}
           </Paper>
-        </Grid>
+        </Grid2>
 
         {/* Right: Product Details */}
-        <Grid item xs={12} md={6}>
+        <Grid2 size={{ xs: 12, md: 6 }}>
           <Paper sx={{ padding: "20px", backgroundColor: "#fff" }}>
             <Typography variant="h6" mb={2} sx={{ fontWeight: "bold" }}>
               Detail Produk
@@ -164,8 +164,8 @@ const PaymentPage = () => {
               Lanjut Pembayaran
             </Button>
           </Paper>
-        </Grid>
-      </Grid>
+        </Grid2>
+      </Grid2>
     </Box>
   );
 };

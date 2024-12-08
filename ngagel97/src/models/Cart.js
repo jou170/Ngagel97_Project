@@ -17,7 +17,7 @@ const cartSchema = new mongoose.Schema(
         nama: { type: String, required: true }, // Nama jasa saat transaksi
         harga: { type: Number, required: true }, // Harga jasa per lembar saat transaksi
         lembar: { type: Number, required: true }, // Jumlah lembar yang diproses
-        file: { type: String }, // file yang dikirim
+        file: { type: String, required: true }, // file yang dikirim
         qty: { type: Number, required: true }, // Berapa kali dicopy
         notes: { type: String },
         addOns: [
