@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   Container,
   Typography,
@@ -16,11 +16,14 @@ import {
   Checkbox,
   FormControlLabel,
   Grid,
+  IconButton,
 } from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // Import the back icon
 import * as pdfjsLib from "pdfjs-dist";
 
 const CartDetail = () => {
   const { id } = useParams(); // id = index cart
+  const router = useRouter(); // Use useRouter for navigation
   const [cartItem, setCartItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -198,9 +201,14 @@ const CartDetail = () => {
 
     if (res.ok) {
       alert("Cart updated successfully!");
+      router.push('/cart');
     } else {
       alert("Failed to update cart.");
     }
+  };
+
+  const handleBack = () => {
+    router.push('/cart'); // Navigate back to /cart
   };
 
   if (loading) return <CircularProgress />;
@@ -212,12 +220,27 @@ const CartDetail = () => {
       <Card>
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
-            <CardMedia
-              component="img"
-              image={cartItem.gambar || "/default-image.png"}
-              alt={cartItem.nama}
-              sx={{ height: 400, objectFit: "contain" }}
-            />
+            <Box sx={{ position: "relative" }}>
+              <IconButton
+                onClick={handleBack}
+                sx={{
+                  position: "absolute",
+                  top: 10,
+                  left: 10,
+                  color: "white",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.7)" }
+                }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+              <CardMedia
+                component="img"
+                image={cartItem.gambar || "/default-image.png"}
+                alt={cartItem.nama}
+                sx={{ height: 400, width: 400, objectFit: "contain" }}
+              />
+            </Box>
           </Grid>
           <Grid item xs={12} md={6}>
             <CardContent>
