@@ -49,7 +49,7 @@ const Page = () => {
           Laporan Pengiriman
         </Typography>
 
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} >
           <Table>
             <TableHead>
               <TableRow>

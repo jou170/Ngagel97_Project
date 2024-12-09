@@ -80,7 +80,7 @@ const TransactionHistoryPage = () => {
             {/* Right: Order Status */}
             <Box textAlign="right">
               <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                Order has arrived since {order.date}, {order.time}
+                Order sudah sampai pada {order.date}, {order.time}
               </Typography>
               <Button
                 variant="contained"
