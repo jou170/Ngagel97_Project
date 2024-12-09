@@ -135,6 +135,9 @@ const StatusPage = () => {
                       <strong>Name</strong>
                     </TableCell>
                     <TableCell align="center">
+                      <strong>Phone Number</strong>
+                    </TableCell>
+                    <TableCell align="center">
                       <strong>Role</strong>
                     </TableCell>
                     <TableCell align="center">
@@ -153,6 +156,7 @@ const StatusPage = () => {
                     >
                       <TableCell align="center">{user.email}</TableCell>
                       <TableCell align="center">{user.name}</TableCell>
+                      <TableCell align="center">{user.phone_number}</TableCell>
                       <TableCell align="center">{user.role}</TableCell>
                       <TableCell align="center">
                         <Chip
@@ -173,7 +177,7 @@ const StatusPage = () => {
                               user.role === "admin" ? "customer" : "admin"
                             )
                           }
-                          sx={{ mr: 1,bgcolor: "#493628", color: "white" }}
+                          sx={{ mr: 1, bgcolor: "#493628", color: "white" }}
                         >
                           Change Role
                         </Button>
