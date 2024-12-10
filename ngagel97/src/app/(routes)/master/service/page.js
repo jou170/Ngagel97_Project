@@ -48,26 +48,11 @@ const ServicesPage = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery, services]);
 
-  const deleteImage = async (lastUrl) => {
-    let filepath = lastUrl.replace(
-      "https://mnyziu33qakbhpjn.public.blob.vercel-storage.com/",
-      ""
-    );
-
-    await fetch(`/api/upload?filepath=${filepath}`, {
-      method: "DELETE",
-    });
-  };
-
   const handleDelete = async (id) => {
     const confirmed = confirm("Apakah Anda yakin ingin menghapus jasa ini?");
     if (!confirmed) return;
 
     try {
-      const service = await fetch(`/api/jasa/${id}`);
-
-      await deleteImage(service.gambar);
-
       const response = await fetch(`/api/jasa/${id}`, {
         method: "DELETE",
       });

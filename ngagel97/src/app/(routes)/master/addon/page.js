@@ -29,7 +29,7 @@ const AddOnPage = () => {
         setLoading(false);
       } catch (error) {
         setLoading(false);
-        throw new Error("Gagal mengambil data add-ons:", error);
+        console.error("Gagal mengambil data add-ons:", error);
       }
     };
 
@@ -48,39 +48,24 @@ const AddOnPage = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery, addOns]);
 
-  const deleteImage = async (lastUrl) => {
-    let filepath = lastUrl.replace(
-      "https://mnyziu33qakbhpjn.public.blob.vercel-storage.com/",
-      ""
-    );
-
-    await fetch(`/api/upload?filepath=${filepath}`, {
-      method: "DELETE",
-    });
-  };
-
   const handleDelete = async (id) => {
     const confirmed = confirm("Apakah Anda yakin ingin menghapus add-on ini?");
     if (!confirmed) return;
 
     try {
-      const addon = await fetch(`/api/addon/${id}`);
-
-      await deleteImage(addon.gambar);
-
       const response = await fetch(`/api/addon/${id}`, {
         method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error("Gagal menghapus data add-on.");
+        console.error("Gagal menghapus data add-on.");
       }
 
       setAddOns((prevAddOns) =>
         prevAddOns.filter((addon) => addon.idAddon !== id)
       );
     } catch (error) {
-      throw new Error("Gagal menghapus add-on:", error);
+      console.error("Gagal menghapus add-on:", error);
     }
   };
 
