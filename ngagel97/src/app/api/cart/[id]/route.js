@@ -21,7 +21,7 @@ export async function GET(req, { params }) {
       token.value,
       new TextEncoder().encode(process.env.JWT_SECRET)
     );
-    const userId = payload.userId;
+    const userId = payload.id;
 
     // Koneksi ke database
     await connectDB();
@@ -80,7 +80,7 @@ export async function PUT(req, { params }) {
         token.value,
         new TextEncoder().encode(process.env.JWT_SECRET)
       );
-      const userId = payload.userId;
+      const userId = payload.id;
   
       // Koneksi ke database
       await connectDB();
@@ -150,7 +150,7 @@ export async function PUT(req, { params }) {
         token.value,
         new TextEncoder().encode(process.env.JWT_SECRET)
       );
-      const userId = payload.userId;
+      const userId = payload.id;
   
       // Koneksi ke database
       await connectDB();
