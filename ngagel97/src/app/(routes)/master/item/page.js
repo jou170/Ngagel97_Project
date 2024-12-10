@@ -28,8 +28,8 @@ const ItemPage = () => {
         setFilteredItems(data); // Awalnya semua data ditampilkan
         setLoading(false);
       } catch (error) {
-        console.error("Gagal mengambil data barang:", error);
         setLoading(false);
+        throw new Error("Gagal mengambil data barang:", error);
       }
     };
 
@@ -63,7 +63,7 @@ const ItemPage = () => {
 
       setItems((prevItems) => prevItems.filter((item) => item.idBarang !== id));
     } catch (error) {
-      console.error("Gagal menghapus barang:", error);
+      throw new Error("Gagal menghapus barang:", error);
     }
   };
 
@@ -193,7 +193,12 @@ const ItemPage = () => {
                 </Typography>
                 <Box sx={{ display: "flex", justifyContent: "start" }}>
                   <Link href={`/master/item/${item.idBarang}`} passHref>
-                    <Button variant="contained" color="primary" size="small" sx={{marginRight: "10px"}}> 
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      sx={{ marginRight: "10px" }}
+                    >
                       Detail
                     </Button>
                   </Link>
