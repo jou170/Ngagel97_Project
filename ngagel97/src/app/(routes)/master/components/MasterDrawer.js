@@ -8,8 +8,6 @@ import Collapse from "@mui/material/Collapse";
 import Box from "@mui/material/Box";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import DraftsIcon from "@mui/icons-material/Drafts";
-import PrintIcon from "@mui/icons-material/Print";
 import PersonIcon from "@mui/icons-material/Person";
 import Divider from "@mui/material/Divider";
 import AddIcon from "@mui/icons-material/Add";
@@ -21,6 +19,7 @@ import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import CreateIcon from '@mui/icons-material/Create';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 
 const products = [
   {
@@ -57,7 +56,7 @@ const menu = [
     icon: <SummarizeIcon />,
     children: [
       { link: "/master/report/sales", text: "Sales", icon: <TrendingUpIcon /> },
-      { link: "/master/report/delivery", text: "Delivery", icon: <FlightTakeoffIcon /> },
+      { link: "/master/report/delivery", text: "Delivery", icon: <LocalShippingIcon /> },
       { link: "/master/report/daily", text: "Daily", icon: <QueryStatsIcon /> },
     ],
   },

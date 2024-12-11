@@ -42,7 +42,7 @@ const StatusPage = () => {
     {
       id: 3,
       title: "Jilid A4 Buku tesis Proposal Software Development Project",
-      status: "Belum Dibayar",
+      status: "Unpaid",
       total: "Rp. 50,000,-",
       date: "11/12/2012",
       time: "08:00 AM",
@@ -78,14 +78,15 @@ const StatusPage = () => {
         <MenuItem value="Semua Produk">Semua Produk</MenuItem>
         <MenuItem value="Dalam Proses">Dalam Proses</MenuItem>
         <MenuItem value="Selesai">Selesai</MenuItem>
-        <MenuItem value="Belum Dibayar">Belum Dibayar</MenuItem>
       </Select>
 
       {/* Order Cards */}
       <Box display="flex" flexDirection="column" gap="20px">
         {orders
           .filter(
-            (order) => filter === "Semua Produk" || order.status === filter
+            (order) =>
+              order.status !== "Unpaid" &&
+              (filter === "Semua Produk" || order.status === filter)
           )
           .map((order) => (
             <Paper
