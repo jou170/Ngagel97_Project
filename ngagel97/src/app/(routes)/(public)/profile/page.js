@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   TextField,
   Button,
   Typography,
   Container,
-  Link,
   Card as MuiCard,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -16,7 +15,7 @@ import Joi from "joi";
 import { useForm } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 
-// Custom Styled Card (reused from Register)
+// Custom Styled Card
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -30,16 +29,13 @@ const Card = styled(MuiCard)(({ theme }) => ({
   },
   boxShadow:
     "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
-  ...theme.applyStyles("dark", {
-    boxShadow:
-      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
-  }),
 }));
 
 export default function ProfilePage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userData, setUserData] = useState(null);
 
   const schema = Joi.object({
     name: Joi.string().min(3).required().messages({
@@ -67,36 +63,61 @@ export default function ProfilePage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: joiResolver(schema),
   });
+
+  useEffect(() => {
+    // Fetch user data when the component mounts
+    const fetchUserData = async () => {
+      try {
+        const res = await fetch(`/api/user/cookie`, { credentials: "include" });
+        if (res.ok) {
+          const data = await res.json();
+          setUserData(data.user);
+          // Pre-fill form fields with user data
+          setValue("name", data.user.name);
+          setValue("phoneNumber", data.user.phone_number);
+        } else {
+          setError("Failed to load user data.");
+        }
+      } catch (err) {
+        setError("Failed to load user data. Please try again.");
+      }
+    };
+    fetchUserData();
+  }, [setValue]);
 
   const onSubmit = async (data) => {
     setLoading(true);
     setError("");
 
     try {
-      const res = await fetch(`/api/user/${data.id}`, {
+      const res = await fetch(`/api/user/cookie`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
+        credentials: "include",
       });
 
       if (res.ok) {
-        router.push("/profile");
+        router.push("/home");
       } else {
         const errorData = await res.json();
-        setError(errorData.error || "Gagal memperbarui profil.");
+        setError(errorData.message || "Failed to update profile.");
       }
     } catch (error) {
-      setError("Gagal memperbarui profil. Silahkan coba lagi.");
+      setError("Failed to update profile. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  if (!userData) {
+    return <Typography>Loading...</Typography>;
+  }
 
   return (
     <Container
