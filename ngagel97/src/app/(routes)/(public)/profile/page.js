@@ -6,25 +6,40 @@ import {
   TextField,
   Button,
   Typography,
-  Link,
   Container,
+  Link,
+  Card as MuiCard,
 } from "@mui/material";
-import Image from "next/image";
+import { styled } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import Joi from "joi";
 import { useForm } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
+
+// Custom Styled Card (reused from Register)
+const Card = styled(MuiCard)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignSelf: "center",
+  width: "100%",
+  padding: theme.spacing(4),
+  gap: theme.spacing(2),
+  margin: "auto",
+  [theme.breakpoints.up("sm")]: {
+    maxWidth: "450px",
+  },
+  boxShadow:
+    "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
+  ...theme.applyStyles("dark", {
+    boxShadow:
+      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
+  }),
+}));
 
 export default function ProfilePage() {
   const router = useRouter();
   const [error, setError] = useState("");
-
-  // Use react-hook-form
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setError: setFormError,
-  } = useForm();
+  const [loading, setLoading] = useState(false);
 
   const schema = Joi.object({
     name: Joi.string().min(3).required().messages({
@@ -32,29 +47,6 @@ export default function ProfilePage() {
       "string.empty": `"Nama" wajib diisi`,
       "string.min": `"Nama" minimal {#limit} karakter`,
     }),
-    email: Joi.string()
-      .pattern(new RegExp(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/))
-      .required()
-      .messages({
-        "string.base": `"Email" harus berupa teks`,
-        "string.pattern.base": `"Email" harus valid`,
-        "string.empty": `"Email" wajib diisi`,
-      }),
-    password: Joi.string()
-      .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$"))
-      .required()
-      .messages({
-        "string.base": `"Password" harus berupa teks`,
-        "string.pattern.base": `"Password" minimal 8 karakter, mengandung setidaknya 1 huruf kecil, 1 huruf besar, dan 1 angka.`,
-        "string.empty": `"Password" wajib diisi`,
-      }),
-    confirmPassword: Joi.string()
-      .valid(Joi.ref("password"))
-      .required()
-      .messages({
-        "any.only": `"Konfirmasi Password" harus sama dengan "Password"`,
-        "string.empty": `"Konfirmasi Password" wajib diisi`,
-      }),
     phoneNumber: Joi.string()
       .pattern(/^[0-9]{10,15}$/)
       .required()
@@ -63,23 +55,30 @@ export default function ProfilePage() {
         "string.pattern.base": `"Nomor Telepon" harus valid`,
         "string.empty": `"Nomor Telepon" wajib diisi`,
       }),
+    oldPassword: Joi.string().allow(""),
+    newPassword: Joi.string()
+      .allow("")
+      .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$"))
+      .messages({
+        "string.pattern.base": `"Password Baru" minimal 8 karakter, mengandung setidaknya 1 huruf kecil, 1 huruf besar, dan 1 angka.`,
+      }),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(schema),
   });
 
   const onSubmit = async (data) => {
-    const validation = schema.validate(data, { abortEarly: false });
-
-    if (validation.error) {
-      validation.error.details.forEach((err) => {
-        setFormError(err.context.key, { message: err.message });
-      });
-      return;
-    }
-
-    setError(""); // Clear error if any
+    setLoading(true);
+    setError("");
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
+      const res = await fetch(`/api/user/${data.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -87,126 +86,109 @@ export default function ProfilePage() {
       });
 
       if (res.ok) {
-        const responseData = await res.json();
-        router.push("/login"); // Redirect after successful registration
+        router.push("/profile");
       } else {
         const errorData = await res.json();
-        setError(
-          errorData.error || "Gagal melakukan registrasi. Silahkan coba lagi."
-        );
+        setError(errorData.error || "Gagal memperbarui profil.");
       }
     } catch (error) {
-      setError("Gagal melakukan registrasi. Silahkan coba lagi.");
+      setError("Gagal memperbarui profil. Silahkan coba lagi.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      {/* Registration Form */}
-      <Container maxWidth="sm">
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          marginTop={5}
-        >
-          <Typography variant="h4" gutterBottom>
-            Profile
+    <Container
+      maxWidth="sm"
+      sx={{ display: "flex", justifyContent: "center", minHeight: "100vh" }}
+    >
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        width="100%"
+      >
+        <Card variant="outlined">
+          <Typography
+            component="h1"
+            variant="h4"
+            sx={{
+              textAlign: "center",
+              fontSize: "clamp(2rem, 10vw, 2.15rem)",
+              fontWeight: 700,
+            }}
+          >
+            Update Profile
           </Typography>
+
           <Box
             component="form"
             onSubmit={handleSubmit(onSubmit)}
-            display="flex"
-            flexDirection="column"
-            alignItems="flex-start"
-            gap={2}
-            width="100%"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              width: "100%",
+            }}
           >
-            <Typography variant="body1" sx={{ color: "black" }}>
-              Nama:
-            </Typography>
             <TextField
-              label="Masukkan nama"
-              variant="outlined"
+              label="Nama"
               fullWidth
               {...register("name")}
               error={!!errors.name}
               helperText={errors.name?.message}
             />
-            <Typography variant="body1" sx={{ color: "black" }}>
-              Email:
-            </Typography>
             <TextField
-              label="Masukkan email"
-              variant="outlined"
-              fullWidth
-              type="email"
-              {...register("email")}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-            />
-            <Typography variant="body1" sx={{ color: "black" }}>
-              Password:
-            </Typography>
-            <TextField
-              label="Masukkan password"
-              variant="outlined"
-              fullWidth
-              type="password"
-              {...register("password")}
-              error={!!errors.password}
-              helperText={errors.password?.message}
-            />
-            <Typography variant="body1" sx={{ color: "black" }}>
-              Konfirmasi Password:
-            </Typography>
-            <TextField
-              label="Masukkan ulang password"
-              variant="outlined"
-              fullWidth
-              type="password"
-              {...register("confirmPassword")}
-              error={!!errors.confirmPassword}
-              helperText={errors.confirmPassword?.message}
-            />
-            <Typography variant="body1" sx={{ color: "black" }}>
-              Nomor Telepon:
-            </Typography>
-            <TextField
-              label="Masukkan nomor telepon"
-              variant="outlined"
+              label="Nomor Telepon"
               fullWidth
               {...register("phoneNumber")}
               error={!!errors.phoneNumber}
               helperText={errors.phoneNumber?.message}
             />
+            <TextField
+              label="Password Lama"
+              type="password"
+              fullWidth
+              {...register("oldPassword")}
+              error={!!errors.oldPassword}
+              helperText={errors.oldPassword?.message}
+            />
+            <TextField
+              label="Password Baru"
+              type="password"
+              fullWidth
+              {...register("newPassword")}
+              error={!!errors.newPassword}
+              helperText={errors.newPassword?.message}
+            />
+
             {error && (
-              <Typography color="error" variant="body2">
+              <Typography
+                color="error"
+                variant="body2"
+                sx={{ textAlign: "center" }}
+              >
                 {error}
               </Typography>
             )}
-            <Typography variant="body2" marginTop={1} sx={{ color: "black" }}>
-              {"Sudah punya akun? "}
-              <Link href="/login" underline="hover" sx={{ color: "black" }}>
-                Login di sini.
-              </Link>
-            </Typography>
+
             <Button
               type="submit"
-              variant="contained"
               fullWidth
-              color="success"
+              variant="contained"
+              disabled={loading}
               sx={{
-                marginBottom: 2,
-                borderRadius: 3,
                 backgroundColor: "#493628",
+                color: "#fff",
+                "&:hover": { backgroundColor: "#5a4632" },
               }}
             >
-              Registrasi
+              {loading ? "Updating..." : "Update Profile"}
             </Button>
           </Box>
-        </Box>
-      </Container>
-    </>
+        </Card>
+      </Box>
+    </Container>
   );
 }

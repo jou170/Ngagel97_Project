@@ -28,8 +28,8 @@ const ServicesPage = () => {
         setFilteredServices(data);
         setLoading(false);
       } catch (error) {
-        console.error("Gagal mengambil data jasa:", error);
         setLoading(false);
+        throw new Error("Gagal mengambil data jasa:", error);
       }
     };
 
@@ -65,7 +65,7 @@ const ServicesPage = () => {
         prevServices.filter((service) => service.idJasa !== id)
       );
     } catch (error) {
-      console.error("Gagal menghapus jasa:", error);
+      throw new Error("Gagal menghapus jasa:", error);
     }
   };
 

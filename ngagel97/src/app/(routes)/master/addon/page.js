@@ -28,8 +28,8 @@ const AddOnPage = () => {
         setFilteredAddOns(data);
         setLoading(false);
       } catch (error) {
-        console.error("Gagal mengambil data add-ons:", error);
         setLoading(false);
+        console.error("Gagal mengambil data add-ons:", error);
       }
     };
 
@@ -58,7 +58,7 @@ const AddOnPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Gagal menghapus data add-on.");
+        console.error("Gagal menghapus data add-on.");
       }
 
       setAddOns((prevAddOns) =>

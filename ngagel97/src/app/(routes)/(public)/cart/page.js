@@ -51,8 +51,6 @@ const CartPage = () => {
   };
 
   const handleRemoveItem = async (id) => {
-    // console.log(cartItems[id].file);
-
     // Delete file dulu
     try {
       await deleteFile(cartItems[id].file);
