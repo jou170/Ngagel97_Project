@@ -15,8 +15,8 @@ const TransaksiSchema = new mongoose.Schema(
     ongkir: { type: Number, default: 0 }, // Ongkos kirim untuk online
     status: {
       type: String,
-      enum: ["pending", "progress", "completed"],
-      default: "pending",
+      enum: ["unpaid", "pending", "progress", "completed", "failed"],
+      default: "unpaid",
     }, // Status transaksi
     barang: [
       {
@@ -81,6 +81,7 @@ const TransaksiSchema = new mongoose.Schema(
     ],
     subtotal: { type: Number, required: true }, // Total seluruh barang + jasa (termasuk AddOn)
     total: { type: Number, required: true }, // Total setelah menambahkan ongkir (untuk online)
+    midtransId: { type: String }
   },
   { timestamps: true }
 );

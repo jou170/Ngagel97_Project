@@ -6,7 +6,7 @@ export async function POST(request) {
   try {
     await connectDB(); // Ensure DB connection is successful
 
-    const { email, password, name, phone_number } = await request.json();
+    const { email, password, name, phoneNumber } = await request.json();
 
     // Check if user already exists by email or phone number
     const existingUserByEmail = await User.findOne({ email });
@@ -28,7 +28,7 @@ export async function POST(request) {
       email,
       password: hashedPassword,
       name,
-      phone_number,
+      phone_number: phoneNumber,
       role: "customer", // Default role
     });
 
