@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -9,47 +9,32 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import Image from "next/image";
 
 const StatusPage = () => {
-  const [filter, setFilter] = useState("Semua Produk");
+  const [filter, setFilter] = useState("All");
+  const [orders, setOrders] = useState([]);
+
+  // Fetch data from the backend
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch("/api/transaction/online/customer");
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+        const data = await response.json();
+        setOrders(data.data.orders); // Assuming the data is an array of orders
+      } catch (error) {
+        console.error("Failed to fetch orders:", error);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
   };
-
-  const orders = [
-    {
-      id: 1,
-      title: "Jilid A4 Buku tesis Proposal Software Development Project",
-      status: "Dalam Proses",
-      total: "Rp. 50,000,-",
-      date: "12/12/2012",
-      time: "14:21 PM",
-      statusColor: "#f9a825", // Yellow
-      image: "/book-thumbnail.png",
-    },
-    {
-      id: 2,
-      title: "Jilid A4 Buku tesis Proposal Software Development Project",
-      status: "Selesai",
-      total: "Rp. 50,000,-",
-      date: "13/12/2012",
-      time: "15:33 PM",
-      statusColor: "#4caf50", // Green
-      image: "/book-thumbnail.png",
-    },
-    {
-      id: 3,
-      title: "Jilid A4 Buku tesis Proposal Software Development Project",
-      status: "Belum Dibayar",
-      total: "Rp. 50,000,-",
-      date: "11/12/2012",
-      time: "08:00 AM",
-      statusColor: "#f44336", // Red
-      image: "/book-thumbnail.png",
-    },
-  ];
 
   return (
     <Box
@@ -75,21 +60,21 @@ const StatusPage = () => {
           marginBottom: "20px",
         }}
       >
-        <MenuItem value="Semua Produk">Semua Produk</MenuItem>
-        <MenuItem value="Dalam Proses">Dalam Proses</MenuItem>
-        <MenuItem value="Selesai">Selesai</MenuItem>
-        <MenuItem value="Belum Dibayar">Belum Dibayar</MenuItem>
+        <MenuItem value="All">All</MenuItem>
+        <MenuItem value="pending">Sedang Disiapkan</MenuItem>
+        <MenuItem value="progress">Sedang Dikirim</MenuItem>
       </Select>
 
       {/* Order Cards */}
       <Box display="flex" flexDirection="column" gap="20px">
         {orders
           .filter(
-            (order) => filter === "Semua Produk" || order.status === filter
+            (order) =>
+              filter === "All" || order.status === filter // Filter orders
           )
           .map((order) => (
             <Paper
-              key={order.id}
+              key={order._id}
               sx={{
                 padding: "20px",
                 display: "flex",
@@ -99,43 +84,40 @@ const StatusPage = () => {
                 borderRadius: "8px",
               }}
             >
-              {/* Left: Product Details */}
-              <Box display="flex" alignItems="center" gap="15px">
-                <Image
-                  src={order.image}
-                  alt={order.title}
-                  width={80}
-                  height={100}
-                  style={{ borderRadius: "4px" }}
-                />
-                <Box>
-                  <Typography variant="h6">{order.title}</Typography>
-                  <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
-                    Total: {order.total}
-                  </Typography>
-                </Box>
+              {/* Left: Order Details */}
+              <Box>
+                <Typography variant="h6">{`Order ID: ${order.idTransaksi}`}</Typography>
+                <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
+                  Total: Rp {order.total}
+                </Typography>
               </Box>
 
               {/* Right: Order Status */}
               <Box textAlign="right">
                 <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                  {order.status === "Selesai"
-                    ? `Order sudah sampai pada ${order.date}, ${order.time}`
-                    : `Order ${order.status} pada ${order.date}, ${order.time}`}
+                  {`Order ${order.status} pada ${new Date(
+                    order.createdAt
+                  ).toLocaleDateString()} ${new Date(
+                    order.createdAt
+                  ).toLocaleTimeString()}`}
                 </Typography>
                 <Button
                   variant="contained"
                   sx={{
-                    backgroundColor: order.statusColor,
+                    backgroundColor:
+                      order.status === "pending" ? "#f9a825" : "#2196f3", // Yellow for pending, blue for progress
                     color: "#fff",
                     textTransform: "none",
                     "&:hover": {
-                      backgroundColor: order.statusColor,
+                      backgroundColor:
+                        order.status === "pending" ? "#fbc02d" : "#1976d2",
                       opacity: 0.9,
                     },
                   }}
                 >
-                  {order.status}
+                  {order.status === "pending"
+                    ? "Sedang Disiapkan"
+                    : "Sedang Dikirim"}
                 </Button>
               </Box>
             </Paper>
