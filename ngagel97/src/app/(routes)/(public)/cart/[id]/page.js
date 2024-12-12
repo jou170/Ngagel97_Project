@@ -37,6 +37,31 @@ const CartDetail = () => {
   const [service, setService] = useState(null);
   const [addOnList, setAddOnList] = useState([]);
   const [isFormValid, setIsFormValid] = useState(false);
+  
+  const [sub, setSub] = useState(0);
+  const calculateSubtotal = () => {
+    let subAddOn = 0;
+
+    // Hitung subtotal add-on
+    const faon = filteredAddOnList.filter((item) =>
+      selectedAddOns.find((it) => it.id === item._id)
+    );
+
+    for (const aon of faon) {
+      if (aon.tipeHarga === "lembar") {
+        subAddOn += aon.harga * (pageCount || 1) * quantity;
+      } else {
+        subAddOn += aon.harga * quantity;
+      }
+    }
+
+    // Subtotal utama (harga jasa * pageCount * quantity) + add-on
+    const subtotal =
+      Number.parseInt(service?.harga || 0) * (pageCount || 1) * quantity +
+      subAddOn;
+
+    setSub(subtotal);
+  };
 
   pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
@@ -53,8 +78,9 @@ const CartDetail = () => {
           setCartItem(cartItemData);
           setQuantity(cartItemData.qty || 1);
           setLastFileUrl(cartItemData.file || null);
-          setPageCount(cartItemData.lembar / quantity || null);
+          setPageCount(cartItemData.lembar || null);
           setNotes(cartItemData.notes || "");
+          setSub(cartItemData.subtotal || 0);
 
           // Pre-set selected add-ons based on cart data
           setSelectedAddOns(cartItemData.addOns || []);
@@ -313,9 +339,9 @@ const CartDetail = () => {
                 fullWidth
                 sx={{ marginBottom: 2 }}
               />
-              {uploadedFile && (
+              {(
                 <Typography variant="body2" sx={{ marginTop: 1 }}>
-                  Pages: {pageCount || cartItem.lembar}
+                  Pages: {pageCount}
                 </Typography>
               )}
 
@@ -344,6 +370,12 @@ const CartDetail = () => {
                 sx={{ marginTop: 2 }}
               />
 
+<Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                mt={2}
+              >
               <Button
                 variant="contained"
                 color="primary"
@@ -352,6 +384,10 @@ const CartDetail = () => {
               >
                 Update Cart
               </Button>
+              <Typography variant="h6" sx={{ marginLeft: 2 }}>
+                  Subtotal: Rp. {sub.toLocaleString("id-ID")}
+                </Typography>
+              </Box>
             </CardContent>
           </Grid2>
         </Grid2>
