@@ -111,3 +111,54 @@ export async function GET(req) {
     );
   }
 }
+
+export async function DELETE(req) {
+  const token = req.cookies.get("token");
+
+  if (!token) {
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  try {
+    // Decode JWT
+    const { payload } = await jwtVerify(
+      token.value,
+      new TextEncoder().encode(process.env.JWT_SECRET)
+    );
+    const userId = payload.id;
+
+    // Koneksi ke database
+    await connectDB();
+
+    // Cari cart berdasarkan userId
+    const userCart = await Cart.findOne({ userId });
+
+    // Jika cart tidak ditemukan atau tidak memiliki items
+    if (!userCart || !userCart.items) {
+      return NextResponse.json(
+        { success: true, data: null, message: "Cart is empty or not found" },
+        { status: 200 }
+      );
+    }
+
+    // Hapus item dari array items
+    userCart.items = [];
+
+    // Simpan perubahan
+    await userCart.save();
+
+    return NextResponse.json(
+      { success: true, message: "Cart item deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting cart item:", error);
+    return NextResponse.json(
+      { success: false, message: "Error deleting cart item", error: error.message },
+      { status: 500 }
+    );
+  }
+}

@@ -66,7 +66,7 @@ export default function LoginPage() {
         setError(data.message || "Gagal melakukan login. Silahkan coba lagi.");
       }
     } catch (error) {
-      setError("Gagal melakukan login. Silahkan coba lagi.");
+      setError("Gagal melakukan login. Silahkan coba lagi." + error);
     }
   };
 

@@ -11,6 +11,7 @@ import {
   Divider,
 } from "@mui/material";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 
 // Dynamically load MapComponent (SSR-safe)
 const MapComponent = dynamic(() => import("../components/MapComponent"), {
@@ -23,7 +24,10 @@ const CheckoutPage = () => {
   const [position, setPosition] = useState([-7.2891, 112.7578]); // Default coordinates
   const [address, setAddress] = useState("");
   const [shippingCost, setShippingCost] = useState(0);
-
+  const [snapToken, setSnapToken] = useState("");
+  const [notes, setNotes] = useState("");
+  const router = useRouter();
+ 
   // Fetch cart and user data
   useEffect(() => {
     const fetchData = async () => {
@@ -34,14 +38,10 @@ const CheckoutPage = () => {
         if (cartData.success) {
           setCart(cartData.data.items);
 
-          // Fetch user data based on userId from cart
-          console.log(cartData.data);
 
           const userResponse = await fetch(`/api/user/${cartData.data.userId}`);
           const userData = await userResponse.json();
           setUser(userData.data.user);
-          console.log(user);
-          console.log(userData);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -94,6 +94,131 @@ const CheckoutPage = () => {
     fetchAddress();
     calculateShipping();
   }, [position]);
+
+  const handlePayment = async () => {
+    console.log(user);
+    
+    try {
+      const total = cart.reduce((sum, item) => sum + item.subtotal, 0) + shippingCost;
+      console.log({
+        userId: user._id,
+        alamat: address,
+        notes: notes,
+        ongkir: shippingCost,
+        subtotal: total-shippingCost,
+        total: total,
+        jasa: cart,
+        user: user
+      });
+      
+      // Call API to create Snap Token
+      const response = await fetch("/api/midtrans/create_token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user._id,
+          alamat: address,
+          notes: notes,
+          ongkir: shippingCost,
+          subtotal: total-shippingCost,
+          total: total,
+          jasa: cart,
+          user: user
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to create Snap Token");
+
+      const { snapToken, transaksi_id } = await response.json();
+      setSnapToken(snapToken);
+
+      // // Call Snap.js to process payment
+      window.snap.pay(snapToken, {
+        onSuccess: async function (result) {
+          console.log("Payment Success:", result);
+          alert("Pembayaran Berhasil!");
+      
+          try {
+            // Panggil API untuk update transaksi
+            const response = await fetch(`/api/transaction/online/${transaksi_id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                status: "pending",
+              }),
+            });
+      
+            if (!response.ok) {
+              throw new Error("Failed to update transaction");
+            }
+      
+            const responseData = await response.json();
+            console.log("Update Success:", responseData);
+
+            const res2 = await fetch(`/api/cart`, {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+            });
+      
+            // Redirect ke halaman order setelah update berhasil
+            router.push("/order");
+          } catch (error) {
+            console.error("Error updating transaction:", error.message);
+            alert("Gagal memperbarui transaksi. Silakan coba lagi.");
+          }
+        },
+        onPending: function (result) {
+          console.log("Payment Pending:", result);
+          alert("Pembayaran tertunda. Silakan selesaikan pembayaran Anda.");
+        },
+        onError: function (result) {
+          console.error("Payment Error:", result);
+          alert("Pembayaran gagal. Silakan coba lagi.");
+        },
+        onClose: async function () {
+          alert("Transaksi dibatalkan.");
+          try {
+            // Panggil API untuk update transaksi
+            const response = await fetch(`/api/transaction/online/${transaksi_id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                status: "failed",
+              }),
+            });
+      
+            if (!response.ok) {
+              throw new Error("Failed to update transaction");
+            }
+      
+            const responseData = await response.json();
+            console.log("Update Success:", responseData);
+          } catch (error) {
+            console.error("Error updating transaction:", error.message);
+            alert("Gagal memperbarui transaksi. Silakan coba lagi.");
+          }
+        },
+      });
+    } catch (error) {
+      console.error("Error handling payment:", error);
+    }
+  };
+
+  // Load Midtrans Snap.js
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+    script.setAttribute("data-client-key", process.env.MIDTRANS_CLIENT_KEY);
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   return (
     <Box display="flex" p={4} gap={4}>
@@ -154,6 +279,7 @@ const CheckoutPage = () => {
             fullWidth
             multiline
             rows={3}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </Box>
       </Box>
@@ -236,6 +362,7 @@ const CheckoutPage = () => {
           color="primary"
           fullWidth
           sx={{ mt: 3, py: 1.5 }}
+          onClick={handlePayment}
         >
           Lanjut Pembayaran
         </Button>
