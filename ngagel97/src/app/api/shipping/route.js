@@ -35,7 +35,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
       let shippingCost = 5000; // Biaya 1 km pertama
   
       if (distance > 1) {
-        shippingCost += Math.ceil(distance - 1) * 1000;
+        shippingCost += Math.ceil(distance - 1) * 2500;
       }
   
       return new NextResponse(
