@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const ServicesPage = () => {
   const [services, setServices] = useState([]);
@@ -107,10 +108,10 @@ const ServicesPage = () => {
               marginTop: "10px",
             }}
           >
-            Koleksi Jasa
+            Services
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: "24px" }}>
-            <Button
+            {/* <Button
               variant="contained"
               color="primary"
               onClick={() => {
@@ -127,7 +128,7 @@ const ServicesPage = () => {
               }}
             >
               Add Service
-            </Button>
+            </Button> */}
             <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <Typography
                 variant="body1"
@@ -158,7 +159,7 @@ const ServicesPage = () => {
       <Grid2 container spacing={3} justifyContent="center" alignItems="stretch">
         {filteredServices.map((service) => (
           <Grid2 key={service.idJasa} xs={12} sm={6} md={4}>
-            <Card sx={{ width: 380, height: 400 }}>
+            <Card sx={{ width: 380, height: 350 }}>
               {service.gambar ? (
                 <Image
                   src={service.gambar}
@@ -189,15 +190,15 @@ const ServicesPage = () => {
                   {service.nama}
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
-                  Harga: Rp{service.harga}
+                  Harga: Rp{" "}{service.harga}{",-"}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                {/* <Typography variant="body2" color="text.secondary">
                   Deskripsi :{" "}
                   {service.deskripsi
                     ? service.deskripsi.split(" ").slice(0, 5).join(" ") +
                       (service.deskripsi.split(" ").length > 5 ? "..." : "")
                     : "Deskripsi tidak tersedia"}
-                </Typography>
+                </Typography> */}
                 <div
                   style={{
                     display: "flex",
@@ -223,8 +224,9 @@ const ServicesPage = () => {
                       e.stopPropagation();
                       handleDelete(service.idJasa);
                     }}
+                    sx={{ display: "flex", justifyContent: "center" }}
                   >
-                    Hapus
+                    <DeleteIcon />
                   </Button>
                 </div>
               </CardContent>

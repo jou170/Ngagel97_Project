@@ -13,10 +13,42 @@ import {
   FormControl,
   FormHelperText,
   Alert,
+  TextareaAutosize as BaseTextareaAutosize 
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import Joi from "joi";
 import { useRouter } from "next/navigation";
+import { styled } from "@mui/system";
+
+const Textarea = styled(BaseTextareaAutosize)(
+  ({ theme }) => `
+    box-sizing: border-box;
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    padding: 8px 12px;
+    border-radius: 5px;
+    color: ${theme.palette.mode === 'dark' ? '#C7D0DD' : '#1C2025'};
+    background: ${theme.palette.mode === 'dark' ? '#1C2025' : '#fff'};
+    border: 1px solid ${theme.palette.mode === 'dark' ? '#434D5B' : '#DAE2ED'};
+    box-shadow: 0 2px 2px ${theme.palette.mode === 'dark' ? '#1C2025' : '#F3F6F9'};
+
+    &:hover {
+      border-color: #3399FF;
+    }
+
+    &:focus {
+      border-color: #3399FF;
+      box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? '#0072E5' : '#b6daff'};
+    }
+
+    &:focus-visible {
+      outline: 0;
+    }
+  `
+);
 
 export default function AddOnForm({ mode = "add", id }) {
   const [error, setError] = useState("");
@@ -160,6 +192,7 @@ export default function AddOnForm({ mode = "add", id }) {
         flexDirection="column"
         alignItems="center"
         marginTop={5}
+        style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px" }}
       >
         <Typography variant="h4" gutterBottom>
           {mode === "add" ? "Tambah Add-On" : "Edit Add-On"}
@@ -212,15 +245,15 @@ export default function AddOnForm({ mode = "add", id }) {
           </FormControl>
 
           <Typography variant="body1">Deskripsi</Typography>
-          <TextField
-            label="Masukkan Deskripsi Add-on"
-            variant="outlined"
-            fullWidth
-            value={watch("deskripsi") || ""}
+          <Textarea
+            aria-label="Deskripsi Add-On"
+            minRows={4}
+            placeholder="Masukkan Deskripsi Add-on"
             {...register("deskripsi")}
-            error={!!errors.deskripsi}
-            helperText={errors.deskripsi?.message}
           />
+          {errors.deskripsi && (
+            <FormHelperText error>{errors.deskripsi.message}</FormHelperText>
+          )}
 
           <Typography variant="body1">Upload Gambar</Typography>
           <input type="file" accept="image/*" onChange={handleFileChange} />
