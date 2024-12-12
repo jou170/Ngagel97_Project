@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const ItemPage = () => {
   const [items, setItems] = useState([]);
@@ -108,10 +109,10 @@ const ItemPage = () => {
               marginTop: "10px",
             }}
           >
-            Koleksi Barang
+            Items
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: "24px" }}>
-            <Button
+            {/* <Button
               variant="contained"
               color="primary"
               onClick={() => {
@@ -128,7 +129,7 @@ const ItemPage = () => {
               }}
             >
               Add Barang
-            </Button>
+            </Button> */}
             <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <Typography
                 variant="body1"
@@ -160,7 +161,7 @@ const ItemPage = () => {
       <Grid2 container spacing={4} justifyContent="center">
         {filteredItems.map((item) => (
           <Grid2 key={item.idBarang} xs={12} sm={6} md={4} lg={3}>
-            <Card sx={{ width: 380, height: 180 }}>
+            <Card sx={{ width: 380, height: 140 }}>
               <CardContent sx={{ padding: 2 }}>
                 <Typography
                   variant="h6"
@@ -171,9 +172,9 @@ const ItemPage = () => {
                   {item.nama}
                 </Typography>
                 <Typography variant="body1" color="text.secondary" gutterBottom>
-                  Harga: <strong>Rp{item.harga}</strong>
+                  Harga: Rp{" "}{item.harga}{",-"}
                 </Typography>
-                <Typography
+                {/* <Typography
                   variant="body2"
                   color="text.secondary"
                   sx={{
@@ -190,7 +191,7 @@ const ItemPage = () => {
                     ? item.deskripsi.split(" ").slice(0, 5).join(" ") +
                       (item.deskripsi.split(" ").length > 5 ? "..." : "")
                     : "Deskripsi tidak tersedia"}
-                </Typography>
+                </Typography> */}
                 <Box sx={{ display: "flex", justifyContent: "start" }}>
                   <Link href={`/master/item/${item.idBarang}`} passHref>
                     <Button
@@ -210,8 +211,9 @@ const ItemPage = () => {
                       e.stopPropagation();
                       handleDelete(item.idBarang);
                     }}
+                    sx={{ display: "flex", justifyContent: "center" }}
                   >
-                    Hapus
+                    <DeleteIcon />
                   </Button>
                 </Box>
               </CardContent>
