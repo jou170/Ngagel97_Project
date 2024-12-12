@@ -2,6 +2,7 @@ import connectDB from "@/app/api/mongoose";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import { jwtVerify } from "jose";
 
 // PUT: Update user profile
 export async function PUT(request) {
@@ -118,33 +119,12 @@ export async function DELETE(request, { params }) {
   }
 }
 
-export async function GET(request) {
-  const token = request.cookies.get("token");
-
-  if (!token) {
-    return NextResponse.json(
-      { success: false, message: "Unauthorized" },
-      { status: 401 }
-    );
-  }
-
+export async function GET(request, { params }) {
   try {
-    const { payload } = await jwtVerify(
-      token.value,
-      new TextEncoder().encode(process.env.JWT_SECRET)
-    );
-
-    const userId = payload.id;
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return NextResponse.json(
-        { success: false, message: "Invalid user ID format" },
-        { status: 400 }
-      );
-    }
+    const {id} = await params;
 
     await connectDB();
-    const user = await User.findById(userId).select("name phone_number");
+    const user = await User.findById(id);
 
     if (!user) {
       return NextResponse.json(
@@ -154,7 +134,7 @@ export async function GET(request) {
     }
 
     return NextResponse.json(
-      { success: true, user },
+      { success: true, data: { user } },
       { status: 200 }
     );
   } catch (error) {
