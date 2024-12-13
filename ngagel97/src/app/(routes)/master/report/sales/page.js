@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -12,37 +12,62 @@ import {
   Box,
   Typography,
   Container,
-  TextField, // Import TextField
+  TextField,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers"; // Import DatePicker
+import { DatePicker } from "@mui/x-date-pickers";
+import axios from "axios";
 
 const SalesPage = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [transactions, setTransactions] = useState([
-    { date: "04/05/2024", product: "Print A4", quantity: 24, price: 440000 },
-    { date: "05/05/2024", product: "Print A3", quantity: 12, price: 320000 },
-    // Add more rows...
-  ]);
-  const [filteredData, setFilteredData] = useState(transactions); // Added filteredData state
+  const [transactions, setTransactions] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
 
   const formatCurrency = (amount) => {
     return `Rp. ${amount.toLocaleString("id-ID")},-`;
   };
 
+  // Fetch data from API
+  const fetchTransactions = async () => {
+    try {
+      const response = await axios.get("/api/transaction/online/master");
+      // Log the response to check the structure
+      console.log("API response:", response.data);
+  
+      // Ensure the data exists and is an array before calling .map
+      if (response.data && Array.isArray(response.data.data)) {
+        const formattedData = response.data.data.map((transaction) => ({
+          date: transaction.createdAt,
+          product: transaction.barang.map((item) => item.name).join(", "),
+          quantity: transaction.barang.reduce((sum, item) => sum + item.quantity, 0),
+          price: transaction.total,
+        }));
+        setTransactions(formattedData);
+        setFilteredData(formattedData);
+      } else {
+        console.error("Data is not in the expected format or is missing.");
+      }
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
+  };
+  
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
   const handleUpdateReport = () => {
     if (startDate && endDate) {
       const filteredTransactions = transactions.filter((transaction) => {
-        const transactionDate = new Date(
-          transaction.date.split("/").reverse().join("-")
-        );
+        const transactionDate = new Date(transaction.date);
         const start = startDate.toDate();
         const end = endDate.toDate();
         return transactionDate >= start && transactionDate <= end;
       });
-      setFilteredData(filteredTransactions); // Update filteredData
+      setFilteredData(filteredTransactions);
     }
   };
 
@@ -50,7 +75,6 @@ const SalesPage = () => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div
         style={{
-          // backgroundColor: "#F5E6D3",
           minHeight: "100vh",
           padding: "20px",
         }}
@@ -88,14 +112,14 @@ const SalesPage = () => {
               <Button
                 variant="contained"
                 sx={{ bgcolor: "#b08968", color: "white" }}
-                onClick={handleUpdateReport} // Updated to use handleUpdateReport
+                onClick={handleUpdateReport}
               >
                 Filter
               </Button>
               <Button
                 variant="contained"
                 sx={{ bgcolor: "#C50102", color: "white" }}
-                onClick={() => setFilteredData(transactions)} // Reset the filtered data
+                onClick={() => setFilteredData(transactions)}
               >
                 Reset
               </Button>
@@ -130,7 +154,7 @@ const SalesPage = () => {
                         "&:nth-of-type(odd)": { bgcolor: "#fafafa" },
                       }}
                     >
-                      <TableCell>{transaction.date}</TableCell>
+                      <TableCell>{new Date(transaction.date).toLocaleDateString("id-ID")}</TableCell>
                       <TableCell>{transaction.product}</TableCell>
                       <TableCell>{transaction.quantity}</TableCell>
                       <TableCell>{formatCurrency(transaction.price)}</TableCell>
