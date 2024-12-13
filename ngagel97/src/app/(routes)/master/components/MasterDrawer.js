@@ -56,7 +56,6 @@ const menu = [
     icon: <SummarizeIcon />,
     children: [
       { link: "/master/report/sales", text: "Sales", icon: <TrendingUpIcon /> },
-      { link: "/master/report/delivery", text: "Delivery", icon: <LocalShippingIcon /> },
       { link: "/master/report/daily", text: "Daily", icon: <QueryStatsIcon /> },
     ],
   },

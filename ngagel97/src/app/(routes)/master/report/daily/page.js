@@ -64,7 +64,7 @@ const DailySalesPage = () => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div
         style={{
-          backgroundColor: "#F5E6D3",
+          // backgroundColor: "#F5E6D3",
           minHeight: "100vh",
           padding: "20px",
         }}

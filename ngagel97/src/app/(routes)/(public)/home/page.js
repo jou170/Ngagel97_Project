@@ -134,46 +134,59 @@ const HomePage = () => {
                   "&:hover": {
                     transform: "scale(1.05)",
                   },
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
                 }}
                 onClick={() => handleCardClick(service.idJasa)}
               >
-                {service.gambar ? (
-                  <Image
-                    src={service.gambar}
-                    alt={service.nama || "Gambar Jasa"}
-                    width={380}
-                    height={200}
-                    style={{
-                      objectFit: "cover",
-                      borderTopLeftRadius: "4px",
-                      borderTopRightRadius: "4px",
-                    }}
-                  />
-                ) : (
-                  <Image
-                    src="/image/380x200.png" // Use the local placeholder image
-                    alt="Gambar Jasa"
-                    width={380}
-                    height={200}
-                    style={{
-                      objectFit: "cover",
-                      borderTopLeftRadius: "4px",
-                      borderTopRightRadius: "4px",
-                    }}
-                  />
-                )}
-                <CardContent>
-                  <Typography
-                    variant="body1"
-                    textAlign="center"
-                    fontWeight="bold"
-                  >
+                {/* Image Section */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center", // Center the image horizontally
+                    alignItems: "center", // Center the image vertically
+                    height: 200, // Set a fixed height for all images
+                    width: "100%", // Ensure the width covers the card area
+                    overflow: "hidden", // Hide any overflow (extra part of the image)
+                  }}
+                >
+                  {service.gambar ? (
+                    <Image
+                      src={service.gambar}
+                      alt={service.nama || "Gambar Jasa"}
+                      width={380} // Set the width to a fixed size
+                      height={200} // Set the height to a fixed size
+                      style={{
+                        objectFit: "cover", // Ensure the image covers the area without stretching
+                        borderTopLeftRadius: "4px",
+                        borderTopRightRadius: "4px",
+                      }}
+                    />
+                  ) : (
+                    <Image
+                      src="/image/380x200.png" // Use the local placeholder image
+                      alt="Gambar Jasa"
+                      width={380}
+                      height={200}
+                      style={{
+                        objectFit: "cover",
+                        borderTopLeftRadius: "4px",
+                        borderTopRightRadius: "4px",
+                      }}
+                    />
+                  )}
+                </Box>
+
+                {/* Content Section */}
+                <CardContent sx={{ textAlign: "center" }}>
+                  <Typography variant="body1" fontWeight="bold">
                     {service.nama}
                   </Typography>
                   <Typography
                     variant="body2"
-                    textAlign="center"
                     color="textSecondary"
+                    sx={{ marginTop: 1 }}
                   >
                     {service.deskripsi || "No description available"}
                   </Typography>

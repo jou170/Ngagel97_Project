@@ -23,7 +23,7 @@ const StatusPage = () => {
           throw new Error(`Error: ${response.status}`);
         }
         const data = await response.json();
-        setOrders(data.data.orders); // Assuming the data is an array of orders
+        setOrders(data.data.orders);
       } catch (error) {
         console.error("Failed to fetch orders:", error);
       }
