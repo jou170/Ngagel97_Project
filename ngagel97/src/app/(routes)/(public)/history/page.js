@@ -1,39 +1,30 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, Paper, Button } from "@mui/material";
-import Image from "next/image";
 
 const TransactionHistoryPage = () => {
-  const orders = [
-    {
-      id: 1,
-      title: "Jilid A4 Buku tesis Proposal Software Development Project",
-      total: "Rp. 50,000,-",
-      date: "13/12/2012",
-      time: "15:33 PM",
-      status: "Selesai",
-      image: "/book-thumbnail.png",
-    },
-    {
-      id: 2,
-      title: "Jilid A4 Buku tesis Proposal Software Development Project",
-      total: "Rp. 50,000,-",
-      date: "13/12/2012",
-      time: "15:33 PM",
-      status: "Selesai",
-      image: "/book-thumbnail.png",
-    },
-    {
-      id: 3,
-      title: "Jilid A4 Buku tesis Proposal Software Development Project",
-      total: "Rp. 50,000,-",
-      date: "13/12/2012",
-      time: "15:33 PM",
-      status: "Selesai",
-      image: "/book-thumbnail.png",
-    },
-  ];
+  const [histories, setHistories] = useState([]);
+
+  // Fetch data from backend endpoint
+  useEffect(() => {
+    const fetchHistories = async () => {
+      try {
+        const response = await fetch("/api/transaction/online/customer/history");
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log(data);
+        
+        setHistories(data.data.histories); // Assuming the response is an array of history items
+      } catch (error) {
+        console.error("Failed to fetch transaction history:", error);
+      }
+    };
+
+    fetchHistories();
+  }, []);
 
   return (
     <Box
@@ -47,57 +38,59 @@ const TransactionHistoryPage = () => {
         Riwayat Pemesanan
       </Typography>
 
+      {/* Transaction History Cards */}
       <Box display="flex" flexDirection="column" gap="20px">
-        {orders.map((order) => (
-          <Paper
-            key={order.id}
-            sx={{
-              padding: "20px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-            }}
-          >
-            {/* Left: Product Details */}
-            <Box display="flex" alignItems="center" gap="15px">
-              <Image
-                src={order.image}
-                alt={order.title}
-                width={80}
-                height={100}
-                style={{ borderRadius: "4px" }}
-              />
+        {histories.length > 0 ? (
+          histories.map((history) => (
+            <Paper
+              key={history._id}
+              sx={{
+                padding: "20px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+              }}
+            >
+              {/* Left: Transaction Details */}
               <Box>
-                <Typography variant="h6">{order.title}</Typography>
+                <Typography variant="h6">
+                  {`Order ID: ${history.idTransaksi}`}
+                </Typography>
                 <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
-                  Total: {order.total}
+                  Total: Rp {history.total}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#6d6d6d" }}>
+                  {`Tanggal: ${new Date(history.createdAt).toLocaleDateString()} 
+                  ${new Date(history.createdAt).toLocaleTimeString()}`}
                 </Typography>
               </Box>
-            </Box>
 
-            {/* Right: Order Status */}
-            <Box textAlign="right">
-              <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                Order sudah sampai pada {order.date}, {order.time}
-              </Typography>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: "#4caf50",
-                  color: "#fff",
-                  textTransform: "none",
-                  "&:hover": {
-                    backgroundColor: "#45a049",
-                  },
-                }}
-              >
-                {order.status}
-              </Button>
-            </Box>
-          </Paper>
-        ))}
+              {/* Right: Detail Button */}
+              <Box textAlign="right">
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "#4caf50", // Green button for detail
+                    color: "#fff",
+                    textTransform: "none",
+                    "&:hover": {
+                      backgroundColor: "#45a049",
+                      opacity: 0.9,
+                    },
+                  }}
+                >
+                  Detail
+                </Button>
+              </Box>
+            </Paper>
+          ))
+        ) : (
+          <Typography variant="body1" color="gray">
+            Tidak ada riwayat pemesanan.
+          </Typography>
+        )}
       </Box>
     </Box>
   );

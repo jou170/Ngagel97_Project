@@ -30,13 +30,7 @@ const CartPage = () => {
   }, []);
 
   const handleQuantityChange = (id, delta) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.jasaId === id
-          ? { ...item, qty: Math.max(item.qty + delta, 0) }
-          : item
-      )
-    );
+    
   };
 
   const deleteFile = async (lastUrl) => {
@@ -126,18 +120,18 @@ const CartPage = () => {
               alignItems="center"
               onClick={(e) => e.stopPropagation()} // Hentikan propagasi klik ke card
             >
-              <IconButton onClick={() => handleQuantityChange(item.jasaId, -1)}>
+              {/* <IconButton onClick={() => handleQuantityChange(index, -1)}>
                 -
-              </IconButton>
+              </IconButton> */}
               <TextField
                 size="small"
                 value={item.qty}
                 sx={{ width: 50, mx: 1 }}
                 inputProps={{ readOnly: true }}
               />
-              <IconButton onClick={() => handleQuantityChange(item.jasaId, 1)}>
+              {/* <IconButton onClick={() => handleQuantityChange(index, 1)}>
                 +
-              </IconButton>
+              </IconButton> */}
             </Box>
             <IconButton
               color="error"

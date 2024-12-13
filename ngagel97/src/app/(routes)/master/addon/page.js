@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const AddOnPage = () => {
   const [addOns, setAddOns] = useState([]);
@@ -107,10 +108,10 @@ const AddOnPage = () => {
               marginTop: "10px",
             }}
           >
-            Koleksi Add-On
+            Add-ons
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: "24px" }}>
-            <Button
+            {/* <Button
               variant="contained"
               color="primary"
               onClick={() => {
@@ -127,7 +128,7 @@ const AddOnPage = () => {
               }}
             >
               Add Add-on
-            </Button>
+            </Button> */}
             <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <Typography
                 variant="body1"
@@ -163,7 +164,7 @@ const AddOnPage = () => {
       >
         {filteredAddOns.map((addon) => (
           <Grid2 key={addon.idAddon} xs={12} sm={6} md={3}>
-            <Card sx={{ width: 380, height: 450 }}>
+            <Card sx={{ width: 380, height: 380 }}>
               {addon.gambar ? (
                 <Image
                   src={addon.gambar}
@@ -194,12 +195,12 @@ const AddOnPage = () => {
                   {addon.nama}
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
-                  Harga: Rp{addon.harga}
+                  Harga: Rp{" "}{addon.harga}{",-"}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Tipe Harga: {addon.tipeHarga}
                 </Typography>
-                <Typography
+                {/* <Typography
                   variant="body2"
                   color="text.secondary"
                   sx={{ marginTop: "8px" }}
@@ -209,7 +210,7 @@ const AddOnPage = () => {
                     ? addon.deskripsi.split(" ").slice(0, 5).join(" ") +
                       (addon.deskripsi.split(" ").length > 5 ? "..." : "")
                     : "Deskripsi tidak tersedia"}
-                </Typography>
+                </Typography> */}
 
                 <div
                   style={{
@@ -236,8 +237,9 @@ const AddOnPage = () => {
                       e.stopPropagation();
                       handleDelete(addon.idAddon);
                     }}
+                    sx={{ display: "flex", justifyContent: "center" }}
                   >
-                    Hapus
+                    <DeleteIcon />
                   </Button>
                 </div>
               </CardContent>

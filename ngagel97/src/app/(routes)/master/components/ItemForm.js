@@ -7,15 +7,47 @@ import {
   Button,
   Typography,
   Container,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  FormHelperText,
   Alert,
+  TextareaAutosize as BaseTextareaAutosize,
+  styled,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import Joi from "joi";
 import { useRouter } from "next/navigation";
+
+const Textarea = styled(BaseTextareaAutosize)(
+  ({ theme }) => `
+    box-sizing: border-box;
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    padding: 8px 12px;
+    border-radius: 5px;
+    color: ${theme.palette.mode === "dark" ? "#C7D0DD" : "#1C2025"};
+    background: ${theme.palette.mode === "dark" ? "#1C2025" : "#fff"};
+    border: 1px solid ${theme.palette.mode === "dark" ? "#434D5B" : "#DAE2ED"};
+    box-shadow: 0 2px 2px ${
+      theme.palette.mode === "dark" ? "#1C2025" : "#F3F6F9"
+    };
+
+    &:hover {
+      border-color: #3399FF;
+    }
+
+    &:focus {
+      border-color: #3399FF;
+      box-shadow: 0 0 0 3px ${
+        theme.palette.mode === "dark" ? "#0072E5" : "#b6daff"
+      };
+    }
+
+    &:focus-visible {
+      outline: 0;
+    }
+  `
+);
 
 export default function ItemForm({ mode = "add", id }) {
   const [error, setError] = useState("");
@@ -114,61 +146,70 @@ export default function ItemForm({ mode = "add", id }) {
         alignItems="center"
         marginTop={5}
       >
-        <Typography variant="h4" gutterBottom>
-          {mode === "add" ? "Tambah Barang" : "Edit Barang"}
-        </Typography>
         <Box
-          component="form"
-          onSubmit={handleSubmit(onSubmit)}
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          gap={2}
+          bgcolor="white"
+          padding={4}
+          borderRadius={2}
+          boxShadow={3}
           width="100%"
         >
-          <Typography variant="body1">Nama</Typography>
-          <TextField
-            label="Masukkan Nama Barang "
-            variant="outlined"
-            fullWidth
-            value={watch("nama") || ""}
-            {...register("nama")}
-            error={!!errors.nama}
-            helperText={errors.nama?.message}
-          />
-
-          <Typography variant="body1">Harga</Typography>
-          <TextField
-            label="Masukkan Harga Barang"
-            variant="outlined"
-            fullWidth
-            type="number"
-            value={watch("harga") || ""}
-            {...register("harga")}
-            error={!!errors.harga}
-            helperText={errors.harga?.message}
-          />
-
-          <Typography variant="body1">Deskripsi</Typography>
-          <TextField
-            label="Masukkan Deskripsi Barang"
-            variant="outlined"
-            fullWidth
-            value={watch("deskripsi") || ""}
-            {...register("deskripsi")}
-            error={!!errors.deskripsi}
-            helperText={errors.deskripsi?.message}
-          />
-
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            color="success"
-            sx={{ marginTop: 2, borderRadius: 3, backgroundColor: "#493628" }}
+          <Typography variant="h4" gutterBottom>
+            {mode === "add" ? "Tambah Barang" : "Edit Barang"}
+          </Typography>
+          <Box
+            component="form"
+            onSubmit={handleSubmit(onSubmit)}
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            gap={2}
+            width="100%"
           >
-            {mode === "add" ? "Tambah Barang" : "Perbarui Barang"}
-          </Button>
+            <Typography variant="body1">Nama</Typography>
+            <TextField
+              label="Masukkan Nama Barang "
+              variant="outlined"
+              fullWidth
+              value={watch("nama") || ""}
+              {...register("nama")}
+              error={!!errors.nama}
+              helperText={errors.nama?.message}
+            />
+
+            <Typography variant="body1">Harga</Typography>
+            <TextField
+              label="Masukkan Harga Barang"
+              variant="outlined"
+              fullWidth
+              type="number"
+              value={watch("harga") || ""}
+              {...register("harga")}
+              error={!!errors.harga}
+              helperText={errors.harga?.message}
+            />
+
+            <Typography variant="body1">Deskripsi</Typography>
+            <Textarea
+              minRows={4}
+              placeholder="Masukkan Deskripsi Barang"
+              value={watch("deskripsi") || ""}
+              {...register("deskripsi")}
+              style={{ borderColor: errors.deskripsi ? "red" : undefined }}
+            />
+            {errors.deskripsi && (
+              <Typography color="error">{errors.deskripsi.message}</Typography>
+            )}
+
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              color="success"
+              sx={{ marginTop: 2, borderRadius: 3, backgroundColor: "#493628" }}
+            >
+              {mode === "add" ? "Tambah Barang" : "Perbarui Barang"}
+            </Button>
+          </Box>
         </Box>
       </Box>
     </Container>
