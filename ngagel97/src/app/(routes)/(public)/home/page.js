@@ -122,7 +122,7 @@ const HomePage = () => {
         <Grid
           container
           spacing={3}
-          justifyContent="center" // Keeps all items centered
+          justifyContent="center"
         >
           {services.map((service) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={service._id}>
@@ -131,8 +131,12 @@ const HomePage = () => {
                   cursor: "pointer",
                   boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
                   transition: "transform 0.2s",
+                  position: "relative", // Enable absolute positioning for the overlay
                   "&:hover": {
                     transform: "scale(1.05)",
+                  },
+                  "&:hover .addons": {
+                    opacity: 1, // Show the add-ons overlay on hover
                   },
                   display: "flex",
                   flexDirection: "column",
@@ -144,21 +148,19 @@ const HomePage = () => {
                 <Box
                   sx={{
                     display: "flex",
-                    justifyContent: "center", // Center the image horizontally
-                    alignItems: "center", // Center the image vertically
-                    height: 200, // Set a fixed height for all images
-                    width: "100%", // Ensure the width covers the card area
-                    overflow: "hidden", // Hide any overflow (extra part of the image)
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: 200,
                   }}
                 >
                   {service.gambar ? (
                     <Image
                       src={service.gambar}
                       alt={service.nama || "Gambar Jasa"}
-                      width={380} // Set the width to a fixed size
-                      height={200} // Set the height to a fixed size
+                      width={380}
+                      height={200}
                       style={{
-                        objectFit: "cover", // Ensure the image covers the area without stretching
+                        objectFit: "cover",
                         borderTopLeftRadius: "4px",
                         borderTopRightRadius: "4px",
                       }}
@@ -176,6 +178,42 @@ const HomePage = () => {
                       }}
                     />
                   )}
+                </Box>
+
+                {/* Add-ons Overlay */}
+                <Box
+                  className="addons"
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "rgba(0, 0, 0, 0.6)", // Semi-transparent background
+                    color: "white",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    opacity: 0, // Hidden by default
+                    transition: "opacity 0.2s ease-in-out",
+                    padding: 2,
+                  }}
+                >
+                  <Typography variant="h6" mb={1}>
+                    Add-ons Available:
+                  </Typography>
+                  <Box>
+                    {service.addons?.length > 0 ? (
+                      service.addons.map((addon, index) => (
+                        <Typography key={index} variant="body2">
+                          - {addon}
+                        </Typography>
+                      ))
+                    ) : (
+                      <Typography variant="body2">No add-ons available</Typography>
+                    )}
+                  </Box>
                 </Box>
 
                 {/* Content Section */}

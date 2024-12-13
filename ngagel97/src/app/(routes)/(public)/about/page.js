@@ -1,5 +1,13 @@
 import React from 'react';
-import { Container, Box, Typography, Grid, Card, CardContent, Divider } from '@mui/material';
+import {
+  Container,
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Divider,
+  Grid2
+} from '@mui/material';
 import Image from 'next/image';
 
 const AboutUsPage = () => {
@@ -7,12 +15,6 @@ const AboutUsPage = () => {
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       {/* Header Section */}
       <Box textAlign="center" mb={4}>
-        <Image 
-          src="/assets/fotocopy-ngagel-97-logo.png" 
-          alt="Fotocopy Ngagel 97 Logo" 
-          width={100} 
-          height={100} 
-        />
         <Typography variant="h3" sx={{ mt: 2, fontWeight: 'bold' }}>
           Tentang Kami
         </Typography>
@@ -23,8 +25,8 @@ const AboutUsPage = () => {
       </Box>
 
       {/* Content Sections */}
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={6}>
+      <Grid2 container spacing={4}>
+        <Grid2 xs={12} md={6}>
           <Card elevation={3}>
             <CardContent>
               <Typography variant="body1" paragraph>
@@ -32,8 +34,8 @@ const AboutUsPage = () => {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} md={6}>
+        </Grid2>
+        <Grid2 xs={12} md={6}>
           <Card elevation={3}>
             <CardContent>
               <Typography variant="body1" paragraph>
@@ -41,8 +43,8 @@ const AboutUsPage = () => {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12}>
+        </Grid2>
+        <Grid2 xs={12}>
           <Card elevation={3}>
             <CardContent>
               <Typography variant="body1" paragraph>
@@ -56,8 +58,8 @@ const AboutUsPage = () => {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        </Grid2>
+      </Grid2>
 
       {/* Map Section */}
       <Box mt={6}>
