@@ -9,6 +9,8 @@ import {
   CardContent,
   TextField,
   Box,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
@@ -158,95 +160,119 @@ const AddOnPage = () => {
 
       {/* Daftar Add-On */}
       <Grid2
-        container
-        spacing={3}
-        sx={{ display: "flex", justifyContent: "center" }}
+  container
+  spacing={3}
+  sx={{ display: "flex", justifyContent: "center" }}
+>
+  {filteredAddOns.map((addon) => (
+    <Grid2 key={addon.idAddon} xs={12} sm={12} md={6}>
+      <Card
+        sx={{
+          width: 1200,
+          margin: "auto",
+          display: "grid",
+          gridTemplateColumns: "180px auto",
+          gap: "16px",
+          alignItems: "center",
+          padding: "16px",
+        }}
       >
-        {filteredAddOns.map((addon) => (
-          <Grid2 key={addon.idAddon} xs={12} sm={6} md={3}>
-            <Card sx={{ width: 380, height: 380 }}>
-              {addon.gambar ? (
-                <Image
-                  src={addon.gambar}
-                  alt={addon.nama || "Gambar Addon"}
-                  width={380}
-                  height={200}
-                  style={{
-                    objectFit: "cover",
-                    borderTopLeftRadius: "4px",
-                    borderTopRightRadius: "4px",
-                  }}
-                />
-              ) : (
-                <Image
-                  src="/image/380x200.png" // Use the local placeholder image
-                  alt="Gambar Addon"
-                  width={380}
-                  height={200}
-                  style={{
-                    objectFit: "cover",
-                    borderTopLeftRadius: "4px",
-                    borderTopRightRadius: "4px",
-                  }}
-                />
-              )}
-              <CardContent sx={{ padding: "16px", flexGrow: 1 }}>
-                <Typography variant="h6" component="div" gutterBottom>
-                  {addon.nama}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  Harga: Rp{" "}{addon.harga}{",-"}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Tipe Harga: {addon.tipeHarga}
-                </Typography>
-                {/* <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ marginTop: "8px" }}
-                >
-                  Deskripsi :{" "}
-                  {addon.deskripsi
-                    ? addon.deskripsi.split(" ").slice(0, 5).join(" ") +
-                      (addon.deskripsi.split(" ").length > 5 ? "..." : "")
-                    : "Deskripsi tidak tersedia"}
-                </Typography> */}
+        {/* Image Section */}
+        {addon.gambar ? (
+          <Image
+            src={addon.gambar}
+            alt={addon.nama || "Gambar Addon"}
+            width={180}
+            height={180}
+            style={{
+              objectFit: "cover",
+              borderRadius: "8px",
+            }}
+          />
+        ) : (
+          <Image
+            src="/image/380x200.png" // Placeholder image
+            alt="Gambar Addon"
+            width={180}
+            height={180}
+            style={{
+              objectFit: "cover",
+              borderRadius: "8px",
+            }}
+          />
+        )}
 
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "start",
-                    marginTop: "16px",
-                  }}
-                >
-                  <Link href={`/master/addon/${addon.idAddon}`} passHref>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      sx={{ marginRight: "10px" }}
-                    >
-                      Detail
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(addon.idAddon);
-                    }}
-                    sx={{ display: "flex", justifyContent: "center" }}
-                  >
-                    <DeleteIcon />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </Grid2>
-        ))}
-      </Grid2>
+        {/* Content Section */}
+        <CardContent
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            flexGrow: 1,
+          }}
+        >
+          {/* Text Details */}
+          <div>
+            <Typography variant="h6" component="div" gutterBottom>
+              {addon.nama}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Harga: Rp {addon.harga},-
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Tipe Harga: {addon.tipeHarga}
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                fontStyle: "italic",
+                marginTop: "8px",
+                display: "-webkit-box",
+                WebkitBoxOrient: "vertical",
+                WebkitLineClamp: 2,
+                overflow: "hidden",
+              }}
+            >
+              Deskripsi: {addon.deskripsi || "Deskripsi tidak tersedia"}
+            </Typography>
+          </div>
+
+          {/* Action Buttons */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "flex-end",
+              gap: "10px",
+              marginTop: "auto", // Push to the bottom
+            }}
+          >
+            <Link href={`/master/addon/${addon.idAddon}`} passHref>
+              <Button variant="contained" color="primary" size="small">
+                Detail
+              </Button>
+            </Link>
+            <Button
+              variant="contained"
+              color="error"
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(addon.idAddon);
+              }}
+            >
+              <Tooltip title="Delete">
+                <DeleteIcon />
+              </Tooltip>
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+    </Grid2>
+  ))}
+</Grid2>
+
     </div>
   );
 };

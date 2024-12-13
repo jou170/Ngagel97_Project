@@ -9,6 +9,7 @@ import {
   CardContent,
   Box,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
@@ -160,63 +161,91 @@ const ItemPage = () => {
       {/* Daftar Barang */}
       <Grid2 container spacing={4} justifyContent="center">
         {filteredItems.map((item) => (
-          <Grid2 key={item.idBarang} xs={12} sm={6} md={4} lg={3}>
-            <Card sx={{ width: 380, height: 140 }}>
-              <CardContent sx={{ padding: 2 }}>
-                <Typography
-                  variant="h6"
-                  component="div"
-                  gutterBottom
-                  sx={{ color: "#5A4634", fontWeight: "bold" }}
-                >
-                  {item.nama}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" gutterBottom>
-                  Harga: Rp{" "}{item.harga}{",-"}
-                </Typography>
-                {/* <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    fontStyle: "italic",
-                    marginBottom: 2,
-                    display: "-webkit-box",
-                    WebkitBoxOrient: "vertical",
-                    WebkitLineClamp: 3,
-                    overflow: "hidden",
+          <Grid2 key={item.idBarang} xs={12} sm={12} md={6}>
+            <Card
+              sx={{
+                width: 1200,
+                margin: "auto",
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "16px",
+                gap: "16px",
+              }}
+            >
+              {/* Content Section */}
+              <CardContent
+                sx={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+              >
+                {/* Item Details */}
+                <div>
+                  <Typography
+                    variant="h6"
+                    component="div"
+                    gutterBottom
+                    sx={{ color: "#5A4634", fontWeight: "bold" }}
+                  >
+                    {item.nama}
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    Harga: Rp {item.harga},-
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      fontStyle: "italic",
+                      marginTop: "8px",
+                      display: "-webkit-box",
+                      WebkitBoxOrient: "vertical",
+                      WebkitLineClamp: 2,
+                      overflow: "hidden",
+                    }}
+                  >
+                    Deskripsi: {item.deskripsi || "Deskripsi tidak tersedia"}
+                  </Typography>
+                </div>
+              </CardContent>
+
+              {/* Action Buttons */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  gap: "10px",
+                }}
+              >
+                <Link href={`/master/item/${item.idBarang}`} passHref>
+                  <Button variant="contained" color="primary" size="small">
+                    Detail
+                  </Button>
+                </Link>
+                <Button
+                  variant="contained"
+                  color="error"
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(item.idBarang);
                   }}
                 >
-                  Deskripsi :{" "}
-                  {item.deskripsi
-                    ? item.deskripsi.split(" ").slice(0, 5).join(" ") +
-                      (item.deskripsi.split(" ").length > 5 ? "..." : "")
-                    : "Deskripsi tidak tersedia"}
-                </Typography> */}
-                <Box sx={{ display: "flex", justifyContent: "start" }}>
-                  <Link href={`/master/item/${item.idBarang}`} passHref>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      sx={{ marginRight: "10px" }}
-                    >
-                      Detail
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(item.idBarang);
-                    }}
-                    sx={{ display: "flex", justifyContent: "center" }}
-                  >
+                  <Tooltip title="Delete">
                     <DeleteIcon />
-                  </Button>
-                </Box>
-              </CardContent>
+                  </Tooltip>
+                </Button>
+              </Box>
             </Card>
           </Grid2>
         ))}
