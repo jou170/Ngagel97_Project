@@ -1,5 +1,6 @@
 import connectDB from "@/app/api/mongoose";
 import Cart from "@/models/Cart";
+import Jasa from "@/models/Jasa";
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
@@ -83,24 +84,38 @@ export async function GET(req) {
       token.value,
       new TextEncoder().encode(process.env.JWT_SECRET)
     );
-    
+
     const userId = payload.id;
 
     await connectDB();
     console.log(userId);
-    
-    let userCart = await Cart.findOne({ userId });
+
+    let userCart = await Cart.findOne({ userId }).populate({
+      path: "items.jasaId", // populate jasaId di setiap item
+      select: "gambar", // hanya mengambil gambar dari model Jasa
+    });
 
     // Jika cart tidak ditemukan, return cart kosong
     if (!userCart) {
       return NextResponse.json(
-        { success: true, data: { userId: userCart.userId,items: [] } }, // Pastikan ada properti "items"
+        { success: true, data: { userId: userCart.userId, items: [] } }, // Pastikan ada properti "items"
         { status: 200 }
       );
     }
 
+    // Map untuk menambahkan properti gambar pada setiap item
+    const cartWithImages = userCart.items.map((item) => {
+      return {
+        ...item.toObject(), // mengambil data item yang ada
+        gambar: item.jasaId?.gambar || null, // tambahkan gambar dari jasaId
+      };
+    });
+
     return NextResponse.json(
-      { success: true, data: { userId: userCart.userId,items: userCart.items } }, // Pastikan ada properti "items"
+      {
+        success: true,
+        data: { userId: userCart.userId, items: cartWithImages },
+      }, // Pastikan ada properti "items"
       { status: 200 }
     );
   } catch (error) {
@@ -157,7 +172,11 @@ export async function DELETE(req) {
   } catch (error) {
     console.error("Error deleting cart item:", error);
     return NextResponse.json(
-      { success: false, message: "Error deleting cart item", error: error.message },
+      {
+        success: false,
+        message: "Error deleting cart item",
+        error: error.message,
+      },
       { status: 500 }
     );
   }

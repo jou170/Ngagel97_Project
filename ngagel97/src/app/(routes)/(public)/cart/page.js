@@ -10,13 +10,19 @@ import {
   IconButton,
   Button,
   TextField,
+  Tooltip,
+  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { useRouter } from "next/navigation"; // Import useRouter
+import CenterLoading from "../components/CenterLoading";
 
 const CartPage = () => {
   const [cartItems, setCartItems] = useState([]); // Default sebagai array
-  const router = useRouter(); // Inisialisasi router
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetch("/api/cart")
@@ -26,12 +32,9 @@ const CartPage = () => {
           setCartItems(data.data.items);
         }
       })
-      .catch((error) => console.error("Error fetching cart:", error));
+      .catch((error) => setError("Error fetching cart:", error))
+      .finally(setLoading(false));
   }, []);
-
-  const handleQuantityChange = (id, delta) => {
-    
-  };
 
   const deleteFile = async (lastUrl) => {
     let filepath = lastUrl.replace(
@@ -78,6 +81,12 @@ const CartPage = () => {
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
 
+  if (loading) {
+    return <CenterLoading />;
+  }
+
+  if (error) return <Alert severity="error">{error}</Alert>;
+
   return (
     <Box p={4}>
       {cartItems.length > 0 ? (
@@ -98,51 +107,63 @@ const CartPage = () => {
             <CardMedia
               component="img"
               sx={{ width: 100, height: 100, borderRadius: 1 }}
-              image={item.file || "/placeholder.png"}
+              image={item.gambar}
               alt={item.nama}
             />
             <CardContent sx={{ flex: 1 }}>
               <Typography variant="h6">{item.nama}</Typography>
               <Typography variant="body2" color="text.secondary">
-                {item.notes || "No notes provided"}
+                {item.notes ? "Notes: " + item.notes : "No notes provided"}
               </Typography>
               <Typography variant="body1" fontWeight="bold">
-                Harga: Rp. {item.subtotal.toFixed(2)}
+                Price: Rp {item.subtotal.toLocaleString("id-ID")}
               </Typography>
               {item.addOns.length > 0 && (
                 <Typography variant="body2" color="text.secondary">
-                  Add-ons: {item.addOns.map((addOn) => addOn.nama).join(", ")}
+                  Add-on(s) :{" "}
+                  {item.addOns.map((addOn) => addOn.nama).join(", ")}
                 </Typography>
               )}
             </CardContent>
+            <Tooltip title="Attach File" sx={{ ml: 2 }}>
+              <IconButton
+                color="primary"
+                component="a" // Mengubah IconButton menjadi elemen <a>
+                href={item.file}
+                target="_blank" // Membuka file di tab baru
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <AttachFileIcon />
+              </IconButton>
+            </Tooltip>
             <Box
               display="flex"
               alignItems="center"
               onClick={(e) => e.stopPropagation()} // Hentikan propagasi klik ke card
             >
-              {/* <IconButton onClick={() => handleQuantityChange(index, -1)}>
-                -
-              </IconButton> */}
               <TextField
                 size="small"
                 value={item.qty}
-                sx={{ width: 50, mx: 1 }}
-                inputProps={{ readOnly: true }}
+                sx={{ width: 50 }}
+                slotProps={{
+                  input: {
+                    readOnly: true,
+                  },
+                }}
               />
-              {/* <IconButton onClick={() => handleQuantityChange(index, 1)}>
-                +
-              </IconButton> */}
             </Box>
-            <IconButton
-              color="error"
-              onClick={(e) => {
-                e.stopPropagation(); // Hentikan klik propagasi ke card
-                handleRemoveItem(index); // Pass index to identify the item
-              }}
-              sx={{ ml: 2 }}
-            >
-              <DeleteIcon />
-            </IconButton>
+            <Tooltip title="Delete" sx={{ ml: 2 }}>
+              <IconButton
+                color="error"
+                onClick={(e) => {
+                  e.stopPropagation(); // Hentikan klik propagasi ke card
+                  handleRemoveItem(index); // Pass index to identify the item
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
           </Card>
         ))
       ) : (
@@ -155,7 +176,7 @@ const CartPage = () => {
         alignItems="center"
       >
         <Typography variant="h6" fontWeight="bold">
-          Total: Rp. {totalPrice.toFixed(2)}
+          Total: Rp {totalPrice.toLocaleString("id-ID")}
         </Typography>
         <Button
           variant="contained"
