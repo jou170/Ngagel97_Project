@@ -68,6 +68,7 @@ const ProductDetail = () => {
         if (!response.ok) throw new Error("Failed to fetch service details");
         const data = await response.json();
         setService(data);
+        setSub(data.harga);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -266,7 +267,7 @@ const ProductDetail = () => {
           <Grid2 size={{ xs: 12, md: 6 }}>
             <CardContent>
               <Typography variant="h4">{service.nama}</Typography>
-              <Typography gutterBottom>Price: Rp. {service.harga}</Typography>
+              <Typography gutterBottom>Price: Rp {service.harga}</Typography>
 
               <TextField
                 label="Quantity"
@@ -332,7 +333,7 @@ const ProductDetail = () => {
                   Add to Cart
                 </Button>
                 <Typography variant="h6" sx={{ marginLeft: 2 }}>
-                  Subtotal: Rp. {sub.toLocaleString("id-ID")}
+                  Subtotal: Rp {sub.toLocaleString("id-ID")}
                 </Typography>
               </Box>
             </CardContent>

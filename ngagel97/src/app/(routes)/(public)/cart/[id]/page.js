@@ -37,31 +37,8 @@ const CartDetail = () => {
   const [service, setService] = useState(null);
   const [addOnList, setAddOnList] = useState([]);
   const [isFormValid, setIsFormValid] = useState(false);
-  
   const [sub, setSub] = useState(0);
-  const calculateSubtotal = () => {
-    let subAddOn = 0;
-
-    // Hitung subtotal add-on
-    const faon = filteredAddOnList.filter((item) =>
-      selectedAddOns.find((it) => it.id === item._id)
-    );
-
-    for (const aon of faon) {
-      if (aon.tipeHarga === "lembar") {
-        subAddOn += aon.harga * (pageCount || 1) * quantity;
-      } else {
-        subAddOn += aon.harga * quantity;
-      }
-    }
-
-    // Subtotal utama (harga jasa * pageCount * quantity) + add-on
-    const subtotal =
-      Number.parseInt(service?.harga || 0) * (pageCount || 1) * quantity +
-      subAddOn;
-
-    setSub(subtotal);
-  };
+  const [loaded, setLoaded] = useState(false);
 
   pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
@@ -80,10 +57,9 @@ const CartDetail = () => {
           setLastFileUrl(cartItemData.file || null);
           setPageCount(cartItemData.lembar || null);
           setNotes(cartItemData.notes || "");
-          setSub(cartItemData.subtotal || 0);
-
           // Pre-set selected add-ons based on cart data
           setSelectedAddOns(cartItemData.addOns || []);
+          setSub(cartItemData.subtotal || 0); // Set initial subtotal from cartItemData.subtotal
 
           // After fetching cart data, get the service using idJasa from cart
           fetchServiceData(cartItemData.jasaId);
@@ -111,7 +87,6 @@ const CartDetail = () => {
     }
   };
 
-  // Fetch Add-on List
   useEffect(() => {
     const fetchAddOns = async () => {
       try {
@@ -137,11 +112,43 @@ const CartDetail = () => {
 
   useEffect(() => {
     setFilteredAddOnList(memoizedFilteredAddOns);
+    setLoaded(true);
   }, [memoizedFilteredAddOns]);
 
   useEffect(() => {
+    // Periksa apakah cartItem, pageCount, dan quantity sudah ada dan valid
+    if (cartItem && pageCount !== null && quantity !== null) {
+      calculateSubtotal(); // Calculate subtotal only when all required data is available
+    }
     validateForm();
-  }, [uploadedFile, quantity, selectedAddOns]);
+  }, [cartItem, pageCount, quantity, selectedAddOns, filteredAddOnList]); // Re-run when any of these values change
+
+  const calculateSubtotal = () => {
+    if (!cartItem) return;
+
+    // Filter add-ons yang dipilih
+    const faon = filteredAddOnList.filter((item) =>
+      selectedAddOns.find((it) => it.addOnId == item._id)
+    );
+
+    let subAddOn = 0;
+
+    // Hitung subtotal add-ons
+    for (const aon of faon) {
+      if (aon.tipeHarga === "lembar") {
+        subAddOn += aon.harga * pageCount * quantity;
+      } else {
+        subAddOn += aon.harga * quantity;
+      }
+    }
+
+    // Hitung subtotal utama (harga jasa * pageCount * quantity) + add-on
+    const subtotal =
+      Number.parseInt(cartItem.harga || 0) * (pageCount || 1) * quantity +
+      subAddOn;
+
+    setSub(subtotal); // Update the subtotal
+  };
 
   const validateForm = () => {
     const isValid = uploadedFile !== null && quantity > 0;
@@ -227,56 +234,56 @@ const CartDetail = () => {
         selectedAddOns.find((it) => it.addOnId == item._id)
       );
       let subAddOn = 0;
-      console.log(selectedAddOns);
 
       for (const aon of faon) {
-        console.log(aon);
-
         if (aon.tipeHarga == "lembar") {
           subAddOn += aon.harga * pageCount * quantity;
         } else {
           subAddOn += aon.harga * quantity;
         }
       }
-      let addons = faon.map((i) => {
-        return {
-          addOnId: i._id,
-          nama: i.nama,
-          harga: i.harga,
-          qty: i.tipeHarga == "lembar" ? quantity * pageCount : quantity,
-          tipeHarga: i.tipeHarga,
-          subtotal:
-            i.tipeHarga == "lembar"
-              ? i.harga * quantity * pageCount
-              : i.harga * quantity,
-        };
-      });
-      console.log(addons);
 
       const updatedCartData = {
         qty: quantity,
         lembar: pageCount * quantity,
         file: uploadedFile ? newFileUrl : lastFileUrl,
         notes: notes,
-        addOns: addons,
-        subtotal:
-          Number.parseInt(cartItem.harga) * pageCount * quantity + subAddOn,
+        subtotal: parseInt(sub),
+        addOns: faon.map((i) => {
+          return {
+            addOnId: i._id,
+            nama: i.nama,
+            harga: i.harga,
+            qty: i.tipeHarga == "lembar" ? quantity * pageCount : quantity,
+            tipeHarga: i.tipeHarga,
+            subtotal:
+              i.tipeHarga == "lembar"
+                ? parseInt(i.harga * quantity * pageCount)
+                : parseInt(i.harga * quantity),
+          };
+        }),
       };
+
+      // Update the cart with the new data
+      console.log(updatedCartData);
 
       const res = await fetch(`/api/cart/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedCartData),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
-      if (res.ok) {
-        alert("Cart updated successfully!");
-        router.push("/cart");
-      } else {
-        alert("Failed to update cart.");
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to update cart");
       }
-    } catch (error) {
-      setError(error);
+
+      // Navigate to another page after success, if needed
+      router.push(`/cart`);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -309,7 +316,7 @@ const CartDetail = () => {
               </IconButton>
               <CardMedia
                 component="img"
-                image={cartItem.gambar || "/default-image.png"}
+                image={cartItem.gambar}
                 alt={cartItem.nama}
                 sx={{ height: 400, width: 400, objectFit: "contain" }}
               />
@@ -318,7 +325,7 @@ const CartDetail = () => {
           <Grid2 size={{ xs: 12, md: 6 }}>
             <CardContent>
               <Typography variant="h4">{cartItem.nama}</Typography>
-              <Typography gutterBottom>Price: Rp. {cartItem.harga}</Typography>
+              <Typography gutterBottom>Price: Rp {cartItem.harga}</Typography>
 
               <TextField
                 label="Quantity"
@@ -339,11 +346,11 @@ const CartDetail = () => {
                 fullWidth
                 sx={{ marginBottom: 2 }}
               />
-              {(
+              {
                 <Typography variant="body2" sx={{ marginTop: 1 }}>
                   Pages: {pageCount}
                 </Typography>
-              )}
+              }
 
               {filteredAddOnList.map((addon) => (
                 <FormControlLabel
@@ -370,22 +377,22 @@ const CartDetail = () => {
                 sx={{ marginTop: 2 }}
               />
 
-<Box
+              <Box
                 display="flex"
                 alignItems="center"
                 justifyContent="space-between"
                 mt={2}
               >
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleUpdateCart}
-                sx={{ marginTop: 2 }}
-              >
-                Update Cart
-              </Button>
-              <Typography variant="h6" sx={{ marginLeft: 2 }}>
-                  Subtotal: Rp. {sub.toLocaleString("id-ID")}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleUpdateCart}
+                  sx={{ marginTop: 2 }}
+                >
+                  Update Cart
+                </Button>
+                <Typography variant="h6" sx={{ marginLeft: 2 }}>
+                  Subtotal: Rp {sub.toLocaleString("id-ID")}
                 </Typography>
               </Box>
             </CardContent>
