@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import Joi from "joi";
 import { useForm } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
+import CenterLoading from "../components/CenterLoading";
 
 // Custom Styled Card
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -116,7 +117,7 @@ export default function ProfilePage() {
   };
 
   if (!userData) {
-    return <Typography>Loading...</Typography>;
+    return <CenterLoading />;
   }
 
   return (

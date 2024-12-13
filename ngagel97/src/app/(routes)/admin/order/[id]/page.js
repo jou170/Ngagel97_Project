@@ -1,9 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Paper, Button, IconButton } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import DownloadIcon from "@mui/icons-material/Download";
 import { useParams, useRouter } from "next/navigation";
+import CenterLoading from "@/app/(routes)/(public)/components/CenterLoading";
 
 const TransactionDetailPage = () => {
   const { id } = useParams(); // Mengambil ID order dari URL
@@ -31,14 +40,12 @@ const TransactionDetailPage = () => {
       }
       const userData = await userResponse.json();
       setUser(userData.data.user);
-      
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchTransaction();
@@ -70,7 +77,7 @@ const TransactionDetailPage = () => {
     }
   };
 
-  if (loading) return <Typography>Loading...</Typography>;
+  if (loading) return <CenterLoading />;
   if (error) return <Typography>Error: {error}</Typography>;
 
   return (
@@ -109,7 +116,9 @@ const TransactionDetailPage = () => {
       >
         <Typography variant="h6">Order ID: {order._id}</Typography>
         <Typography variant="body1">Customer: {user?.name || "-"}</Typography>
-        <Typography variant="body1">Phone Number: {user?.phone_number || "-"}</Typography>
+        <Typography variant="body1">
+          Phone Number: {user?.phone_number || "-"}
+        </Typography>
         <Typography variant="body1">Total: Rp. {order.total}</Typography>
         <Typography variant="body1">Alamat: {order.alamat || "-"}</Typography>
         <Typography variant="body1">Notes: {order.notes || "-"}</Typography>
@@ -134,7 +143,8 @@ const TransactionDetailPage = () => {
             <Box>
               <Typography variant="h6">{jasa.nama}</Typography>
               <Typography variant="body1">
-                Harga: Rp. {jasa.harga} | Lembar: {jasa.lembar} | Qty: {jasa.qty}
+                Harga: Rp. {jasa.harga} | Lembar: {jasa.lembar} | Qty:{" "}
+                {jasa.qty}
               </Typography>
               <Typography variant="body2" sx={{ marginTop: "8px" }}>
                 Notes: {jasa.notes}
@@ -147,9 +157,13 @@ const TransactionDetailPage = () => {
                     Add-Ons:
                   </Typography>
                   {jasa.addOns.map((addOn) => (
-                    <Typography key={addOn.addOnId} variant="body2" sx={{ ml: 2 }}>
-                      - {addOn.nama} | Harga: Rp. {addOn.harga} | Qty: {addOn.qty} | Subtotal: Rp.{" "}
-                      {addOn.subtotal}
+                    <Typography
+                      key={addOn.addOnId}
+                      variant="body2"
+                      sx={{ ml: 2 }}
+                    >
+                      - {addOn.nama} | Harga: Rp. {addOn.harga} | Qty:{" "}
+                      {addOn.qty} | Subtotal: Rp. {addOn.subtotal}
                     </Typography>
                   ))}
                 </Box>
@@ -157,18 +171,18 @@ const TransactionDetailPage = () => {
             </Box>
 
             {/* Kanan: Tombol Download File */}
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => window.open(jasa.file, "_blank")} // Membuka file PDF
-              sx={{
-                textTransform: "none",
-                backgroundColor: "#007BFF",
-                "&:hover": { backgroundColor: "#0056b3" },
-              }}
-            >
-              Download File
-            </Button>
+            <Tooltip title="Download File">
+              <IconButton
+                color="primary"
+                onClick={() => window.open(jasa.file, "_blank")} // Membuka file PDF
+                sx={{
+                  backgroundColor: "#007BFF",
+                  "&:hover": { backgroundColor: "#0056b3" },
+                }}
+              >
+                <DownloadIcon sx={{ color: "white" }} />
+              </IconButton>
+            </Tooltip>
           </Paper>
         ))}
       </Box>

@@ -1,8 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Paper, Button, CircularProgress, Alert } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import CenterLoading from "../../(public)/components/CenterLoading";
 
 const TransactionHistoryPage = () => {
   const [orders, setOrders] = useState([]); // State untuk menyimpan data transaksi
@@ -30,7 +38,9 @@ const TransactionHistoryPage = () => {
 
     fetchTransactions();
   }, []);
-
+  if (loading) {
+    return <CenterLoading />;
+  }
   return (
     <Box
       sx={{
@@ -41,10 +51,6 @@ const TransactionHistoryPage = () => {
       <Typography variant="h4" mb={3} color="black">
         Semua Pesanan yang Belum Selesai
       </Typography>
-
-      {/* Loading Indicator */}
-      {loading && <CircularProgress color="primary" />}
-
       {/* Error Handling */}
       {error && (
         <Alert severity="error" sx={{ marginBottom: "20px" }}>
@@ -54,87 +60,98 @@ const TransactionHistoryPage = () => {
 
       {/* Tampilkan Data Transaksi */}
       <Box display="flex" flexDirection="column" gap="20px">
-        {orders.length > 0 ? (
-          orders.map((order) => (
-            <Paper
-              key={order._id}
-              onClick={() => router.push(`/admin/order/${order._id}`)} // Navigasi ke halaman detail
-              sx={{
-                padding: "20px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                cursor: "pointer", // Menunjukkan bahwa elemen bisa diklik
-                "&:hover": {
-                  backgroundColor: "#f5f5f5", // Efek hover
-                },
-              }}
-            >
-              {/* Kiri: Detail Produk */}
-              <Box display="flex" alignItems="center" gap="15px">
-                {order.image ? (
-                  <Image
-                    src={order.image}
-                    alt={order.title}
-                    width={80}
-                    height={100}
-                    style={{ borderRadius: "4px" }}
-                  />
-                ) : (
-                  <Box
-                    sx={{
-                      width: "80px",
-                      height: "100px",
-                      backgroundColor: "#e0e0e0",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    <Typography variant="caption" color="textSecondary">
-                      No Image
+        {orders.length > 0
+          ? orders.map((order) => (
+              <Paper
+                key={order._id}
+                onClick={() => router.push(`/admin/order/${order._id}`)} // Navigasi ke halaman detail
+                sx={{
+                  padding: "20px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  cursor: "pointer", // Menunjukkan bahwa elemen bisa diklik
+                  "&:hover": {
+                    backgroundColor: "#f5f5f5", // Efek hover
+                  },
+                }}
+              >
+                {/* Kiri: Detail Produk */}
+                <Box display="flex" alignItems="center" gap="15px">
+                  {order.image ? (
+                    <Image
+                      src={order.image}
+                      alt={order.title}
+                      width={80}
+                      height={100}
+                      style={{ borderRadius: "4px" }}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        width: "80px",
+                        height: "100px",
+                        backgroundColor: "#e0e0e0",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      <Typography variant="caption" color="textSecondary">
+                        No Image
+                      </Typography>
+                    </Box>
+                  )}
+                  <Box>
+                    <Typography variant="h6">{order._id}</Typography>
+                    <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
+                      Total: {order.total}
                     </Typography>
                   </Box>
-                )}
-                <Box>
-                  <Typography variant="h6">{order._id}</Typography>
-                  <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
-                    Total: {order.total}
-                  </Typography>
                 </Box>
-              </Box>
 
-              {/* Kanan: Status Pesanan */}
-              <Box textAlign="right">
-                <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                  Order on {order.date}, {order.time}
-                </Typography>
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor: "#ff9800",
-                    color: "#fff",
-                    textTransform: "none",
-                    "&:hover": {
-                      backgroundColor: "#fb8c00",
-                    },
-                  }}
-                >
-                  {order.status}
-                </Button>
-              </Box>
-            </Paper>
-          ))
-        ) : (
-          !loading && (
-            <Typography variant="body1" color="textSecondary" textAlign="center">
-              Tidak ada pesanan yang belum selesai.
-            </Typography>
-          )
-        )}
+                {/* Kanan: Status Pesanan */}
+                <Box textAlign="right">
+                  <Typography variant="body2" sx={{ marginBottom: "8px" }}>
+                    Order on{" "}
+                    {new Date(order.createdAt).toLocaleString("id-ID", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "numeric",
+                      timeZone: "Asia/Jakarta",
+                    })}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "#ff9800",
+                      color: "#fff",
+                      textTransform: "none",
+                      "&:hover": {
+                        backgroundColor: "#fb8c00",
+                      },
+                    }}
+                  >
+                    {order.status}
+                  </Button>
+                </Box>
+              </Paper>
+            ))
+          : !loading && (
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                textAlign="center"
+              >
+                Tidak ada pesanan yang belum selesai.
+              </Typography>
+            )}
       </Box>
     </Box>
   );
