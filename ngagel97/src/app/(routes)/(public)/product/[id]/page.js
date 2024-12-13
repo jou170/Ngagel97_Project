@@ -18,6 +18,8 @@ import {
   Grid2,
 } from "@mui/material";
 import * as pdfjsLib from "pdfjs-dist";
+import HelpPopover from "../../components/HelpPopover";
+import CenterLoading from "../../components/CenterLoading";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -246,11 +248,14 @@ const ProductDetail = () => {
     );
   };
 
-  if (loading) return <CircularProgress />;
+  if (loading) {
+    return <CenterLoading />;
+  }
+
   if (error) return <Alert severity="error">{error}</Alert>;
 
   return (
-    <Container sx={{ marginTop: 4 }}>
+    <Container sx={{ marginTop: 4, marginBottom: 4 }}>
       <Card>
         <Grid2 container spacing={2}>
           {/* Gambar Jasa */}
@@ -303,7 +308,19 @@ const ProductDetail = () => {
                       checked={selectedAddOns.some((a) => a.id === addon._id)}
                     />
                   }
-                  label={`${addon.nama} - Rp ${addon.harga},-/${addon.tipeHarga}`}
+                  label={
+                    <Box display="flex" alignItems="center">
+                      <Typography>
+                        <b>{addon.nama}</b> - Rp{" "}
+                        {addon.harga.toLocaleString("id-ID")}/{addon.tipeHarga}
+                      </Typography>
+                      <HelpPopover
+                        nama={addon.nama}
+                        image={addon.gambar}
+                        description={addon.deskripsi}
+                      />
+                    </Box>
+                  }
                 />
               ))}
 

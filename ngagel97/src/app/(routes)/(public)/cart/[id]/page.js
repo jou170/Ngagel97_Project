@@ -20,6 +20,8 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"; // Import the back icon
 import * as pdfjsLib from "pdfjs-dist";
+import HelpPopover from "../../components/HelpPopover";
+import CenterLoading from "../../components/CenterLoading";
 
 const CartDetail = () => {
   const { id } = useParams(); // id = index cart
@@ -36,6 +38,7 @@ const CartDetail = () => {
   const [filteredAddOnList, setFilteredAddOnList] = useState([]);
   const [service, setService] = useState(null);
   const [addOnList, setAddOnList] = useState([]);
+  const [serviceImage, setserviceImage] = useState("");
   const [isFormValid, setIsFormValid] = useState(false);
   const [sub, setSub] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -82,6 +85,7 @@ const CartDetail = () => {
       if (!response.ok) throw new Error("Failed to fetch service details");
       const data = await response.json();
       setService(data);
+      setserviceImage(data.gambar);
     } catch (err) {
       setError(err.message);
     }
@@ -291,7 +295,10 @@ const CartDetail = () => {
     router.push("/cart"); // Navigate back to /cart
   };
 
-  if (loading) return <CircularProgress />;
+  if (loading) {
+    return <CenterLoading />;
+  }
+
   if (error) return <Alert severity="error">{error}</Alert>;
   if (!cartItem) return <Typography>No data available</Typography>;
 
@@ -316,7 +323,7 @@ const CartDetail = () => {
               </IconButton>
               <CardMedia
                 component="img"
-                image={cartItem.gambar}
+                image={serviceImage}
                 alt={cartItem.nama}
                 sx={{ height: 400, width: 400, objectFit: "contain" }}
               />
@@ -363,7 +370,19 @@ const CartDetail = () => {
                       )}
                     />
                   }
-                  label={`${addon.nama} - Rp ${addon.harga},-/${addon.tipeHarga}`}
+                  label={
+                    <Box display="flex" alignItems="center">
+                      <Typography>
+                        <b>{addon.nama}</b> - Rp {addon.harga}/{" "}
+                        {addon.tipeHarga}
+                      </Typography>
+                      <HelpPopover
+                        nama={addon.nama}
+                        image={addon.gambar}
+                        description={addon.deskripsi}
+                      />
+                    </Box>
+                  }
                 />
               ))}
 
