@@ -195,7 +195,7 @@ export default function AddOnForm({ mode = "add", id }) {
         style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px" }}
       >
         <Typography variant="h4" gutterBottom>
-          {mode === "add" ? "Tambah Add-On" : "Edit Add-On"}
+          {mode === "add" ? "ADD ADD-ON" : "EDIT ADD-ON"}
         </Typography>
         <Box
           component="form"

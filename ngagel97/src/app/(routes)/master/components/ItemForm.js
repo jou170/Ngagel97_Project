@@ -153,9 +153,15 @@ export default function ItemForm({ mode = "add", id }) {
           boxShadow={3}
           width="100%"
         >
-          <Typography variant="h4" gutterBottom>
-            {mode === "add" ? "Tambah Barang" : "Edit Barang"}
-          </Typography>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+          >
+            <Typography variant="h4" gutterBottom>
+              {mode === "add" ? "ADD ITEM" : "EDIT ITEM"}
+            </Typography>
+          </Box>
           <Box
             component="form"
             onSubmit={handleSubmit(onSubmit)}
