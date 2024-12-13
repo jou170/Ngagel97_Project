@@ -174,7 +174,9 @@ const TransactionDetailPage = () => {
             <Tooltip title="Download File">
               <IconButton
                 color="primary"
-                onClick={() => window.open(jasa.file, "_blank")} // Membuka file PDF
+                href={jasa.file + "?download=1"}
+                target="_blank" // Membuka file di tab baru
+                rel="noopener noreferrer"
                 sx={{
                   backgroundColor: "#007BFF",
                   "&:hover": { backgroundColor: "#0056b3" },
