@@ -1,13 +1,6 @@
 import connectDB from "@/app/api/mongoose";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
-import { jwtVerify } from "jose";
-
-// PUT: Update user profile
-import { NextResponse } from "next/server";
-import connectDB from "@/utils/db"; // Sesuaikan dengan path ke fungsi koneksi DB
-import User from "@/models/User"; // Sesuaikan dengan path ke model User
 
 // PUT: Update user role
 export async function PUT(request, { params }) {
@@ -61,7 +54,7 @@ export async function PUT(request, { params }) {
 
 export async function GET(request, { params }) {
   try {
-    const {id} = await params;
+    const { id } = await params;
 
     await connectDB();
     const user = await User.findById(id);

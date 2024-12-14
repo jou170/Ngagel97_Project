@@ -9,6 +9,7 @@ import {
   CardContent,
   TextField,
   Box,
+  Tooltip,
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
@@ -30,7 +31,7 @@ const ServicesPage = () => {
         setLoading(false);
       } catch (error) {
         setLoading(false);
-        throw new Error("Gagal mengambil data jasa:", error);
+        console.error("Gagal mengambil data jasa:", error);
       }
     };
 
@@ -59,14 +60,14 @@ const ServicesPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Gagal menghapus data jasa.");
+        console.error("Gagal menghapus data jasa.");
       }
 
       setServices((prevServices) =>
         prevServices.filter((service) => service.idJasa !== id)
       );
     } catch (error) {
-      throw new Error("Gagal menghapus jasa:", error);
+      console.error("Gagal menghapus jasa:", error);
     }
   };
 
@@ -111,24 +112,6 @@ const ServicesPage = () => {
             Services
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: "24px" }}>
-            {/* <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                window.location.href = "/master/service/add";
-              }}
-              sx={{
-                textTransform: "none",
-                backgroundColor: "#493628",
-                fontSize: "16px",
-                padding: "12px 36px",
-                "&:hover": {
-                  backgroundColor: "#493628",
-                },
-              }}
-            >
-              Add Service
-            </Button> */}
             <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <Typography
                 variant="body1"
@@ -156,63 +139,95 @@ const ServicesPage = () => {
         </div>
       </Box>
 
-      <Grid2 container spacing={3} justifyContent="center" alignItems="stretch">
+      {/* Service Cards */}
+      <Grid2
+        container
+        spacing={3}
+        sx={{ display: "flex", justifyContent: "center" }}
+      >
         {filteredServices.map((service) => (
-          <Grid2 key={service.idJasa} xs={12} sm={6} md={4}>
-            <Card sx={{ width: 380, height: 350 }}>
+          <Grid2 key={service.idJasa} xs={12} sm={12} md={6}>
+            <Card
+              sx={{
+                width: 1200,
+                margin: "auto",
+                display: "grid",
+                gridTemplateColumns: "180px auto",
+                gap: "16px",
+                alignItems: "center",
+                padding: "16px",
+              }}
+            >
+              {/* Image Section */}
               {service.gambar ? (
                 <Image
                   src={service.gambar}
                   alt={service.nama || "Gambar Jasa"}
-                  width={380}
-                  height={200}
+                  width={180}
+                  height={180}
                   style={{
                     objectFit: "cover",
-                    borderTopLeftRadius: "4px",
-                    borderTopRightRadius: "4px",
+                    borderRadius: "8px",
                   }}
                 />
               ) : (
                 <Image
-                  src="/image/380x200.png" // Use the local placeholder image
+                  src="/image/380x200.png" // Placeholder image
                   alt="Gambar Jasa"
-                  width={380}
-                  height={200}
+                  width={180}
+                  height={180}
                   style={{
                     objectFit: "cover",
-                    borderTopLeftRadius: "4px",
-                    borderTopRightRadius: "4px",
+                    borderRadius: "8px",
                   }}
                 />
               )}
-              <CardContent>
-                <Typography variant="h6" component="div" gutterBottom>
-                  {service.nama}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  Harga: Rp{" "}{service.harga}{",-"}
-                </Typography>
-                {/* <Typography variant="body2" color="text.secondary">
-                  Deskripsi :{" "}
-                  {service.deskripsi
-                    ? service.deskripsi.split(" ").slice(0, 5).join(" ") +
-                      (service.deskripsi.split(" ").length > 5 ? "..." : "")
-                    : "Deskripsi tidak tersedia"}
-                </Typography> */}
-                <div
-                  style={{
+
+              {/* Content Section */}
+              <CardContent
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  flexGrow: 1,
+                }}
+              >
+                {/* Text Details */}
+                <div>
+                  <Typography variant="h6" component="div" gutterBottom>
+                    {service.nama}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    Harga: Rp {service.harga},-
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      fontStyle: "italic",
+                      marginTop: "8px",
+                      display: "-webkit-box",
+                      WebkitBoxOrient: "vertical",
+                      WebkitLineClamp: 2,
+                      overflow: "hidden",
+                    }}
+                  >
+                    Deskripsi: {service.deskripsi || "Deskripsi tidak tersedia"}
+                  </Typography>
+                </div>
+
+                {/* Action Buttons */}
+                <Box
+                  sx={{
                     display: "flex",
-                    justifyContent: "start",
-                    marginTop: "16px",
+                    justifyContent: "flex-end",
+                    alignItems: "flex-end",
+                    gap: "10px",
+                    marginTop: "auto",
                   }}
                 >
                   <Link href={`/master/service/${service.idJasa}`} passHref>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      sx={{ marginRight: "10px" }}
-                    >
+                    <Button variant="contained" color="primary" size="small">
                       Detail
                     </Button>
                   </Link>
@@ -224,11 +239,12 @@ const ServicesPage = () => {
                       e.stopPropagation();
                       handleDelete(service.idJasa);
                     }}
-                    sx={{ display: "flex", justifyContent: "center" }}
                   >
-                    <DeleteIcon />
+                    <Tooltip title="Delete">
+                      <DeleteIcon />
+                    </Tooltip>
                   </Button>
-                </div>
+                </Box>
               </CardContent>
             </Card>
           </Grid2>

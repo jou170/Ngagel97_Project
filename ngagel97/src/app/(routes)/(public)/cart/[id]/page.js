@@ -20,6 +20,8 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"; // Import the back icon
 import * as pdfjsLib from "pdfjs-dist";
+import HelpPopover from "../../components/HelpPopover";
+import CenterLoading from "../../components/CenterLoading";
 
 const CartDetail = () => {
   const { id } = useParams(); // id = index cart
@@ -36,6 +38,7 @@ const CartDetail = () => {
   const [filteredAddOnList, setFilteredAddOnList] = useState([]);
   const [service, setService] = useState(null);
   const [addOnList, setAddOnList] = useState([]);
+  const [serviceImage, setserviceImage] = useState("");
   const [isFormValid, setIsFormValid] = useState(false);
   const [sub, setSub] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -57,9 +60,9 @@ const CartDetail = () => {
           setLastFileUrl(cartItemData.file || null);
           setPageCount(cartItemData.lembar || null);
           setNotes(cartItemData.notes || "");
-          setSub(cartItemData.subtotal || 0); // Set initial subtotal from cartItemData.subtotal
           // Pre-set selected add-ons based on cart data
           setSelectedAddOns(cartItemData.addOns || []);
+          setSub(cartItemData.subtotal || 0); // Set initial subtotal from cartItemData.subtotal
 
           // After fetching cart data, get the service using idJasa from cart
           fetchServiceData(cartItemData.jasaId);
@@ -82,6 +85,7 @@ const CartDetail = () => {
       if (!response.ok) throw new Error("Failed to fetch service details");
       const data = await response.json();
       setService(data);
+      setserviceImage(data.gambar);
     } catch (err) {
       setError(err.message);
     }
@@ -121,7 +125,7 @@ const CartDetail = () => {
       calculateSubtotal(); // Calculate subtotal only when all required data is available
     }
     validateForm();
-  }, [cartItem, pageCount, quantity, selectedAddOns]); // Re-run when any of these values change
+  }, [cartItem, pageCount, quantity, selectedAddOns, filteredAddOnList]); // Re-run when any of these values change
 
   const calculateSubtotal = () => {
     if (!cartItem) return;
@@ -248,18 +252,25 @@ const CartDetail = () => {
         lembar: pageCount * quantity,
         file: uploadedFile ? newFileUrl : lastFileUrl,
         notes: notes,
+        subtotal: parseInt(sub),
         addOns: faon.map((i) => {
           return {
             addOnId: i._id,
             nama: i.nama,
             harga: i.harga,
             qty: i.tipeHarga == "lembar" ? quantity * pageCount : quantity,
-            tipe: i.tipeHarga,
+            tipeHarga: i.tipeHarga,
+            subtotal:
+              i.tipeHarga == "lembar"
+                ? parseInt(i.harga * quantity * pageCount)
+                : parseInt(i.harga * quantity),
           };
         }),
       };
 
       // Update the cart with the new data
+      console.log(updatedCartData);
+
       const res = await fetch(`/api/cart/${id}`, {
         method: "PUT",
         body: JSON.stringify(updatedCartData),
@@ -274,7 +285,7 @@ const CartDetail = () => {
       }
 
       // Navigate to another page after success, if needed
-      router.push(`/cart/${id}`);
+      router.push(`/cart`);
     } catch (err) {
       setError(err.message);
     }
@@ -284,7 +295,10 @@ const CartDetail = () => {
     router.push("/cart"); // Navigate back to /cart
   };
 
-  if (loading) return <CircularProgress />;
+  if (loading) {
+    return <CenterLoading />;
+  }
+
   if (error) return <Alert severity="error">{error}</Alert>;
   if (!cartItem) return <Typography>No data available</Typography>;
 
@@ -309,7 +323,7 @@ const CartDetail = () => {
               </IconButton>
               <CardMedia
                 component="img"
-                image={cartItem.gambar || "/default-image.png"}
+                image={serviceImage}
                 alt={cartItem.nama}
                 sx={{ height: 400, width: 400, objectFit: "contain" }}
               />
@@ -318,7 +332,7 @@ const CartDetail = () => {
           <Grid2 size={{ xs: 12, md: 6 }}>
             <CardContent>
               <Typography variant="h4">{cartItem.nama}</Typography>
-              <Typography gutterBottom>Price: Rp. {cartItem.harga}</Typography>
+              <Typography gutterBottom>Price: Rp {cartItem.harga}</Typography>
 
               <TextField
                 label="Quantity"
@@ -356,7 +370,19 @@ const CartDetail = () => {
                       )}
                     />
                   }
-                  label={`${addon.nama} - Rp ${addon.harga},-/${addon.tipeHarga}`}
+                  label={
+                    <Box display="flex" alignItems="center">
+                      <Typography>
+                        <b>{addon.nama}</b> - Rp {addon.harga}/{" "}
+                        {addon.tipeHarga}
+                      </Typography>
+                      <HelpPopover
+                        nama={addon.nama}
+                        image={addon.gambar}
+                        description={addon.deskripsi}
+                      />
+                    </Box>
+                  }
                 />
               ))}
 
@@ -385,7 +411,7 @@ const CartDetail = () => {
                   Update Cart
                 </Button>
                 <Typography variant="h6" sx={{ marginLeft: 2 }}>
-                  Subtotal: Rp. {sub.toLocaleString("id-ID")}
+                  Subtotal: Rp {sub.toLocaleString("id-ID")}
                 </Typography>
               </Box>
             </CardContent>

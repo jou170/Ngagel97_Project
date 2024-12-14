@@ -232,7 +232,7 @@ export default function ServiceForm({ mode = "add", id }) {
             }}
           >
             <Typography variant="h4" gutterBottom>
-              {mode === "add" ? "Tambah Jasa" : "Edit Jasa"}
+              {mode === "add" ? "ADD SERVICE" : "EDIT SERVICE"}
             </Typography>
           </Box>
           <Typography variant="body1">Nama</Typography>
