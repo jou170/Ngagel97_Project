@@ -3,7 +3,7 @@ import {
   Container,
   Box,
   Typography,
-  Grid,
+  Grid2 ,
   Card,
   CardContent,
   Divider,
@@ -13,7 +13,6 @@ import Image from "next/image";
 const AboutUsPage = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      {/* Header Section */}
       <Box textAlign="center" mb={4}>
         <Box
           sx={{
@@ -25,7 +24,7 @@ const AboutUsPage = () => {
             position: "inherit",
             justifyContent: "center",
             alignItems: "center",
-            margin: "0 auto", // Menjaga agar container tetap terpusat
+            margin: "0 auto",
           }}
         >
           <Image

@@ -8,7 +8,7 @@ import {
   Card,
   CardContent,
   CircularProgress,
-  Grid,
+  Grid2
 } from "@mui/material";
 import Image from "next/image";
 
@@ -59,8 +59,8 @@ const HomePage = () => {
       </Box>
 
       {/* Icons Section */}
-      <Grid container spacing={2} justifyContent="center" mb={4}>
-        <Grid item xs={6} sm={3}>
+      <Grid2 container spacing={2} justifyContent="center" mb={4}>
+        <Grid2 xs={6} sm={3}>
           <Box textAlign="center">
             <Image
               src="/path/to/icon1.png"
@@ -71,8 +71,8 @@ const HomePage = () => {
             />
             <Typography variant="body1">High Digital Printing</Typography>
           </Box>
-        </Grid>
-        <Grid item xs={6} sm={3}>
+        </Grid2>
+        <Grid2 xs={6} sm={3}>
           <Box textAlign="center">
             <Image
               src="/path/to/icon2.png"
@@ -83,8 +83,8 @@ const HomePage = () => {
             />
             <Typography variant="body1">Great Quality</Typography>
           </Box>
-        </Grid>
-        <Grid item xs={6} sm={3}>
+        </Grid2>
+        <Grid2 xs={6} sm={3}>
           <Box textAlign="center">
             <Image
               src="/path/to/icon3.png"
@@ -95,8 +95,8 @@ const HomePage = () => {
             />
             <Typography variant="body1">Handled With Care</Typography>
           </Box>
-        </Grid>
-        <Grid item xs={6} sm={3}>
+        </Grid2>
+        <Grid2 xs={6} sm={3}>
           <Box textAlign="center">
             <Image
               src="/path/to/icon4.png"
@@ -107,8 +107,8 @@ const HomePage = () => {
             />
             <Typography variant="body1">Fast Delivery</Typography>
           </Box>
-        </Grid>
-      </Grid>
+        </Grid2>
+      </Grid2>
 
       {/* Services Section */}
       <Typography variant="h6" fontWeight="bold" mb={2}>
@@ -119,24 +119,26 @@ const HomePage = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <Grid
+        <Grid2
           container
           spacing={3}
           justifyContent="center"
         >
           {services.map((service) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={service._id}>
+            <Grid2 xs={12} sm={6} md={4} lg={3} key={service._id}>
               <Card
                 sx={{
                   cursor: "pointer",
                   boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
                   transition: "transform 0.2s",
-                  position: "relative", // Enable absolute positioning for the overlay
+                  position: "relative",
+                  width: 280, // Set consistent width
+                  height: 350, // Set consistent height
                   "&:hover": {
                     transform: "scale(1.05)",
                   },
                   "&:hover .addons": {
-                    opacity: 1, // Show the add-ons overlay on hover
+                    opacity: 1,
                   },
                   display: "flex",
                   flexDirection: "column",
@@ -157,7 +159,7 @@ const HomePage = () => {
                     <Image
                       src={service.gambar}
                       alt={service.nama || "Gambar Jasa"}
-                      width={380}
+                      width={280}
                       height={200}
                       style={{
                         objectFit: "cover",
@@ -167,9 +169,9 @@ const HomePage = () => {
                     />
                   ) : (
                     <Image
-                      src="/image/380x200.png" // Use the local placeholder image
+                      src="/image/380x200.png"
                       alt="Gambar Jasa"
-                      width={380}
+                      width={280}
                       height={200}
                       style={{
                         objectFit: "cover",
@@ -189,13 +191,13 @@ const HomePage = () => {
                     left: 0,
                     width: "100%",
                     height: "100%",
-                    backgroundColor: "rgba(0, 0, 0, 0.6)", // Semi-transparent background
+                    backgroundColor: "rgba(0, 0, 0, 0.6)",
                     color: "white",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
                     alignItems: "center",
-                    opacity: 0, // Hidden by default
+                    opacity: 0,
                     transition: "opacity 0.2s ease-in-out",
                     padding: 2,
                   }}
@@ -230,9 +232,9 @@ const HomePage = () => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
+            </Grid2>
           ))}
-        </Grid>
+        </Grid2>
       )}
     </Box>
   );
