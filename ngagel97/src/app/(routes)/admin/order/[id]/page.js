@@ -30,8 +30,8 @@ const TransactionDetailPage = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dialogOpen, setDialogOpen] = useState(false); // Control dialog state
-  const [actionType, setActionType] = useState(null); // Track action type (deliver or complete)
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [actionType, setActionType] = useState(null);
 
   const fetchTransaction = async () => {
     try {
@@ -108,13 +108,15 @@ const TransactionDetailPage = () => {
       {/* Header Section */}
       <Box mb={4}>
         <Grid2 container alignItems="center" spacing={2}>
-          <Grid2 item>
-            <IconButton onClick={() => router.push("/admin/order")}
-                        sx={{ backgroundColor: "#D6C0B3" }}>
+          <Grid2 xs={12} sm={6}>
+            <IconButton
+              onClick={() => router.push("/admin/order")}
+              sx={{ backgroundColor: "#D6C0B3" }}
+            >
               <ArrowBackIcon />
             </IconButton>
           </Grid2>
-          <Grid2 item>
+          <Grid2 xs={12} sm={6}>
             <Typography variant="h4" fontWeight="bold">
               Detail Order
             </Typography>
@@ -128,11 +130,21 @@ const TransactionDetailPage = () => {
           <Typography variant="h6" fontWeight="bold" gutterBottom>
             Order Information
           </Typography>
-          <Typography variant="body1"><strong>Order ID:</strong> {order._id}</Typography>
-          <Typography variant="body1"><strong>Nama Pemesan:</strong> {user?.name || "-"}</Typography>
-          <Typography variant="body1"><strong>Nomor Telepon:</strong> {user?.phone_number || "-"}</Typography>
-          <Typography variant="body1"><strong>Alamat:</strong> {order.alamat || "-"}</Typography>
-          <Typography variant="body1"><strong>Catatan:</strong> {order.notes || "-"}</Typography>
+          <Typography variant="body1">
+            <strong>Order ID:</strong> {order._id}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Nama Pemesan:</strong> {user?.name || "-"}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Nomor Telepon:</strong> {user?.phone_number || "-"}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Alamat:</strong> {order.alamat || "-"}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Catatan:</strong> {order.notes || "-"}
+          </Typography>
         </CardContent>
       </Card>
 
@@ -140,18 +152,29 @@ const TransactionDetailPage = () => {
       <Typography variant="h6" fontWeight="bold" gutterBottom>
         Services and Add-Ons
       </Typography>
-      <Grid2 container spacing={2} justifyContent="start">
+      <Grid2 container spacing={2}>
         {order.jasa.map((jasa, index) => (
-          <Grid2 item xs={12} sm={6} md={4} key={index}>
-            <Card elevation={3} sx={{ width: 420, height: 300, position: "relative" }}>
+          <Grid2 xs={12} sm={6} md={4} lg={3} key={index}>
+            <Card
+              elevation={3}
+              sx={{
+                width: 420,
+                height: 300,
+                position: "relative",
+              }}
+            >
               <CardContent>
                 <Typography variant="h6" fontWeight="bold">
                   {jasa.nama}
                 </Typography>
                 <Typography variant="body1">
-                  Sebanyak: {jasa.lembar} Lembar | Berjumlah: {jasa.qty}
+                  Sebanyak: {jasa.lembar} Lembar | Jumlah Copy: {jasa.qty}
                 </Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ marginTop: 1 }}>
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  sx={{ marginTop: 1 }}
+                >
                   Notes: {jasa.notes || "-"}
                 </Typography>
                 {jasa.addOns.length > 0 && (
@@ -161,7 +184,9 @@ const TransactionDetailPage = () => {
                     </Typography>
                     {jasa.addOns.map((addOn, idx) => (
                       <Typography key={idx} variant="body2">
-                        - {addOn.nama} dengan jumlah {addOn.qty}
+                        - {addOn.nama} dengan jumlah tiap{" "}
+                        {addOn.tipeHarga === "lembar" ? "lembar" : "copy"}{" "}
+                        {addOn.qty}
                       </Typography>
                     ))}
                   </Box>
@@ -190,8 +215,14 @@ const TransactionDetailPage = () => {
           <Button
             variant="contained"
             color="warning"
+            shape="rounded"
             onClick={() => handleOpenDialog("deliver")}
-            sx={{ textTransform: "none", width: 1300, height: 50, fontSize:18 }}
+            sx={{
+              textTransform: "none",
+              fontSize: 18,
+              width: { xs: "100%", sm: "80%", md: "60%" },
+              height: 50,
+            }}
           >
             Deliver Order
           </Button>
@@ -200,8 +231,14 @@ const TransactionDetailPage = () => {
           <Button
             variant="contained"
             color="success"
+            shape="rounded"
             onClick={() => handleOpenDialog("complete")}
-            sx={{ textTransform: "none", width: 1300, height: 50, fontSize:18  }}
+            sx={{
+              textTransform: "none",
+              fontSize: 18,
+              width: { xs: "100%", sm: "80%", md: "60%" },
+              height: 50,
+            }}
           >
             Complete Order
           </Button>
@@ -213,14 +250,22 @@ const TransactionDetailPage = () => {
         <DialogTitle>Confirm Action</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to {actionType === "deliver" ? "deliver this order" : "mark this order as completed"}?
+            Are you sure you want to{" "}
+            {actionType === "deliver"
+              ? "deliver this order"
+              : "mark this order as completed"}
+            ?
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">
             Cancel
           </Button>
-          <Button onClick={updateOrderStatus} color="primary" variant="contained">
+          <Button
+            onClick={updateOrderStatus}
+            color="primary"
+            variant="contained"
+          >
             Confirm
           </Button>
         </DialogActions>
