@@ -16,6 +16,7 @@ const TransactionHistoryPage = () => {
   const [orders, setOrders] = useState([]); // State untuk menyimpan data transaksi
   const [loading, setLoading] = useState(true); // State untuk loading indicator
   const [error, setError] = useState(null); // State untuk menampilkan error
+  const [users, setUsers] = useState({}); // State untuk menyimpan data user
   const router = useRouter();
 
   // Fetch data dari API saat komponen pertama kali dimuat
@@ -29,6 +30,23 @@ const TransactionHistoryPage = () => {
 
         const data = await response.json();
         setOrders(data.data.orders);
+
+        // Fetch user data for each order
+        const userIds = [
+          ...new Set(data.data.orders.map((order) => order.userId)),
+        ];
+        const userPromises = userIds.map((userId) =>
+          fetch(`/api/user/${userId}`).then((res) =>
+            res.ok ? res.json() : Promise.reject("Failed to fetch user data")
+          )
+        );
+        const usersData = await Promise.all(userPromises);
+        const usersMap = usersData.reduce((acc, userData) => {
+          acc[userData.data.user._id] = userData.data.user;
+          return acc;
+        }, {});
+
+        setUsers(usersMap);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -38,9 +56,11 @@ const TransactionHistoryPage = () => {
 
     fetchTransactions();
   }, []);
+
   if (loading) {
     return <CenterLoading />;
   }
+
   return (
     <Box
       sx={{
@@ -48,8 +68,8 @@ const TransactionHistoryPage = () => {
         padding: "20px",
       }}
     >
-      <Typography variant="h4" mb={3} color="black">
-        Semua Pesanan yang Belum Selesai
+      <Typography variant="h4" mb={3} color="black" fontWeight="bold">
+        Status Pesanan
       </Typography>
       {/* Error Handling */}
       {error && (
@@ -80,35 +100,12 @@ const TransactionHistoryPage = () => {
               >
                 {/* Kiri: Detail Produk */}
                 <Box display="flex" alignItems="center" gap="15px">
-                  {order.image ? (
-                    <Image
-                      src={order.image}
-                      alt={order.title}
-                      width={80}
-                      height={100}
-                      style={{ borderRadius: "4px" }}
-                    />
-                  ) : (
-                    <Box
-                      sx={{
-                        width: "80px",
-                        height: "100px",
-                        backgroundColor: "#e0e0e0",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      <Typography variant="caption" color="textSecondary">
-                        No Image
-                      </Typography>
-                    </Box>
-                  )}
                   <Box>
-                    <Typography variant="h6">{order._id}</Typography>
+                    <Typography variant="h6">{`Pembelian Oleh : ${
+                      users[order.userId]?.name || "-"
+                    }`}</Typography>
                     <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
-                      Total: {order.total}
+                      Alamat: {order.alamat}
                     </Typography>
                   </Box>
                 </Box>
@@ -116,7 +113,7 @@ const TransactionHistoryPage = () => {
                 {/* Kanan: Status Pesanan */}
                 <Box textAlign="right">
                   <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                    Order on{" "}
+                    Pembelian pada{" "}
                     {new Date(order.createdAt).toLocaleString("id-ID", {
                       weekday: "long",
                       year: "numeric",
@@ -130,15 +127,26 @@ const TransactionHistoryPage = () => {
                   <Button
                     variant="contained"
                     sx={{
-                      backgroundColor: "#ff9800",
+                      width: 100,
+                      backgroundColor:
+                        order.status === "pending"
+                          ? "#D64649"
+                          : order.status === "progress"
+                          ? "#FFB340"
+                          : "#36B93C",
                       color: "#fff",
                       textTransform: "none",
                       "&:hover": {
-                        backgroundColor: "#fb8c00",
+                        backgroundColor:
+                          order.status === "pending"
+                            ? "#D61A1E"
+                            : order.status === "progress"
+                            ? "#FB9903"
+                            : "#00AD08",
                       },
                     }}
                   >
-                    {order.status}
+                    {order.status.toUpperCase()}
                   </Button>
                 </Box>
               </Paper>
