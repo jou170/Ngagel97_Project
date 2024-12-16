@@ -92,9 +92,9 @@ const TransactionHistoryPage = () => {
                   alignItems: "center",
                   border: "1px solid #ccc",
                   borderRadius: "8px",
-                  cursor: "pointer", // Menunjukkan bahwa elemen bisa diklik
+                  cursor: "pointer",
                   "&:hover": {
-                    backgroundColor: "#f5f5f5", // Efek hover
+                    backgroundColor: "#f5f5f5",
                   },
                 }}
               >

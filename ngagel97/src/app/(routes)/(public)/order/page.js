@@ -14,6 +14,9 @@ const StatusPage = () => {
   const [filter, setFilter] = useState("All");
   const [orders, setOrders] = useState([]);
 
+  // Define the sorting order for statuses
+  const statusOrder = ["pending", "progress", "completed"];
+
   // Fetch data from the backend
   useEffect(() => {
     const fetchOrders = async () => {
@@ -35,6 +38,11 @@ const StatusPage = () => {
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
   };
+
+  // Sort orders based on statusOrder
+  const sortedOrders = orders
+    .filter((order) => filter === "All" || order.status === filter)
+    .sort((a, b) => statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status));
 
   return (
     <Box
@@ -61,67 +69,80 @@ const StatusPage = () => {
         }}
       >
         <MenuItem value="All">All</MenuItem>
-        <MenuItem value="pending">Sedang Disiapkan</MenuItem>
-        <MenuItem value="progress">Sedang Dikirim</MenuItem>
+        <MenuItem value="pending">Pending</MenuItem>
+        <MenuItem value="progress">On Progress</MenuItem>
+        <MenuItem value="completed">Completed</MenuItem>
       </Select>
 
       {/* Order Cards */}
       <Box display="flex" flexDirection="column" gap="20px">
-        {orders
-          .filter(
-            (order) =>
-              filter === "All" || order.status === filter // Filter orders
-          )
-          .map((order) => (
-            <Paper
-              key={order._id}
-              sx={{
-                padding: "20px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-              }}
-            >
-              {/* Left: Order Details */}
-              <Box>
-                <Typography variant="h6">{`Order ID: ${order.idTransaksi}`}</Typography>
-                <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
-                  Total: Rp {order.total}
-                </Typography>
-              </Box>
+        {sortedOrders.map((order) => (
+          <Paper
+            key={order._id}
+            sx={{
+              padding: "20px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+            }}
+          >
+            {/* Left: Order Details */}
+            <Box>
+              <Typography variant="h6">{`Order ID: ${order.idTransaksi}`}</Typography>
+              <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
+                Total: Rp {order.total}
+              </Typography>
+            </Box>
 
-              {/* Right: Order Status */}
-              <Box textAlign="right">
-                <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                  {`Order ${order.status} pada ${new Date(
-                    order.createdAt
-                  ).toLocaleDateString()} ${new Date(
-                    order.createdAt
-                  ).toLocaleTimeString()}`}
-                </Typography>
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor:
-                      order.status === "pending" ? "#f9a825" : "#2196f3", // Yellow for pending, blue for progress
-                    color: "#fff",
-                    textTransform: "none",
-                    "&:hover": {
-                      backgroundColor:
-                        order.status === "pending" ? "#fbc02d" : "#1976d2",
-                      opacity: 0.9,
-                    },
-                  }}
-                >
-                  {order.status === "pending"
-                    ? "Sedang Disiapkan"
-                    : "Sedang Dikirim"}
-                </Button>
-              </Box>
-            </Paper>
-          ))}
+            {/* Right: Order Status */}
+            <Box textAlign="right">
+              <Typography variant="body2" sx={{ marginBottom: "8px" }}>
+                {`Order ${order.status} pada ${new Date(
+                  order.createdAt
+                ).toLocaleDateString()} ${new Date(
+                  order.createdAt
+                ).toLocaleTimeString()}`}
+              </Typography>
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: (() => {
+                    switch (order.status) {
+                      case "pending":
+                        return "#f9a825";
+                      case "progress":
+                        return "#2196f3";
+                      case "completed":
+                        return "#4caf50"; 
+                      default:
+                        return "#ccc";
+                    }
+                  })(),
+                  color: "#fff",
+                  textTransform: "none",
+                  "&:hover": {
+                    opacity: 0.9,
+                  },
+                }}
+              >
+                {(() => {
+                  switch (order.status) {
+                    case "pending":
+                      return "Sedang Disiapkan";
+                    case "progress":
+                      return "Sedang Dikirim";
+                    case "completed":
+                      return "Selesai";
+                    default:
+                      return "Unknown";
+                  }
+                })()}
+              </Button>
+            </Box>
+          </Paper>
+        ))}
       </Box>
     </Box>
   );
