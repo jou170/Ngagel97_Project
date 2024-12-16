@@ -1,93 +1,157 @@
-import React from "react";
-import { Box, Typography, Paper, Button } from "@mui/material";
+"use client";
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
 import Image from "next/image";
-
-const orders = [
-  {
-    id: 1,
-    // image: "https://via.placeholder.com/80x100", // Replace with your image URL
-    title: "Order Title 1",
-    total: "Rp. 2000,-",
-    date: "2024-11-01",
-    time: "10:00 AM",
-    status: "Delivered",
-  },
-  {
-    id: 2,
-    // image: "https://via.placeholder.com/80x100",
-    title: "Order Title 2",
-    total: "Rp. 2000,-",
-    date: "2024-11-02",
-    time: "2:00 PM",
-    status: "Delivered",
-  },
-];
+import { useRouter } from "next/navigation";
+import CenterLoading from "@/app/(routes)/(public)/components/CenterLoading";
 
 const TransactionHistoryPage = () => {
+  const [orders, setOrders] = useState([]); // State untuk menyimpan data transaksi
+  const [loading, setLoading] = useState(true); // State untuk loading indicator
+  const [error, setError] = useState(null); // State untuk menampilkan error
+  const router = useRouter();
+
+  // Fetch data dari API saat komponen pertama kali dimuat
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch("/api/transaction/online/admin/history");
+        if (!response.ok) {
+          throw new Error("Failed to fetch transactions");
+        }
+
+        const data = await response.json();
+        setOrders(data.data.orders);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+  if (loading) {
+    return <CenterLoading />;
+  }
   return (
     <Box
       sx={{
-        // backgroundColor: "#f4e4d8",
         minHeight: "100vh",
         padding: "20px",
       }}
     >
       <Typography variant="h4" mb={3} color="black">
-        INI KHUSUS YANG SUDAH SELESAI SUPAYA BISA DILIHAT LAGI
+        Riwayat Transaksi
       </Typography>
+      {/* Error Handling */}
+      {error && (
+        <Alert severity="error" sx={{ marginBottom: "20px" }}>
+          {error}
+        </Alert>
+      )}
 
+      {/* Tampilkan Data Transaksi */}
       <Box display="flex" flexDirection="column" gap="20px">
-        {orders.map((order) => (
-          <Paper
-            key={order.id}
-            sx={{
-              padding: "20px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-            }}
-          >
-            {/* Left: Product Details */}
-            <Box display="flex" alignItems="center" gap="15px">
-              {/* Use img tag if not using Next.js */}
-              <Image
-                src={order.image}
-                alt={order.title}
-                width={80}
-                height={100}
-                style={{ borderRadius: "4px" }}
-              />
-              <Box>
-                <Typography variant="h6">{order.title}</Typography>
-                <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
-                  Total: {order.total}
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* Right: Order Status */}
-            <Box textAlign="right">
-              <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                Order sudah sampai pada {order.date}, {order.time}
-              </Typography>
-              <Button
-                variant="contained"
+        {orders.length > 0
+          ? orders.map((order) => (
+              <Paper
+                key={order._id}
+                onClick={() => router.push(`/admin/transaction/history/${order._id}`)} // Navigasi ke halaman detail
                 sx={{
-                  backgroundColor: "#4caf50",
-                  color: "#fff",
-                  textTransform: "none",
+                  padding: "20px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  cursor: "pointer", // Menunjukkan bahwa elemen bisa diklik
                   "&:hover": {
-                    backgroundColor: "#45a049",
+                    backgroundColor: "#f5f5f5", // Efek hover
                   },
                 }}
               >
-                {order.status}
-              </Button>
-            </Box>
-          </Paper>
-        ))}
+                {/* Kiri: Detail Produk */}
+                <Box display="flex" alignItems="center" gap="15px">
+                  {order.image ? (
+                    <Image
+                      src={order.image}
+                      alt={order.title}
+                      width={80}
+                      height={100}
+                      style={{ borderRadius: "4px" }}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        width: "80px",
+                        height: "100px",
+                        backgroundColor: "#e0e0e0",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      <Typography variant="caption" color="textSecondary">
+                        No Image
+                      </Typography>
+                    </Box>
+                  )}
+                  <Box>
+                    <Typography variant="h6">{order._id}</Typography>
+                    <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
+                      Total: {order.total}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Kanan: Status Pesanan */}
+                <Box textAlign="right">
+                  <Typography variant="body2" sx={{ marginBottom: "8px" }}>
+                    Order on{" "}
+                    {new Date(order.createdAt).toLocaleString("id-ID", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "numeric",
+                      timeZone: "Asia/Jakarta",
+                    })}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "#ff9800",
+                      color: "#fff",
+                      textTransform: "none",
+                      "&:hover": {
+                        backgroundColor: "#fb8c00",
+                      },
+                    }}
+                  >
+                    {order.isOnline ? "Online" : "Offline"}
+                  </Button>
+                </Box>
+              </Paper>
+            ))
+          : !loading && (
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                textAlign="center"
+              >
+                Tidak ada riwayat transaksi.
+              </Typography>
+            )}
       </Box>
     </Box>
   );
