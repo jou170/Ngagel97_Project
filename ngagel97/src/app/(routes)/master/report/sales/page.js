@@ -25,35 +25,31 @@ const SalesPage = () => {
   const [transactions, setTransactions] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
 
-  const formatCurrency = (amount) => {
-    return `Rp. ${amount.toLocaleString("id-ID")},-`;
-  };
+  const formatCurrency = (amount) => `Rp. ${amount.toLocaleString("id-ID")},-`;
 
-  // Fetch data from API
+  // Fetch data from the API
   const fetchTransactions = async () => {
     try {
       const response = await axios.get("/api/transaction/online/master");
-      // Log the response to check the structure
       console.log("API response:", response.data);
-  
-      // Ensure the data exists and is an array before calling .map
-      if (response.data && Array.isArray(response.data.data)) {
-        const formattedData = response.data.data.map((transaction) => ({
-          date: transaction.createdAt,
-          product: transaction.barang.map((item) => item.name).join(", "),
-          quantity: transaction.barang.reduce((sum, item) => sum + item.quantity, 0),
-          price: transaction.total,
-        }));
-        setTransactions(formattedData);
-        setFilteredData(formattedData);
-      } else {
-        console.error("Data is not in the expected format or is missing.");
-      }
+
+      // Extract the transactions array from the nested structure
+      const transactionsArray = response.data.data.orders || [];
+
+      // Format the transactions to extract only the required fields
+      const formattedTransactions = transactionsArray.map((transaction) => ({
+        date: transaction.createdAt,
+        ongkir: transaction.ongkir || 0,
+        subtotal: transaction.subtotal || 0,
+        total: transaction.total || 0,
+      }));
+
+      setTransactions(formattedTransactions);
+      setFilteredData(formattedTransactions); // Initialize filtered data
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
   };
-  
 
   useEffect(() => {
     fetchTransactions();
@@ -136,13 +132,13 @@ const SalesPage = () => {
                       <strong>Tanggal</strong>
                     </TableCell>
                     <TableCell>
-                      <strong>Produk</strong>
+                      <strong>Ongkir</strong>
                     </TableCell>
                     <TableCell>
-                      <strong>Jumlah</strong>
+                      <strong>Subtotal</strong>
                     </TableCell>
                     <TableCell>
-                      <strong>Harga</strong>
+                      <strong>Total</strong>
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -154,10 +150,12 @@ const SalesPage = () => {
                         "&:nth-of-type(odd)": { bgcolor: "#fafafa" },
                       }}
                     >
-                      <TableCell>{new Date(transaction.date).toLocaleDateString("id-ID")}</TableCell>
-                      <TableCell>{transaction.product}</TableCell>
-                      <TableCell>{transaction.quantity}</TableCell>
-                      <TableCell>{formatCurrency(transaction.price)}</TableCell>
+                      <TableCell>
+                        {new Date(transaction.date).toLocaleDateString("id-ID")}
+                      </TableCell>
+                      <TableCell>{formatCurrency(transaction.ongkir)}</TableCell>
+                      <TableCell>{formatCurrency(transaction.subtotal)}</TableCell>
+                      <TableCell>{formatCurrency(transaction.total)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
