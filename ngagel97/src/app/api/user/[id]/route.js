@@ -55,7 +55,7 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     // Ambil ID dari parameter
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
