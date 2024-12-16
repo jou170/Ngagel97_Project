@@ -27,7 +27,7 @@ export async function GET(req) {
     // Perbaikan query menggunakan $in
     let userOrders = await Transaksi.find({
       userId: userId,
-      status: { $in: ["pending", "progress"] }, // Menggunakan operator $in
+      status: { $in: ["unpaid", "pending", "progress", "completed", "failed"] },
     });
 
     if (!userOrders || userOrders.length === 0) {
