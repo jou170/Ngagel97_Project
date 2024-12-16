@@ -14,6 +14,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CenterLoading from "../../(public)/components/CenterLoading";
 
 const ItemPage = () => {
   const [items, setItems] = useState([]);
@@ -70,15 +71,7 @@ const ItemPage = () => {
   };
 
   if (loading) {
-    return (
-      <Typography
-        variant="h5"
-        align="center"
-        sx={{ color: "gray", marginTop: 5 }}
-      >
-        Loading...
-      </Typography>
-    );
+    return <CenterLoading />;
   }
 
   return (
@@ -232,19 +225,19 @@ const ItemPage = () => {
                     Detail
                   </Button>
                 </Link>
-                <Button
-                  variant="contained"
-                  color="error"
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(item.idBarang);
-                  }}
-                >
-                  <Tooltip title="Delete">
+                <Tooltip title="Delete">
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(item.idBarang);
+                    }}
+                  >
                     <DeleteIcon />
-                  </Tooltip>
-                </Button>
+                  </Button>
+                </Tooltip>
               </Box>
             </Card>
           </Grid2>

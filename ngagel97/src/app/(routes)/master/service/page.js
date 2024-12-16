@@ -14,6 +14,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CenterLoading from "../../(public)/components/CenterLoading";
 
 const ServicesPage = () => {
   const [services, setServices] = useState([]);
@@ -72,15 +73,7 @@ const ServicesPage = () => {
   };
 
   if (loading) {
-    return (
-      <Typography
-        variant="h5"
-        align="center"
-        sx={{ color: "gray", marginTop: 5 }}
-      >
-        Loading...
-      </Typography>
-    );
+    return <CenterLoading />;
   }
 
   return (
@@ -231,19 +224,19 @@ const ServicesPage = () => {
                       Detail
                     </Button>
                   </Link>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(service.idJasa);
-                    }}
-                  >
-                    <Tooltip title="Delete">
+                  <Tooltip title="Delete">
+                    <Button
+                      variant="contained"
+                      color="error"
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(service.idJasa);
+                      }}
+                    >
                       <DeleteIcon />
-                    </Tooltip>
-                  </Button>
+                    </Button>
+                  </Tooltip>
                 </Box>
               </CardContent>
             </Card>
