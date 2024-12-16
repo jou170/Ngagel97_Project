@@ -126,9 +126,9 @@ const TransactionDetailPage = () => {
 
       {/* List Jasa dan Add-On */}
       <Box display="flex" flexDirection="column" gap="20px">
-        {order.jasa.map((jasa) => (
+        {order.jasa.map((jasa, index) => (
           <Paper
-            key={jasa.jasaId}
+            key={index}
             sx={{
               display: "flex",
               justifyContent: "space-between",
@@ -156,9 +156,9 @@ const TransactionDetailPage = () => {
                   <Typography variant="subtitle1" fontWeight="bold">
                     Add-Ons:
                   </Typography>
-                  {jasa.addOns.map((addOn) => (
+                  {jasa.addOns.map((addOn, index) => (
                     <Typography
-                      key={addOn.addOnId}
+                      key={index}
                       variant="body2"
                       sx={{ ml: 2 }}
                     >
