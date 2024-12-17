@@ -12,7 +12,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import CenterLoading from "../../(public)/components/CenterLoading";
 
-const TransactionHistoryPage = () => {
+const TransactionOrderPage = () => {
   const [orders, setOrders] = useState([]); // State untuk menyimpan data transaksi
   const [loading, setLoading] = useState(true); // State untuk loading indicator
   const [error, setError] = useState(null); // State untuk menampilkan error
@@ -69,7 +69,7 @@ const TransactionHistoryPage = () => {
       }}
     >
       <Typography variant="h4" mb={3} color="black" fontWeight="bold">
-        Status Pesanan
+        ORDERS
       </Typography>
       {/* Error Handling */}
       {error && (
@@ -165,4 +165,4 @@ const TransactionHistoryPage = () => {
   );
 };
 
-export default TransactionHistoryPage;
+export default TransactionOrderPage;
