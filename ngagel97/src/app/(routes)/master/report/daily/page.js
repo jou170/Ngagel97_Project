@@ -1,13 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Bar, Line } from "react-chartjs-2";
-import {
-  Box,
-  Typography,
-  Container,
-  Paper,
-} from "@mui/material";
-import { Grid2 } from "@mui/system"; // Import Grid2
+import { Box, Typography, Container, Paper, Grid2 } from "@mui/material";
+
 import axios from "axios";
 import {
   Chart as ChartJS,
@@ -22,7 +17,16 @@ import {
 } from "chart.js";
 
 // Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const DashboardPage = () => {
   const [transactions, setTransactions] = useState([]);
@@ -49,7 +53,11 @@ const DashboardPage = () => {
 
   // Aggregate data by day
   const dailyData = transactions.reduce((acc, transaction) => {
-    const day = transaction.date.toLocaleString("id-ID", { year: "numeric", month: "numeric", day: "numeric" });
+    const day = transaction.date.toLocaleString("id-ID", {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    });
     acc[day] = (acc[day] || 0) + transaction.total;
     return acc;
   }, {});

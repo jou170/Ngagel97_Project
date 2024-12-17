@@ -41,7 +41,6 @@ function ResponsiveAppBar() {
         ]);
         setSettings([
           { link: "/profile", text: "Profile" },
-          { link: "/history", text: "History" },
           { link: "/login", text: "Logout" },
         ]);
       } else {

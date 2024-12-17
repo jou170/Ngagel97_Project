@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import { Bar, Line } from "react-chartjs-2";
 import {
@@ -22,7 +23,16 @@ import {
 } from "chart.js";
 
 // Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const DashboardPage = () => {
   const [transactions, setTransactions] = useState([]);
@@ -49,7 +59,10 @@ const DashboardPage = () => {
 
   // Aggregate data by month
   const monthlyData = transactions.reduce((acc, transaction) => {
-    const month = transaction.date.toLocaleString("id-ID", { year: "numeric", month: "long" });
+    const month = transaction.date.toLocaleString("id-ID", {
+      year: "numeric",
+      month: "long",
+    });
     acc[month] = (acc[month] || 0) + transaction.total;
     return acc;
   }, {});
