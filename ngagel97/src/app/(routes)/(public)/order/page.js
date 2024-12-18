@@ -9,10 +9,12 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 const StatusPage = () => {
   const [filter, setFilter] = useState("All");
   const [orders, setOrders] = useState([]);
+  const router = useRouter();
 
   // Define the sorting order for statuses
   const statusOrder = ["pending", "progress", "completed"];
@@ -37,6 +39,10 @@ const StatusPage = () => {
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
+  };
+
+  const handleDetailClick = (id) => {
+    router.push(`/order/${id}`);
   };
 
   // Sort orders based on statusOrder
@@ -92,12 +98,12 @@ const StatusPage = () => {
             <Box>
               <Typography variant="h6">{`Order ID: ${order.idTransaksi}`}</Typography>
               <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
-                Total: Rp {order.total}
+                Total: Rp.{order.total}
               </Typography>
             </Box>
 
             {/* Right: Order Status */}
-            <Box textAlign="right">
+            <Box textAlign="right" display="flex" flexDirection="column" alignItems="flex-end">
               <Typography variant="body2" sx={{ marginBottom: "8px" }}>
                 {`Order ${order.status} pada ${new Date(
                   order.createdAt
@@ -105,41 +111,57 @@ const StatusPage = () => {
                   order.createdAt
                 ).toLocaleTimeString()}`}
               </Typography>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: (() => {
+              <Box display="flex" gap="10px" justifyContent="flex-end">
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: (() => {
+                      switch (order.status) {
+                        case "pending":
+                          return "#f9a825"; // Yellow for pending
+                        case "progress":
+                          return "#2196f3"; // Blue for progress
+                        case "completed":
+                          return "#4caf50"; // Green for completed
+                        default:
+                          return "#ccc"; // Grey for unknown
+                      }
+                    })(),
+                    color: "#fff",
+                    textTransform: "none",
+                    "&:hover": {
+                      opacity: 0.9,
+                    },
+                  }}
+                >
+                  {(() => {
                     switch (order.status) {
                       case "pending":
-                        return "#f9a825";
+                        return `Sedang Disiapkan`;
                       case "progress":
-                        return "#2196f3";
+                        return `Sedang`;
                       case "completed":
-                        return "#4caf50"; 
+                        return `Selesai`;
                       default:
-                        return "#ccc";
+                        return "Status Tidak Diketahui";
                     }
-                  })(),
-                  color: "#fff",
-                  textTransform: "none",
-                  "&:hover": {
-                    opacity: 0.9,
-                  },
-                }}
-              >
-                {(() => {
-                  switch (order.status) {
-                    case "pending":
-                      return "Sedang Disiapkan";
-                    case "progress":
-                      return "Sedang Dikirim";
-                    case "completed":
-                      return "Selesai";
-                    default:
-                      return "Unknown";
-                  }
-                })()}
-              </Button>
+                  })()}
+                </Button>
+                <Button
+                  variant="outlined"
+                  sx={{
+                    color: "#000",
+                    borderColor: "#ccc",
+                    textTransform: "none",
+                    "&:hover": {
+                      backgroundColor: "#f0f0f0",
+                    },
+                  }}
+                  onClick={() => handleDetailClick(order.idTransaksi)} // Navigate to detail page
+                >
+                  Detail
+                </Button>
+              </Box>
             </Box>
           </Paper>
         ))}
