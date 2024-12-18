@@ -38,6 +38,7 @@ const SalesPage = () => {
 
       // Format the transactions to extract only the required fields
       const formattedTransactions = transactionsArray.map((transaction) => ({
+        idTransaksi: transaction._id.slice(-5), // Ambil 5 digit terakhir dari _id
         date: transaction.createdAt,
         ongkir: transaction.ongkir || 0,
         subtotal: transaction.subtotal || 0,
@@ -129,6 +130,9 @@ const SalesPage = () => {
                 <TableHead>
                   <TableRow sx={{ bgcolor: "#d7ccc8" }}>
                     <TableCell>
+                      <strong>ID Transaksi</strong>
+                    </TableCell>
+                    <TableCell>
                       <strong>Tanggal</strong>
                     </TableCell>
                     <TableCell>
@@ -150,6 +154,7 @@ const SalesPage = () => {
                         "&:nth-of-type(odd)": { bgcolor: "#fafafa" },
                       }}
                     >
+                      <TableCell>{transaction.idTransaksi}</TableCell>
                       <TableCell>
                         {new Date(transaction.date).toLocaleDateString("id-ID")}
                       </TableCell>

@@ -1,20 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Bar, Line } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import {
   Box,
   Typography,
   Container,
   Paper,
-  Grid, // Import Grid untuk layout
+  Grid,
 } from "@mui/material";
 import axios from "axios";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
   LineElement,
   PointElement,
   Title,
@@ -26,7 +25,6 @@ import {
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarElement,
   LineElement,
   PointElement,
   Title,
@@ -42,12 +40,7 @@ const DashboardPage = () => {
       const response = await axios.get("/api/transaction/online/master");
       const transactionsArray = response.data.data.orders || [];
 
-      const formattedTransactions = transactionsArray.map((transaction) => ({
-        date: new Date(transaction.createdAt),
-        total: transaction.total || 0,
-      }));
-
-      setTransactions(formattedTransactions);
+      setTransactions(transactionsArray);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
@@ -57,63 +50,26 @@ const DashboardPage = () => {
     fetchTransactions();
   }, []);
 
-  // Aggregate data by month
-  const monthlyData = transactions.reduce((acc, transaction) => {
-    const month = transaction.date.toLocaleString("id-ID", {
-      year: "numeric",
-      month: "long",
-    });
-    acc[month] = (acc[month] || 0) + transaction.total;
-    return acc;
-  }, {});
+  // Calculate total transactions
+  const totalTransactions = transactions.length;
 
-  const chartData = {
-    labels: Object.keys(monthlyData),
-    datasets: [
-      {
-        label: "Pendapatan Bulanan",
-        data: Object.values(monthlyData),
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 1,
-      },
-    ],
-  };
+  // Calculate total revenue (completed)
+  const totalRevenue = transactions
+    .filter((t) => t.status === "completed")
+    .reduce((sum, t) => sum + t.total, 0);
 
-  const lineChartData = {
-    labels: Object.keys(monthlyData),
-    datasets: [
-      {
-        label: "Pendapatan Bulanan (Line Chart)",
-        data: Object.values(monthlyData),
-        fill: false,
-        borderColor: "rgba(54, 162, 235, 1)",
-        backgroundColor: "rgba(54, 162, 235, 0.5)",
-        tension: 0.1,
-      },
-    ],
-  };
+  // Transactions in progress
+  const transactionsInProgress = transactions.filter(
+    (t) => t.status === "progress"
+  ).length;
 
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      title: {
-        display: true,
-        text: "Statistik Pendapatan Bulanan",
-      },
-    },
-  };
+  // Pending transactions
+  const pendingTransactions = transactions.filter(
+    (t) => t.status === "pending"
+  ).length;
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: "20px",
-      }}
-    >
+    <div style={{ minHeight: "100vh", padding: "20px" }}>
       <Container maxWidth="lg">
         {/* Header */}
         <Box
@@ -124,39 +80,78 @@ const DashboardPage = () => {
             textAlign: "center",
           }}
         >
-          <Typography variant="h6" sx={{ color: "white" }}>
+          <Typography variant="h5" sx={{ color: "white" }}>
             Dashboard Penjualan
           </Typography>
         </Box>
 
-        {/* Grid for placing the charts side by side */}
+        {/* Info Boxes */}
         <Grid container spacing={3} sx={{ mt: 3 }}>
-          {/* Bar Chart */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3 }}>
-              {transactions.length === 0 ? (
-                <Typography variant="h6" align="center" color="text.secondary">
-                  Tidak ada data transaksi
-                </Typography>
-              ) : (
-                <Bar data={chartData} options={chartOptions} />
-              )}
+          <Grid item xs={12} md={3}>
+            <Paper sx={{ p: 3, textAlign: "center" }}>
+              <Typography variant="h6">Total Transaksi Terjadi</Typography>
+              <Typography variant="h4">{totalTransactions}</Typography>
             </Paper>
           </Grid>
-
-          {/* Line Chart */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3 }}>
-              {transactions.length === 0 ? (
-                <Typography variant="h6" align="center" color="text.secondary">
-                  Tidak ada data transaksi
-                </Typography>
-              ) : (
-                <Line data={lineChartData} options={chartOptions} />
-              )}
+          <Grid item xs={12} md={3}>
+            <Paper sx={{ p: 3, textAlign: "center" }}>
+              <Typography variant="h6">Total Pendapatan</Typography>
+              <Typography variant="h4">Rp {totalRevenue.toLocaleString()}</Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <Paper sx={{ p: 3, textAlign: "center" }}>
+              <Typography variant="h6">Transaksi Progress</Typography>
+              <Typography variant="h4">{transactionsInProgress}</Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <Paper sx={{ p: 3, textAlign: "center" }}>
+              <Typography variant="h6">Transaksi Pending</Typography>
+              <Typography variant="h4">{pendingTransactions}</Typography>
             </Paper>
           </Grid>
         </Grid>
+
+        {/* Line Chart */}
+        <Box sx={{ mt: 5 }}>
+          <Paper sx={{ p: 3 }}>
+            {transactions.length === 0 ? (
+              <Typography variant="h6" align="center" color="text.secondary">
+                Tidak ada data transaksi
+              </Typography>
+            ) : (
+              <Line
+                data={{
+                  labels: transactions.map((t) =>
+                    new Date(t.createdAt).toLocaleDateString()
+                  ),
+                  datasets: [
+                    {
+                      label: "Total Transaksi",
+                      data: transactions.map((t) => t.total || 0),
+                      borderColor: "rgba(75, 192, 192, 1)",
+                      backgroundColor: "rgba(75, 192, 192, 0.5)",
+                      tension: 0.3,
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: {
+                      position: "top",
+                    },
+                    title: {
+                      display: true,
+                      text: "Grafik Total Transaksi",
+                    },
+                  },
+                }}
+              />
+            )}
+          </Paper>
+        </Box>
       </Container>
     </div>
   );
