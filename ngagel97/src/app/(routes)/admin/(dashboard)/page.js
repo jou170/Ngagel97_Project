@@ -1,6 +1,6 @@
 import React from 'react'
 
-const DashboardPageage = () => {
+const DashboardPage = () => {
   return (
     <div>
       <h1>ini dashboard page untuk Admin</h1>
@@ -8,4 +8,4 @@ const DashboardPageage = () => {
   )
 }
 
-export default DashboardPageage
+export default DashboardPage
