@@ -203,19 +203,8 @@ const HomePage = () => {
                   }}
                 >
                   <Typography variant="h6" mb={1}>
-                    Add-ons Available:
+                    See more details
                   </Typography>
-                  <Box>
-                    {service.addons?.length > 0 ? (
-                      service.addons.map((addon, index) => (
-                        <Typography key={index} variant="body2">
-                          - {addon}
-                        </Typography>
-                      ))
-                    ) : (
-                      <Typography variant="body2">No add-ons available</Typography>
-                    )}
-                  </Box>
                 </Box>
 
                 {/* Content Section */}

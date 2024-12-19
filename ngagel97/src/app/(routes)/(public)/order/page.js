@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import DetailOrder from "../../(public)/components/DetailOrder";
 
-const StatusPage = () => {
+const UserOrderPage = () => {
   const [filter, setFilter] = useState("All");
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -174,4 +174,4 @@ const StatusPage = () => {
   );
 };
 
-export default StatusPage;
+export default UserOrderPage;
