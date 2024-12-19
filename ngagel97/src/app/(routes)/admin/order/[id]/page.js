@@ -145,6 +145,9 @@ const TransactionDetailPage = () => {
           <Typography variant="body1">
             <strong>Catatan:</strong> {order.notes || "-"}
           </Typography>
+          <Typography variant="body1">
+            <strong>Total Harga:</strong> Rp. {order.total || "-"}
+          </Typography>
         </CardContent>
       </Card>
 
@@ -158,7 +161,7 @@ const TransactionDetailPage = () => {
             <Card
               elevation={3}
               sx={{
-                width: 420,
+                width: 637,
                 height: 300,
                 position: "relative",
               }}
@@ -168,7 +171,7 @@ const TransactionDetailPage = () => {
                   {jasa.nama}
                 </Typography>
                 <Typography variant="body1">
-                  Sebanyak: {jasa.lembar} Lembar | Jumlah Copy: {jasa.qty}
+                  Sebanyak: {jasa.lembar} Lembar | Jumlah Copy: {jasa.qty} | Harga: Rp. {jasa.harga}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -186,7 +189,8 @@ const TransactionDetailPage = () => {
                       <Typography key={idx} variant="body2">
                         - {addOn.nama} dengan jumlah tiap{" "}
                         {addOn.tipeHarga === "lembar" ? "lembar" : "copy"}{" "}
-                        {addOn.qty}
+                        {addOn.qty}{" "}
+                        seharga Rp. {addOn.harga}{" "}
                       </Typography>
                     ))}
                   </Box>

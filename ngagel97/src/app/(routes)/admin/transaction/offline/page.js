@@ -59,7 +59,9 @@ const OfflineTransactionPage = () => {
   // Update filteredAddOnList when jasa is selected
   useEffect(() => {
     if (selectedJasa) {
-      const selectedJasaData = jasaList.find((jasa) => jasa._id === selectedJasa);
+      const selectedJasaData = jasaList.find(
+        (jasa) => jasa._id === selectedJasa
+      );
       if (selectedJasaData && selectedJasaData.addOns) {
         const filteredAddOns = addOnList.filter((addon) =>
           selectedJasaData.addOns.includes(addon._id)
@@ -102,7 +104,7 @@ const OfflineTransactionPage = () => {
             id: addon._id,
             qty: addOnQuantities[addonId] || 1,
             tipeHarga: addon.tipeHarga,
-            subtotal: addon.harga *  addOnQuantities[addonId]
+            subtotal: addon.harga * addOnQuantities[addonId],
           };
         })
       : [];
@@ -112,7 +114,10 @@ const OfflineTransactionPage = () => {
       return sum + addonHarga * addon.qty;
     }, 0);
 
-    const subtotal = lembar == 0 ? harga * qty + addOnPrice : harga * qty * lembar + addOnPrice;
+    const subtotal =
+      lembar == 0
+        ? harga * qty + addOnPrice
+        : harga * qty * lembar + addOnPrice;
 
     // Menambahkan row dengan data produk lengkap
     const newRow = {
@@ -120,7 +125,11 @@ const OfflineTransactionPage = () => {
       product: newProduct, // Menyimpan objek produk lengkap
       jumlah: qty,
       lembar: lembar,
-      tipe: newProduct.idBarang ? "barang" : newProduct.idJasa ? "jasa" : "addon",
+      tipe: newProduct.idBarang
+        ? "barang"
+        : newProduct.idJasa
+        ? "jasa"
+        : "addon",
       harga: `Rp. ${(harga * qty).toLocaleString()}`,
       addOn: addOnDetails.length
         ? addOnDetails.map((a) => `${a.name} (Qty: ${a.qty})`).join("<br />")
@@ -186,7 +195,9 @@ const OfflineTransactionPage = () => {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || "Terjadi kesalahan saat menyimpan transaksi.");
+        throw new Error(
+          data.message || "Terjadi kesalahan saat menyimpan transaksi."
+        );
       }
 
       alert("Transaksi berhasil!");
@@ -199,17 +210,31 @@ const OfflineTransactionPage = () => {
   return (
     <Container maxWidth="xl" sx={{ mt: 4 }}>
       <Box display="flex" justifyContent="space-between">
-        <Typography variant="h5" gutterBottom color="black">
+        <Typography
+          variant="h4"
+          gutterBottom
+          color="black"
+          mb={3}
+          fontWeight="bold"
+        >
           Pencatatan Transaksi Offline
         </Typography>
-        <Typography variant="h6" color="black">
+        <Typography variant="h6" color="black" fontWeight="bold">
           Tanggal: {todayDate}
         </Typography>
       </Box>
 
       <Box display="flex" gap={2}>
         {/* Left section for adding barang or jasa */}
-        <Box sx={{ flex: 1 }}>
+        <Box
+          sx={{
+            flex: 1,
+            backgroundColor: "#FFFFFF", // Warna putih
+            padding: 2, // Padding sekitar form
+            borderRadius: 2, // Agar pojok form membulat
+            boxShadow: 2, // Tambahkan shadow jika ingin efek lebih baik
+          }}
+        >
           <Typography>Pilih Barang</Typography>
           <TextField
             select
@@ -288,7 +313,10 @@ const OfflineTransactionPage = () => {
             <div>
               <Typography>Tambah Add-On</Typography>
               {filteredAddOnList.map((addon) => (
-                <Box key={addon._id} sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  key={addon._id}
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
                   <Checkbox
                     checked={selectedAddOns.includes(addon._id)}
                     onChange={() => handleAddOnCheckboxChange(addon._id)}
@@ -312,7 +340,7 @@ const OfflineTransactionPage = () => {
             </div>
           )}
 
-      <Typography>Pilih Add Ons</Typography>
+          <Typography>Pilih Add Ons</Typography>
           <TextField
             select
             value={selectedAddOn || ""}
@@ -356,7 +384,7 @@ const OfflineTransactionPage = () => {
 
         {/* Right section for showing table */}
         <Box sx={{ flex: 2 }}>
-          <Typography variant="h6">Transaksi yang Ditambahkan</Typography>
+          <Typography variant="h6" fontWeight="bold">Transaksi yang Ditambahkan</Typography>
           <TableContainer component={Paper} sx={{ mt: 2 }}>
             <Table>
               <TableHead>
@@ -382,10 +410,7 @@ const OfflineTransactionPage = () => {
                     />
                     <TableCell>{row.subtotal}</TableCell>
                     <TableCell>
-                      <Button
-                        color="error"
-                        onClick={() => handleDelete(index)}
-                      >
+                      <Button color="error" onClick={() => handleDelete(index)}>
                         Hapus
                       </Button>
                     </TableCell>

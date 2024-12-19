@@ -1,34 +1,53 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Button,
-  CircularProgress,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
+import { Box, Typography, Paper, Button, Alert } from "@mui/material";
 import { useRouter } from "next/navigation";
 import CenterLoading from "@/app/(routes)/(public)/components/CenterLoading";
 
 const TransactionHistoryPage = () => {
-  const [orders, setOrders] = useState([]); // State untuk menyimpan data transaksi
-  const [loading, setLoading] = useState(true); // State untuk loading indicator
-  const [error, setError] = useState(null); // State untuk menampilkan error
+  const [orders, setOrders] = useState([]); // State for all transactions
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
+  const [users, setUsers] = useState({}); // State for online users
   const router = useRouter();
 
-  // Fetch data dari API saat komponen pertama kali dimuat
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch("/api/transaction/online/admin/history");
-        if (!response.ok) {
-          throw new Error("Failed to fetch transactions");
+        const onlineResponse = await fetch(
+          "/api/transaction/online/admin/history"
+        );
+        if (!onlineResponse.ok) {
+          throw new Error("Failed to fetch online transactions");
         }
+        const onlineData = await onlineResponse.json();
 
-        const data = await response.json();
-        setOrders(data.data.orders);
+        const combinedOrders = [
+          ...onlineData.data.orders.map((order) => ({
+            ...order,
+            source: "online",
+          })),
+        ];
+        setOrders(combinedOrders);
+
+        // Fetch user data only for valid userIds
+        const onlineUserPromises = onlineData.data.orders
+          .filter((order) => order.userId) // Ensure userId exists
+          .map((order) =>
+            fetch(`/api/user/${order.userId}`)
+              .then((res) => (res.ok ? res.json() : null))
+              .catch(() => null)
+          );
+        const onlineUserResults = await Promise.all(onlineUserPromises);
+
+        const onlineUserMap = {};
+        onlineUserResults.forEach((userRes, index) => {
+          if (userRes && userRes.data) {
+            onlineUserMap[onlineData.data.orders[index].userId] =
+              userRes.data.user;
+          }
+        });
+        setUsers(onlineUserMap);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -38,19 +57,17 @@ const TransactionHistoryPage = () => {
 
     fetchTransactions();
   }, []);
+
   if (loading) {
     return <CenterLoading />;
   }
+
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        padding: "20px",
-      }}
-    >
-      <Typography variant="h4" mb={3} color="black">
-        Riwayat Transaksi
+    <Box sx={{ minHeight: "100vh", padding: "20px" }}>
+      <Typography variant="h4" mb={3} color="black" fontWeight="bold">
+        TRANSACTION HISTORY
       </Typography>
+
       {/* Error Handling */}
       {error && (
         <Alert severity="error" sx={{ marginBottom: "20px" }}>
@@ -58,13 +75,18 @@ const TransactionHistoryPage = () => {
         </Alert>
       )}
 
-      {/* Tampilkan Data Transaksi */}
+      {/* Display Transaction Data */}
       <Box display="flex" flexDirection="column" gap="20px">
         {orders.length > 0
-          ? orders.map((order) => (
+          ? orders.map((order, index) => (
               <Paper
                 key={order._id}
-                onClick={() => router.push(`/admin/transaction/history/${order._id}`)} // Navigasi ke halaman detail
+                onClick={
+                  order.isOnline
+                    ? () =>
+                        router.push(`/admin/transaction/history/${order._id}`)
+                    : undefined
+                }
                 sx={{
                   padding: "20px",
                   display: "flex",
@@ -72,69 +94,50 @@ const TransactionHistoryPage = () => {
                   alignItems: "center",
                   border: "1px solid #ccc",
                   borderRadius: "8px",
-                  cursor: "pointer", // Menunjukkan bahwa elemen bisa diklik
-                  "&:hover": {
-                    backgroundColor: "#f5f5f5", // Efek hover
-                  },
+                  cursor: "pointer",
+                  "&:hover": { backgroundColor: "#f5f5f5" },
                 }}
               >
-                {/* Kiri: Detail Produk */}
                 <Box display="flex" alignItems="center" gap="15px">
-                  {order.image ? (
-                    <Image
-                      src={order.image}
-                      alt={order.title}
-                      width={80}
-                      height={100}
-                      style={{ borderRadius: "4px" }}
-                    />
-                  ) : (
-                    <Box
-                      sx={{
-                        width: "80px",
-                        height: "100px",
-                        backgroundColor: "#e0e0e0",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      <Typography variant="caption" color="textSecondary">
-                        No Image
-                      </Typography>
-                    </Box>
-                  )}
                   <Box>
-                    <Typography variant="h6">{order._id}</Typography>
+                    <Typography variant="h6">
+                      {order.isOnline === true
+                        ? `Pembelian Oleh : ${
+                            users[order.userId]?.name || "Unknown User"
+                          }`
+                        : `Pembelian Offline Dengan ID : ${order._id}`}
+                    </Typography>
                     <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
-                      Total: {order.total}
+                      {order.isOnline === true
+                        ? `Alamat : ${order.alamat || "Alamat tidak tersedia"}`
+                        : ""}
                     </Typography>
                   </Box>
                 </Box>
 
-                {/* Kanan: Status Pesanan */}
                 <Box textAlign="right">
                   <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                    Order on{" "}
-                    {new Date(order.createdAt).toLocaleString("id-ID", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "numeric",
-                      minute: "numeric",
-                      timeZone: "Asia/Jakarta",
-                    })}
+                    Pembelian pada{" "}
+                    {order.createdAt
+                      ? new Date(order.createdAt).toLocaleString("id-ID", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "numeric",
+                          minute: "numeric",
+                          timeZone: "Asia/Jakarta",
+                        })
+                      : "Tanggal tidak tersedia"}
                   </Typography>
                   <Button
                     variant="contained"
                     sx={{
-                      backgroundColor: "#ff9800",
+                      backgroundColor: order.isOnline ? "#4caf50" : "#ff9800",
                       color: "#fff",
                       textTransform: "none",
                       "&:hover": {
-                        backgroundColor: "#fb8c00",
+                        backgroundColor: order.isOnline ? "#388e3c" : "#fb8c00",
                       },
                     }}
                   >
