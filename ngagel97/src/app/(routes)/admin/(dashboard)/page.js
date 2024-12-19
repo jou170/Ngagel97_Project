@@ -5,7 +5,6 @@ import {
   Typography,
   Paper,
   Button,
-  CircularProgress,
   Alert,
   Grid2,
 } from "@mui/material";
@@ -92,65 +91,63 @@ const DashboardPage = () => {
       <Typography variant="h6" mb={2} fontWeight="bold">
         Recent Orders
       </Typography>
-      <Grid2 container spacing={2} mb={3}>
+      <Box display="flex" flexDirection="column" gap="20px" mb={3}>
         {recentOrders.length > 0 ? (
           recentOrders.map((order) => (
-            <Grid2 xs={12} sm={6} md={4} key={order._id}>
-              <Box display="flex" flexDirection="column" gap="20px">
-                <Paper
-                  onClick={() => router.push(`/admin/order/${order._id}`)}
-                  sx={{
-                    padding: "15px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    border: "1px solid #ccc",
-                    width: "100%", // Extend the paper width
-                    maxWidth: "100%", // Allow it to stretch fully
-                  }}
-                >
-                  <Box>
-                    <Typography variant="body1">
-                      {users[order.userId]?.name || "Unknown User"}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {order.alamat}
-                    </Typography>
-                  </Box>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      width: 100,
-                      backgroundColor:
-                        order.status === "pending"
-                          ? "#D64649"
-                          : order.status === "progress"
-                          ? "#FFB340"
-                          : "#36B93C",
-                      color: "#fff",
-                      textTransform: "none",
-                      "&:hover": {
-                        backgroundColor:
-                          order.status === "pending"
-                            ? "#D61A1E"
-                            : order.status === "progress"
-                            ? "#FB9903"
-                            : "#00AD08",
-                      },
-                    }}
-                  >
-                    {order.status.toUpperCase()}
-                  </Button>
-                </Paper>
+            <Paper
+              key={order._id}
+              onClick={() => router.push(`/admin/order/${order._id}`)}
+              sx={{
+                padding: "20px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "#f5f5f5",
+                },
+              }}
+            >
+              <Box>
+                <Typography variant="h6">
+                  {users[order.userId]?.name || "Unknown User"}
+                </Typography>
+                <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
+                  Alamat: {order.alamat}
+                </Typography>
               </Box>
-            </Grid2>
+              <Button
+                variant="contained"
+                sx={{
+                  width: 100,
+                  backgroundColor:
+                    order.status === "pending"
+                      ? "#D64649"
+                      : order.status === "progress"
+                      ? "#FFB340"
+                      : "#36B93C",
+                  color: "#fff",
+                  textTransform: "none",
+                  "&:hover": {
+                    backgroundColor:
+                      order.status === "pending"
+                        ? "#D61A1E"
+                        : order.status === "progress"
+                        ? "#FB9903"
+                        : "#00AD08",
+                  },
+                }}
+              >
+                {order.status.toUpperCase()}
+              </Button>
+            </Paper>
           ))
         ) : (
           <Typography color="textSecondary">No recent orders.</Typography>
         )}
-      </Grid2>
+      </Box>
 
       <Button
         variant="contained"
@@ -164,55 +161,55 @@ const DashboardPage = () => {
       <Typography variant="h6" mb={2} fontWeight="bold">
         Recent Transaction History
       </Typography>
-      <Grid2 container spacing={2} mb={3}>
+      <Box display="flex" flexDirection="column" gap="20px">
         {recentHistory.length > 0 ? (
           recentHistory.map((history) => (
-            <Grid2 xs={12} sm={6} md={4} key={history._id}>
-              <Box display="flex" flexDirection="column" gap="20px">
-                <Paper
-                  onClick={() =>
-                    router.push(`/admin/transaction/history/${history._id}`)
-                  }
-                  sx={{
-                    padding: "15px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    border: "1px solid #ccc",
-                  }}
-                >
-                  <Box>
-                    <Typography variant="body1">
-                      {users[history.userId]?.name || "Unknown User"}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {history.alamat || "No address"}
-                    </Typography>
-                  </Box>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    sx={{
-                      backgroundColor: history.isOnline ? "#4caf50" : "#ff9800",
-                    }}
-                  >
-                    {history.isOnline ? "Online" : "Offline"}
-                  </Button>
-                </Paper>
+            <Paper
+              key={history._id}
+              onClick={() =>
+                router.push(`/admin/transaction/history/${history._id}`)
+              }
+              sx={{
+                padding: "20px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "#f5f5f5",
+                },
+              }}
+            >
+              <Box>
+                <Typography variant="h6">
+                  {users[history.userId]?.name || "Unknown User"}
+                </Typography>
+                <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
+                  Alamat: {history.alamat || "No address"}
+                </Typography>
               </Box>
-            </Grid2>
+              <Button
+                variant="contained"
+                size="small"
+                sx={{
+                  backgroundColor: history.isOnline ? "#4caf50" : "#ff9800",
+                }}
+              >
+                {history.isOnline ? "Online" : "Offline"}
+              </Button>
+            </Paper>
           ))
         ) : (
           <Typography color="textSecondary">No recent history.</Typography>
         )}
-      </Grid2>
+      </Box>
 
       <Button
         variant="contained"
         onClick={() => router.push("/admin/transaction/history")}
-        sx={{ width: "100%" }}
+        sx={{ width: "100%", marginTop: 3 }}
       >
         View Transaction History
       </Button>
