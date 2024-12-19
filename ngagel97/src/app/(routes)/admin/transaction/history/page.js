@@ -54,14 +54,14 @@ const TransactionHistoryPage = () => {
         setLoading(false);
       }
     };
-
+    
     fetchTransactions();
   }, []);
 
   if (loading) {
     return <CenterLoading />;
   }
-
+  
   return (
     <Box sx={{ minHeight: "100vh", padding: "20px" }}>
       <Typography variant="h4" mb={3} color="black" fontWeight="bold">
@@ -85,8 +85,10 @@ const TransactionHistoryPage = () => {
                   order.isOnline
                     ? () =>
                         router.push(`/admin/transaction/history/${order._id}`)
-                    : undefined
+                    : () =>
+                      router.push(`/admin/transaction/history/offline/${order._id}`)
                 }
+        
                 sx={{
                   padding: "20px",
                   display: "flex",
@@ -98,6 +100,8 @@ const TransactionHistoryPage = () => {
                   "&:hover": { backgroundColor: "#f5f5f5" },
                 }}
               >
+                {/* {console.log(order)} */}
+                
                 <Box display="flex" alignItems="center" gap="15px">
                   <Box>
                     <Typography variant="h6">
@@ -105,7 +109,7 @@ const TransactionHistoryPage = () => {
                         ? `Pembelian Oleh : ${
                             users[order.userId]?.name || "Unknown User"
                           }`
-                        : `Pembelian Offline Dengan ID : ${order._id}`}
+                        : `Pembelian Offline Dengan ID : ${order.idTransaksi}`}
                     </Typography>
                     <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
                       {order.isOnline === true
