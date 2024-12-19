@@ -93,7 +93,7 @@ function MasterAppBar() {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}></Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
+            <Tooltip title="Account">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar alt="avatar" src="" />
               </IconButton>

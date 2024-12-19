@@ -203,7 +203,7 @@ const DashboardPage = () => {
       <Button
         variant="contained"
         onClick={() => router.push("/admin/transaction/history")}
-        sx={{width: 1315}}
+        sx={{ width: 1315 }}
       >
         View Transaction History
       </Button>
