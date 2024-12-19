@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState } from "react";
 import {
@@ -9,17 +9,13 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { useRouter } from "next/navigation";
+import DetailOrder from "../../(public)/components/DetailOrder";
 
 const StatusPage = () => {
   const [filter, setFilter] = useState("All");
   const [orders, setOrders] = useState([]);
-  const router = useRouter();
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
-  // Define the sorting order for statuses
-  const statusOrder = ["pending", "progress", "completed"];
-
-  // Fetch data from the backend
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -41,28 +37,30 @@ const StatusPage = () => {
     setFilter(event.target.value);
   };
 
-  const handleDetailClick = (id) => {
-    router.push(`/order/${id}`);
+  const handleDetailClick = (idTransaksi) => {
+    const order = orders.find((o) => o.idTransaksi === idTransaksi);
+    if (!order) {
+      alert("Order not found. Please check the ID or ensure the order exists.");
+    } else {
+      setSelectedOrder(order);
+    }
   };
 
-  // Sort orders based on statusOrder
+  // Menghitung total lembar dengan menjumlahkan nilai 'lembar' di setiap jasa
+  const calculateTotalLembar = (jasa) => {
+    return jasa.reduce((total, item) => total + item.lembar, 0);
+  };
+
   const sortedOrders = orders
     .filter((order) => filter === "All" || order.status === filter)
-    .sort((a, b) => statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status));
+    .sort((a, b) => a.status.localeCompare(b.status));
 
   return (
-    <Box
-      sx={{
-        backgroundColor: "#f4e4d8",
-        minHeight: "100vh",
-        padding: "20px",
-      }}
-    >
+    <Box sx={{ backgroundColor: "#f4e4d8", minHeight: "100vh", padding: "20px" }}>
       <Typography variant="h4" mb={3} color="black">
         Status Pemesanan
       </Typography>
 
-      {/* Dropdown Filter */}
       <Select
         value={filter}
         onChange={handleFilterChange}
@@ -80,11 +78,10 @@ const StatusPage = () => {
         <MenuItem value="completed">Completed</MenuItem>
       </Select>
 
-      {/* Order Cards */}
       <Box display="flex" flexDirection="column" gap="20px">
         {sortedOrders.map((order) => (
           <Paper
-            key={order._id}
+            key={order.idTransaksi}
             sx={{
               padding: "20px",
               display: "flex",
@@ -94,15 +91,22 @@ const StatusPage = () => {
               borderRadius: "8px",
             }}
           >
-            {/* Left: Order Details */}
             <Box>
               <Typography variant="h6">{`Order ID: ${order.idTransaksi}`}</Typography>
               <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
                 Total: Rp.{order.total}
               </Typography>
+              <Typography variant="body2" sx={{ color: "#6d6d6d" }}>
+                Jumlah Lembar: {calculateTotalLembar(order.jasa)} lembar
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#6d6d6d" }}>
+                Ongkir: Rp.{order.ongkir || "0"}
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#6d6d6d" }}>
+                Total Tanpa Ongkir: Rp.{order.total - (order.ongkir || 0)}
+              </Typography>
             </Box>
 
-            {/* Right: Order Status */}
             <Box textAlign="right" display="flex" flexDirection="column" alignItems="flex-end">
               <Typography variant="body2" sx={{ marginBottom: "8px" }}>
                 {`Order ${order.status} pada ${new Date(
@@ -118,13 +122,13 @@ const StatusPage = () => {
                     backgroundColor: (() => {
                       switch (order.status) {
                         case "pending":
-                          return "#f9a825"; // Yellow for pending
+                          return "#f9a825";
                         case "progress":
-                          return "#2196f3"; // Blue for progress
+                          return "#2196f3";
                         case "completed":
-                          return "#4caf50"; // Green for completed
+                          return "#4caf50";
                         default:
-                          return "#ccc"; // Grey for unknown
+                          return "#ccc";
                       }
                     })(),
                     color: "#fff",
@@ -139,7 +143,7 @@ const StatusPage = () => {
                       case "pending":
                         return `Sedang Disiapkan`;
                       case "progress":
-                        return `Sedang`;
+                        return `Sedang Diproses`;
                       case "completed":
                         return `Selesai`;
                       default:
@@ -149,15 +153,8 @@ const StatusPage = () => {
                 </Button>
                 <Button
                   variant="outlined"
-                  sx={{
-                    color: "#000",
-                    borderColor: "#ccc",
-                    textTransform: "none",
-                    "&:hover": {
-                      backgroundColor: "#f0f0f0",
-                    },
-                  }}
-                  onClick={() => handleDetailClick(order.idTransaksi)} // Navigate to detail page
+                  color="primary"
+                  onClick={() => handleDetailClick(order.idTransaksi)}
                 >
                   Detail
                 </Button>
@@ -166,6 +163,13 @@ const StatusPage = () => {
           </Paper>
         ))}
       </Box>
+
+      {selectedOrder && (
+        <DetailOrder
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+        />
+      )}
     </Box>
   );
 };
