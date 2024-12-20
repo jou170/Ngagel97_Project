@@ -141,11 +141,11 @@ const UserOrderPage = () => {
                   {(() => {
                     switch (order.status) {
                       case "pending":
-                        return `Sedang Disiapkan`;
+                        return `Pending`;
                       case "progress":
-                        return `Sedang Diproses`;
+                        return `Progress`;
                       case "completed":
-                        return `Selesai`;
+                        return `Completed`;
                       default:
                         return "Status Tidak Diketahui";
                     }

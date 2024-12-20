@@ -63,7 +63,7 @@ const DailySalesPage = () => {
   const groupTransactionsByUser = () => {
     const grouped = transactions.reduce((acc, transaction) => {
       const user = users.find((u) => u._id === transaction.userId);
-      const userName = user ? user.name : "Offline User";
+      const userName = user ? user.name : "Transaksi Offline";
 
       if (!acc[userName]) {
         acc[userName] = [];
@@ -88,6 +88,8 @@ const DailySalesPage = () => {
 
   const handleDownloadPDF = () => {
     const input = previewRef.current;
+    const dateStr = new Date().toLocaleDateString("id-ID");
+
     html2canvas(input, { scale: 2 })
       .then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
@@ -98,17 +100,20 @@ const DailySalesPage = () => {
         let heightLeft = imgHeight;
         let position = 0;
 
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        pdf.setFontSize(12);
+        pdf.text(`Laporan Penjualan - ${dateStr}`, 10, 10);
+
+        pdf.addImage(imgData, "PNG", 0, position + 10, imgWidth, imgHeight); // Add 10mm padding for title
         heightLeft -= pageHeight;
 
         while (heightLeft > 0) {
           position -= pageHeight;
           pdf.addPage();
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+          pdf.addImage(imgData, "PNG", 0, position + 10, imgWidth, imgHeight); // Add 10mm padding for title
           heightLeft -= pageHeight;
         }
 
-        pdf.save("sales-report.pdf");
+        pdf.save(`sales-report-${dateStr}.pdf`);
       })
       .catch((err) => console.error("Error generating PDF:", err));
   };
@@ -118,6 +123,7 @@ const DailySalesPage = () => {
   };
 
   const totalDailySales = calculateTotalSales();
+  const dateStr = new Date().toLocaleDateString("id-ID"); // Date formatted as "DD/MM/YYYY"
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -125,7 +131,7 @@ const DailySalesPage = () => {
         <Container maxWidth="lg">
           <Box sx={{ bgcolor: "#b08968", p: 2, borderRadius: "4px 4px 0 0", textAlign: "center" }}>
             <Typography variant="h6" sx={{ color: "white" }}>
-              Laporan Penjualan Hari Ini
+              Laporan Penjualan Hari Ini - {dateStr}
             </Typography>
           </Box>
           <Paper sx={{ p: 3 }}>
@@ -207,6 +213,9 @@ const DailySalesPage = () => {
           <DialogTitle>Preview Laporan Penjualan</DialogTitle>
           <DialogContent>
             <div ref={previewRef} style={{ padding: "20px" }}>
+              <Typography variant="h5" gutterBottom>
+                Laporan Penjualan Hari Ini - {dateStr}
+              </Typography>
               {Object.entries(groupedData).map(([userName, userTransactions]) => {
                 const totalTransaction = userTransactions.reduce(
                   (acc, transaction) => acc + transaction.total,

@@ -39,31 +39,42 @@ const HomePage = () => {
   };
 
   return (
-    <Box p={4}>
-      {/* Banner Section */}
-      <Box
-        sx={{
-          width: "100%",
-          height: 200,
-          background: "linear-gradient(90deg, #3f51b5, #1a237e)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          mb: 4,
-          color: "white",
-        }}
-      >
-        <Typography variant="h4" fontWeight="bold">
-          Explore Our High-Quality Services
-        </Typography>
+    <Box p={4} mt={5}>
+      {/* Banner Section with custom image */}
+      <Box sx={{ width: "100%", height: 200, position: "relative", mb: 4 }}>
+        <Image
+          src="/image/Carousel1.jpg" // Ganti dengan path gambar Anda
+          alt="Banner Image"
+          layout="fill" // Membuat gambar mengisi area secara responsif
+          objectFit="cover" // Agar gambar tetap terpotong dan mengikuti ukuran kontainer
+          priority
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0, 0, 0, 0.4)", // Memberikan overlay transparan untuk teks lebih terlihat
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "white",
+          }}
+        >
+          <Typography variant="h4" fontWeight="bold">
+            Explore Our High-Quality Services
+          </Typography>
+        </Box>
       </Box>
 
       {/* Icons Section */}
-      <Grid2 container spacing={2} justifyContent="center" mb={4}>
+      <Grid2 container spacing={2} justifyContent="center" mb={4} mt={10}>
         <Grid2 xs={6} sm={3}>
-          <Box textAlign="center">
+          <Box textAlign="center" sx={{ mb: 2, mx: 1 }}>
             <Image
-              src="/path/to/icon1.png"
+              src="/image/DigitalPrinting.png"
               alt="High Digital Printing"
               width={80}
               height={80}
@@ -73,9 +84,9 @@ const HomePage = () => {
           </Box>
         </Grid2>
         <Grid2 xs={6} sm={3}>
-          <Box textAlign="center">
+          <Box textAlign="center" sx={{ mb: 2, mx: 1 }}>
             <Image
-              src="/path/to/icon2.png"
+              src="/image/GreatQuality.png"
               alt="Great Quality"
               width={80}
               height={80}
@@ -85,9 +96,9 @@ const HomePage = () => {
           </Box>
         </Grid2>
         <Grid2 xs={6} sm={3}>
-          <Box textAlign="center">
+          <Box textAlign="center" sx={{ mb: 2, mx: 1 }}>
             <Image
-              src="/path/to/icon3.png"
+              src="/image/HandledWithCare.png"
               alt="Handled With Care"
               width={80}
               height={80}
@@ -97,9 +108,9 @@ const HomePage = () => {
           </Box>
         </Grid2>
         <Grid2 xs={6} sm={3}>
-          <Box textAlign="center">
+          <Box textAlign="center" sx={{ mb: 2, mx: 1 }}>
             <Image
-              src="/path/to/icon4.png"
+              src="/image/FastDelivery.png"
               alt="Fast Delivery"
               width={80}
               height={80}
@@ -111,7 +122,7 @@ const HomePage = () => {
       </Grid2>
 
       {/* Services Section */}
-      <Typography variant="h6" fontWeight="bold" mb={2}>
+      <Typography variant="h6" fontWeight="bold" mb={5} ml={15} mt={5}>
         Our Services
       </Typography>
       {loading ? (
@@ -119,11 +130,7 @@ const HomePage = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <Grid2
-          container
-          spacing={3}
-          justifyContent="center"
-        >
+        <Grid2 container spacing={3} justifyContent="center">
           {services.map((service) => (
             <Grid2 xs={12} sm={6} md={4} lg={3} key={service._id}>
               <Card

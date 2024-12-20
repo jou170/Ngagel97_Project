@@ -3,7 +3,7 @@ import {
   Container,
   Box,
   Typography,
-  Grid2 ,
+  Grid2,
   Card,
   CardContent,
   Divider,
@@ -34,7 +34,7 @@ const AboutUsPage = () => {
             height={100}
           />
         </Box>
-        <Typography variant="h3" sx={{ mt: 2, fontWeight: "bold" }}>
+        <Typography variant="h3" sx={{ mt: 2, fontWeight: "bold", mb: 2 }}>
           Tentang Kami
         </Typography>
         <Typography variant="body2" color="text.secondary">

@@ -1,26 +1,83 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
   Box,
   Typography,
-  Button,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
+  Container,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
+  DialogTitle,
+  Divider,
 } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import axios from "axios";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
-const DetailOrder = ({ order, onClose }) => {
+const DailySalesPage = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [groupedData, setGroupedData] = useState([]);
+  const [openPreview, setOpenPreview] = useState(false);
   const previewRef = useRef(null);
+
+  const formatCurrency = (amount) => `Rp. ${amount.toLocaleString("id-ID")},-`;
+
+  const fetchTransactions = async () => {
+    try {
+      const response = await axios.get("/api/transaction/online/master");
+      const today = new Date();
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+      const todayTransactions = response.data.data.orders.filter((transaction) => {
+        const transactionDate = new Date(transaction.createdAt);
+        return transactionDate >= startOfDay && transactionDate <= endOfDay;
+      });
+
+      setTransactions(todayTransactions);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const groupTransactionsByUser = () => {
+    const grouped = transactions.reduce((acc, transaction) => {
+      const userName = transaction.userId ? transaction.userId : "Offline User";
+      if (!acc[userName]) {
+        acc[userName] = [];
+      }
+      acc[userName].push(transaction);
+      return acc;
+    }, {});
+
+    setGroupedData(grouped);
+  };
+
+  useEffect(() => {
+    if (transactions.length > 0) {
+      groupTransactionsByUser();
+    }
+  }, [transactions]);
 
   const handleDownloadPDF = () => {
     const input = previewRef.current;
+    const dateStr = new Date().toLocaleDateString("id-ID");
+
     html2canvas(input, { scale: 2 })
       .then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
@@ -31,22 +88,32 @@ const DetailOrder = ({ order, onClose }) => {
         let heightLeft = imgHeight;
         let position = 0;
 
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        pdf.setFontSize(12);
+        pdf.text(`Laporan Penjualan - ${dateStr}`, 10, 10);
+
+        pdf.addImage(imgData, "PNG", 0, position + 10, imgWidth, imgHeight); // Add 10mm padding for title
         heightLeft -= pageHeight;
 
         while (heightLeft > 0) {
           position -= pageHeight;
           pdf.addPage();
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+          pdf.addImage(imgData, "PNG", 0, position + 10, imgWidth, imgHeight); // Add 10mm padding for title
           heightLeft -= pageHeight;
         }
 
-        pdf.save(`Order_${order.idTransaksi}.pdf`);
+        pdf.save(`sales-report-${dateStr}.pdf`);
       })
       .catch((err) => console.error("Error generating PDF:", err));
   };
 
-  // Render Jasa (service)
+  const calculateTotalSales = () => {
+    return transactions.reduce((acc, transaction) => acc + transaction.total, 0);
+  };
+
+  const totalDailySales = calculateTotalSales();
+  const dateStr = new Date().toLocaleDateString("id-ID"); // Date formatted as "DD/MM/YYYY"
+
+  // Function to render jasa (services) for each transaction
   const renderJasa = (jasa) => {
     return jasa.map((item, index) => {
       let subtotal = item.harga * item.qty;
@@ -55,103 +122,157 @@ const DetailOrder = ({ order, onClose }) => {
       }
 
       return (
-        <ListItem key={index}>
-          <ListItemText
-            primary={`${item.nama} | ${item.lembar ? item.lembar : item.qty} ${item.lembar ? "lembar" : "x"}`}
-            secondary={`Rp${item.harga.toLocaleString()} @${item.lembar ? "lembar" : "barang"} | Subtotal: Rp${subtotal.toLocaleString()}`}
-          />
-          {/* Render Add-Ons jika ada di dalam jasa */}
+        <Box key={index} sx={{ marginBottom: 2 }}>
+          <Typography variant="body1" sx={{ fontWeight: "bold", marginBottom: 1 }}>
+            {`${item.nama} | ${item.lembar ? item.lembar : item.qty} ${item.lembar ? "lembar" : "x"}`}
+          </Typography>
+          <Typography variant="body2" sx={{ marginBottom: 1 }}>
+            {`Rp${item.harga.toLocaleString()} @${item.lembar ? "lembar" : "barang"} | Subtotal: Rp${subtotal.toLocaleString()}`}
+          </Typography>
           {item.addOns && item.addOns.length > 0 && (
-            <Box sx={{ marginLeft: 3 }}>
-              <Typography variant="body2" sx={{ fontWeight: 'bold', marginTop: '8px' }}>
+            <Box sx={{ marginLeft: 2, marginTop: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: "bold", marginBottom: 1 }}>
                 Add-Ons:
               </Typography>
-              <List>
+              <Box sx={{ padding: 0 }}>
                 {renderAddOns(item.addOns)}
-              </List>
+              </Box>
             </Box>
           )}
-        </ListItem>
+        </Box>
       );
     });
   };
 
-  // Render Add-Ons (additional items)
+  // Function to render add-ons for each jasa item
   const renderAddOns = (addOns) => {
     return addOns.map((addOn, index) => {
       let subtotal = addOn.harga * addOn.qty;
 
       return (
-        <ListItem key={index}>
-          <ListItemText
-            primary={`${addOn.nama} | ${addOn.qty} x`}
-            secondary={`Rp${addOn.harga.toLocaleString()} | Subtotal: Rp${subtotal.toLocaleString()}`}
-          />
-        </ListItem>
+        <Box key={index} sx={{ marginBottom: 2 }}>
+          <Typography variant="body2" sx={{ marginBottom: 1 }}>
+            {`${addOn.nama} | ${addOn.qty} x`}
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            {`Rp${addOn.harga.toLocaleString()} | Subtotal: Rp${subtotal.toLocaleString()}`}
+          </Typography>
+        </Box>
       );
     });
   };
 
-  // Hitung total transaksi tanpa ongkir
-  const totalTanpaOngkir = order.total - (order.ongkir || 0);
-
   return (
-    <Dialog open={!!order} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Order Detail</DialogTitle>
-      <DialogContent ref={previewRef}>
-        {order && (
-          <Box>
-            <Typography variant="h6">{`Order ID: ${order.idTransaksi}`}</Typography>
-            <Typography>{`User ID: ${order.userId}`}</Typography>
-            <Typography>{`Address: ${order.alamat}`}</Typography>
-            <Typography>{`Status: ${order.status}`}</Typography>
-            <Typography>{`Total: Rp.${order.total.toLocaleString()}`}</Typography>
-
-            {/* Tampilkan Ongkir (Shipping Cost) */}
-            {order.ongkir && (
-              <Typography variant="body1" sx={{ marginTop: '10px' }}>
-                {`Ongkir: Rp.${order.ongkir.toLocaleString()}`}
-              </Typography>
-            )}
-
-            {/* Tampilkan Total Transaksi tanpa Ongkir */}
-            <Typography variant="body1" sx={{ marginTop: '10px', fontWeight: 'bold' }}>
-              {`Total Tanpa Ongkir: Rp.${totalTanpaOngkir.toLocaleString()}`}
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <div style={{ minHeight: "100vh", padding: "20px" }}>
+        <Container maxWidth="lg">
+          <Box sx={{ bgcolor: "#b08968", p: 2, borderRadius: "4px 4px 0 0", textAlign: "center" }}>
+            <Typography variant="h6" sx={{ color: "white" }}>
+              Laporan Penjualan Hari Ini - {dateStr}
             </Typography>
-
-            <Divider sx={{ margin: "20px 0" }} />
-            <Typography variant="h6">Jasa</Typography>
-            <List>{renderJasa(order.jasa)}</List>
-
-            {/* Jika ada Add-Ons yang terpisah dari Jasa, tampilkan di sini */}
-            {order.addOns && order.addOns.length > 0 && (
-              <Box sx={{ marginTop: "20px" }}>
-                <Typography variant="h6">Add-Ons</Typography>
-                <List>{renderAddOns(order.addOns)}</List>
-              </Box>
-            )}
-
-            <Divider sx={{ margin: "20px 0" }} />
-            <Typography variant="body2" color="textSecondary">
-              {`Created At: ${new Date(order.createdAt).toLocaleString()}`}
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              {`Updated At: ${new Date(order.updatedAt).toLocaleString()}`}
-            </Typography>
-
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleDownloadPDF}
-              sx={{ marginTop: "20px" }}
-            >
-              Download PDF
-            </Button>
           </Box>
-        )}
-      </DialogContent>
-    </Dialog>
+          <Paper sx={{ p: 3 }}>
+            {Object.entries(groupedData).map(([userName, userTransactions]) => {
+              const totalTransaction = userTransactions.reduce(
+                (acc, transaction) => acc + transaction.total,
+                0
+              );
+
+              return (
+                <div key={userName}>
+                  <Typography variant="h6" gutterBottom>
+                    {userName}
+                  </Typography>
+                  {userTransactions.map((transaction) => (
+                    <Box key={transaction._id} sx={{ marginBottom: 3 }}>
+                      <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                        {`Order ID: ${transaction._id}`}
+                      </Typography>
+                      <Typography sx={{ fontWeight: "bold", marginBottom: 2 }}>
+                        {`Tanggal Transaksi: ${new Date(transaction.createdAt).toLocaleDateString("id-ID")}`}
+                      </Typography>
+                      <Typography sx={{ marginBottom: 2 }}>
+                        {`Alamat: ${transaction.alamat}`}
+                      </Typography>
+                      <Typography sx={{ fontWeight: "bold", marginBottom: 2 }}>
+                        {`Status: ${transaction.status}`}
+                      </Typography>
+
+                      {transaction.notes && (
+                        <Box sx={{ margin: "20px 0" }}>
+                          <Typography sx={{ fontWeight: "bold", marginBottom: 1 }}>
+                            Notes:
+                          </Typography>
+                          <Typography variant="body2">{transaction.notes}</Typography>
+                        </Box>
+                      )}
+
+                      <Divider sx={{ margin: "20px 0" }} />
+                      <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                        Jasa
+                      </Typography>
+                      <Box>{renderJasa(transaction.jasa)}</Box>
+
+                      {transaction.addOns && transaction.addOns.length > 0 && (
+                        <Box sx={{ marginTop: "20px" }}>
+                          <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                            Add-Ons
+                          </Typography>
+                          <Box>{renderAddOns(transaction.addOns)}</Box>
+                        </Box>
+                      )}
+
+                      <Divider sx={{ margin: "20px 0" }} />
+                      <Box
+                        sx={{
+                          marginTop: "20px",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-end",
+                        }}
+                      >
+                        <Typography sx={{ marginBottom: 1 }}>
+                          {`Total Pembelian: Rp${(transaction.total - (transaction.ongkir || 0)).toLocaleString()}`}
+                        </Typography>
+                        {transaction.ongkir && (
+                          <Typography sx={{ marginBottom: 1 }}>
+                            {`Ongkir: Rp${transaction.ongkir.toLocaleString()}`}
+                          </Typography>
+                        )}
+                        <Typography sx={{ fontWeight: "bold", marginBottom: 2 }}>
+                          {`Grand Total: Rp${transaction.total.toLocaleString()}`}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      mt: 3,
+                      textAlign: "right",
+                      bgcolor: "#e0e0e0",
+                      p: 2,
+                      borderRadius: "4px",
+                    }}
+                  >
+                    <strong>Total Penjualan Harian:</strong> {formatCurrency(totalTransaction)}
+                  </Typography>
+                </div>
+              );
+            })}
+            <DialogActions>
+              <Button onClick={() => setOpenPreview(false)} color="primary">
+                Tutup
+              </Button>
+              <Button onClick={handleDownloadPDF} color="primary" variant="contained">
+                Download PDF
+              </Button>
+            </DialogActions>
+          </Paper>
+        </Container>
+      </div>
+    </LocalizationProvider>
   );
 };
 
-export default DetailOrder;
+export default DailySalesPage;
