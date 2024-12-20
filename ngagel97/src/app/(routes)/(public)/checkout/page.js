@@ -136,7 +136,7 @@ const CheckoutPage = () => {
       window.snap.pay(snapToken, {
         onSuccess: async function (result) {
           console.log("Payment Success:", result);
-          alert("Pembayaran Berhasil!");
+          // alert("Pembayaran Berhasil!");
       
           try {
             // Panggil API untuk update transaksi
