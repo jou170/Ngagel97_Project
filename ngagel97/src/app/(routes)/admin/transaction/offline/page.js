@@ -75,13 +75,12 @@ const OfflineTransactionPage = () => {
 
   // Handle adding a new row to the table
   const handleAdd = () => {
-    if(selectedBarang || selectedJasa || selectedAddOn){
-
+    if (selectedBarang || selectedJasa || selectedAddOn) {
       let newProduct;
       let qty;
       let harga;
       let lembar = 0;
-  
+
       if (selectedBarang) {
         newProduct = barangList.find((b) => b._id === selectedBarang); // Use _id for barang
         qty = qtyBarang;
@@ -96,7 +95,7 @@ const OfflineTransactionPage = () => {
         qty = qtyAddOn;
         harga = newProduct?.harga;
       }
-  
+
       let addOnDetails = enableAddOn
         ? selectedAddOns.map((addonId) => {
             const addon = addOnList.find((a) => a._id === addonId);
@@ -110,17 +109,18 @@ const OfflineTransactionPage = () => {
             };
           })
         : [];
-  
+
       const addOnPrice = addOnDetails.reduce((sum, addon) => {
-        const addonHarga = addOnList.find((a) => a._id === addon.id)?.harga || 0;
+        const addonHarga =
+          addOnList.find((a) => a._id === addon.id)?.harga || 0;
         return sum + addonHarga * addon.qty;
       }, 0);
-  
+
       const subtotal =
         lembar == 0
           ? harga * qty + addOnPrice
           : harga * qty * lembar + addOnPrice;
-  
+
       // Menambahkan row dengan data produk lengkap
       const newRow = {
         tanggal: todayDate,
@@ -139,9 +139,9 @@ const OfflineTransactionPage = () => {
         addOnsDetails: addOnDetails,
         subtotal: `Rp. ${subtotal.toLocaleString()}`,
       };
-  
+
       setRows([...rows, newRow]);
-  
+
       // Reset fields
       setSelectedBarang(null);
       setSelectedJasa(null);
@@ -151,8 +151,7 @@ const OfflineTransactionPage = () => {
       setQtyJasa(1);
       setLembarJasa(1);
       setAddOnQuantities({});
-    }
-    else{
+    } else {
       alert("Pilih Barang atau Jasa atau Add Ons terlebih dahulu!");
     }
   };
@@ -173,47 +172,48 @@ const OfflineTransactionPage = () => {
   };
 
   const handleSubmit = async () => {
-    if(rows.length == 0) alert("Tidak ada item yang hendak dibeli!");
-    else{
-    const barang = rows.filter((row) => row.tipe === "barang");
-    const jasa = rows.filter((row) => row.tipe === "jasa");
-    const addon = rows.filter((row) => row.tipe === "addon");
+    if (rows.length == 0) {
+      alert("Tidak ada item yang hendak dibeli!");
+    } else {
+      const barang = rows.filter((row) => row.tipe === "barang");
+      const jasa = rows.filter((row) => row.tipe === "jasa");
+      const addon = rows.filter((row) => row.tipe === "addon");
 
-    const payload = {
-      barang: barang,
-      jasa: jasa,
-      addon: addon,
-      subtotal: rows.reduce(
-        (acc, row) => acc + parseInt(row.subtotal.replace(/\D/g, ""), 10),
-        0
-      ),
-      total: rows.reduce(
-        (acc, row) => acc + parseInt(row.subtotal.replace(/\D/g, ""), 10),
-        0
-      ),
-    };
-    console.log(payload);
+      const payload = {
+        barang: barang,
+        jasa: jasa,
+        addon: addon,
+        subtotal: rows.reduce(
+          (acc, row) => acc + parseInt(row.subtotal.replace(/\D/g, ""), 10),
+          0
+        ),
+        total: rows.reduce(
+          (acc, row) => acc + parseInt(row.subtotal.replace(/\D/g, ""), 10),
+          0
+        ),
+      };
+      console.log(payload);
 
-    try {
-      const response = await fetch("/api/transaction/offline", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      try {
+        const response = await fetch("/api/transaction/offline", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Terjadi kesalahan saat menyimpan transaksi."
-        );
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Terjadi kesalahan saat menyimpan transaksi."
+          );
+        }
+
+        alert("Transaksi berhasil!");
+        setRows([]);
+      } catch (error) {
+        alert("Gagal menyelesaikan transaksi: " + error.message);
       }
-
-      alert("Transaksi berhasil!");
-      setRows([]);
-    } catch (error) {
-      alert("Gagal menyelesaikan transaksi: " + error.message);
     }
-  }
   };
 
   return (
@@ -398,7 +398,9 @@ const OfflineTransactionPage = () => {
 
         {/* Right section for showing table */}
         <Box sx={{ flex: 2 }}>
-          <Typography variant="h6" fontWeight="bold">Transaksi yang Ditambahkan</Typography>
+          <Typography variant="h6" fontWeight="bold">
+            Transaksi yang Ditambahkan
+          </Typography>
           <TableContainer component={Paper} sx={{ mt: 2 }}>
             <Table>
               <TableHead>
