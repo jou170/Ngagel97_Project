@@ -72,8 +72,8 @@ const SalesPage = () => {
     }
   };
 
-  const groupTransactionsByUser = () => {
-    const grouped = transactions.reduce((acc, transaction) => {
+  const groupTransactionsByUser = (filteredTransactions = transactions) => {
+    const grouped = filteredTransactions.reduce((acc, transaction) => {
       const user = users.find((u) => u._id === transaction.userId);
       const userName = user ? user.name : "Transaksi Offline";
 
@@ -115,14 +115,13 @@ const SalesPage = () => {
     }
 
     const filteredTransactions = transactions.filter((transaction) => {
-      const transactionDate = new Date(transaction.createdAt);
-      const start = startDate.startOf("day").toDate();
-      const end = endDate.endOf("day").toDate();
-      return transactionDate >= start && transactionDate <= end;
+      const transactionDate = dayjs(transaction.createdAt); // Gunakan Day.js
+      const start = startDate.startOf("day"); // Gunakan startOf untuk memastikan waktu diatur ke awal hari
+      const end = endDate.endOf("day"); // Gunakan endOf untuk memastikan waktu diatur ke akhir hari
+      return transactionDate.isBetween(start, end, null, "[]"); // Gunakan isBetween untuk perbandingan
     });
 
-    setTransactions(filteredTransactions);
-    groupTransactionsByUser();
+    groupTransactionsByUser(filteredTransactions);
   };
 
   const handleReset = async () => {
@@ -269,7 +268,7 @@ const SalesPage = () => {
                           <TableRow key={index}>
                             <TableCell>{transaction.idTransaksi}</TableCell>
                             <TableCell>
-                              {new Date(transaction.createdAt).toLocaleDateString("id-ID")}
+                              {dayjs(transaction.createdAt).format("DD/MM/YYYY")}
                             </TableCell>
                             <TableCell>{formatCurrency(transaction.ongkir)}</TableCell>
                             <TableCell>{formatCurrency(transaction.subtotal)}</TableCell>
@@ -329,7 +328,7 @@ const SalesPage = () => {
                             <TableRow key={index}>
                               <TableCell>{transaction.idTransaksi}</TableCell>
                               <TableCell>
-                                {new Date(transaction.createdAt).toLocaleDateString("id-ID")}
+                                {dayjs(transaction.createdAt).format("DD/MM/YYYY")}
                               </TableCell>
                               <TableCell>{formatCurrency(transaction.ongkir)}</TableCell>
                               <TableCell>{formatCurrency(transaction.subtotal)}</TableCell>
