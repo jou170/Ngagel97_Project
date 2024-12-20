@@ -22,23 +22,25 @@ const DetailOrder = ({ order, onClose }) => {
     html2canvas(input, { scale: 2 })
       .then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
+
+        // Resize canvas image to fit into a single PDF page
         const pdf = new jsPDF("p", "mm", "a4");
-        const imgWidth = 210;
-        const pageHeight = 297;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
 
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        // Scale image to fit the PDF page
+        const aspectRatio = canvas.width / canvas.height;
+        const imgWidth = pdfWidth;
+        const imgHeight = pdfWidth / aspectRatio;
 
-        while (heightLeft > 0) {
-          position -= pageHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
+        // Ensure content fits entirely in one page
+        const yOffset = imgHeight > pdfHeight ? 0 : (pdfHeight - imgHeight) / 2;
 
+        pdf.setFontSize(18);
+        pdf.setFont("helvetica", "bold");
+        pdf.text("Toko Print Ngagel97", pdfWidth / 2, 20, null, null, "center");
+
+        pdf.addImage(imgData, "PNG", 0, 30 + yOffset, imgWidth, imgHeight - 30);
         pdf.save(`Order_${order.idTransaksi}.pdf`);
       })
       .catch((err) => console.error("Error generating PDF:", err));
@@ -98,16 +100,24 @@ const DetailOrder = ({ order, onClose }) => {
 
   return (
     <Dialog open={!!order} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Order Detail</DialogTitle>
+      <DialogTitle>
+        <div style={{ textAlign: "center" }}>
+          <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+            Toko Print Ngagel97
+          </Typography>
+        </div>
+      </DialogTitle>
       <DialogContent ref={previewRef}>
         {order && (
           <Box sx={{ marginBottom: 3 }}>
             <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: 2 }}>
-              {`Tanggal Transaksi: ${formattedDate}`}
+              {`Toko Print Ngagel97`}
             </Typography>
-
             <Typography variant="h6" sx={{ marginBottom: 2 }}>
-              {`Order ID: ${order._id}`}
+              {`Order ID: ${order.idTransaksi}`}
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: 2 }}>
+              {`Tanggal Transaksi: ${formattedDate}`}
             </Typography>
             <Typography sx={{ marginBottom: 2 }}>
               {`Address: ${order.alamat}`}
@@ -161,17 +171,17 @@ const DetailOrder = ({ order, onClose }) => {
                 {`Grand Total: Rp${order.total.toLocaleString()}`}
               </Typography>
             </Box>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleDownloadPDF}
-              sx={{ marginTop: "20px" }}
-            >
-              Download PDF
-            </Button>
           </Box>
         )}
       </DialogContent>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleDownloadPDF}
+        sx={{ marginTop: "20px" }}
+      >
+        Download PDF
+      </Button>
     </Dialog>
   );
 };

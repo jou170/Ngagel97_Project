@@ -30,7 +30,6 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 
-// Extend Day.js with necessary plugins
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(localizedFormat);
@@ -115,10 +114,10 @@ const SalesPage = () => {
     }
 
     const filteredTransactions = transactions.filter((transaction) => {
-      const transactionDate = dayjs(transaction.createdAt); // Gunakan Day.js
-      const start = startDate.startOf("day"); // Gunakan startOf untuk memastikan waktu diatur ke awal hari
-      const end = endDate.endOf("day"); // Gunakan endOf untuk memastikan waktu diatur ke akhir hari
-      return transactionDate.isBetween(start, end, null, "[]"); // Gunakan isBetween untuk perbandingan
+      const transactionDate = dayjs(transaction.createdAt);
+      const start = startDate.startOf("day");
+      const end = endDate.endOf("day");
+      return transactionDate.isBetween(start, end, null, "[]");
     });
 
     groupTransactionsByUser(filteredTransactions);
@@ -134,6 +133,11 @@ const SalesPage = () => {
 
   const handleDownloadPDF = () => {
     const input = previewRef.current;
+
+    const startDateText = startDate ? dayjs(startDate).format("DD/MM/YYYY") : "Semua Data";
+    const endDateText = endDate ? dayjs(endDate).format("DD/MM/YYYY") : "Semua Data";
+    const periodText = `Periode: ${startDateText} - ${endDateText}`;
+
     html2canvas(input, { scale: 2 })
       .then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
@@ -142,28 +146,21 @@ const SalesPage = () => {
         const pageHeight = 297;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
         let heightLeft = imgHeight;
-        let position = 0;
+        let position = 30;
 
-        // Add the table image to the PDF
+        pdf.setFontSize(12);
+        pdf.text("Laporan Penjualan", 105, 10, { align: "center" });
+        pdf.text(periodText, 105, 20, { align: "center" });
+
         pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
 
-        // Add new pages if content exceeds one page
         while (heightLeft > 0) {
           position -= pageHeight;
           pdf.addPage();
           pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
           heightLeft -= pageHeight;
         }
-
-        // Add Grand Total at the bottom of the last page
-        pdf.setFontSize(12);
-        pdf.text(
-          `Grand Total: ${formatCurrency(calculateGrandTotal())}`,
-          105,
-          position + imgHeight + 10,
-          { align: "center" }
-        );
 
         pdf.save("sales-report.pdf");
       })
@@ -358,10 +355,10 @@ const SalesPage = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpenPreview(false)} color="primary">
-              Close
+              Tutup
             </Button>
             <Button onClick={handleDownloadPDF} color="primary">
-              Download PDF
+              Unduh PDF
             </Button>
           </DialogActions>
         </Dialog>
