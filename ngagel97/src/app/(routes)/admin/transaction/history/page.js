@@ -105,7 +105,7 @@ const TransactionHistoryPage = () => {
                         ? `Pembelian Oleh : ${
                             users[order.userId]?.name || "Unknown User"
                           }`
-                        : `Pembelian Offline Dengan ID : ${order._id}`}
+                        : `Pembelian Offline (No. Transaksi: ${order._id})`}
                     </Typography>
                     <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
                       {order.isOnline === true
