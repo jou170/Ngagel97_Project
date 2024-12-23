@@ -63,34 +63,71 @@ const DailySalesReport = () => {
   const generatePDF = () => {
     const doc = new jsPDF();
     doc.text("Laporan Penjualan Harian", 14, 20);
-    doc.text("Per tanggal " + new Date().toLocaleDateString(), 14, 30);
+    doc.text(
+      "Per tanggal " +
+        new Date().toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false, // Format 24 jam
+          timeZone: "Asia/Jakarta", // Zona waktu WIB
+        }),
+      14,
+      30
+    );
 
+    // Kolom tabel sesuai dengan tabel di antarmuka
     const tableColumn = [
-      "Tanggal",
+      "Waktu",
       "Produk",
       "Jumlah",
+      "Harga Satuan",
+      "Subtotal",
       "Jenis Pembayaran",
-      "Total Pendapatan",
+      "Total",
     ];
     const tableRows = [];
 
+    // Mengisi baris tabel
     transactions.forEach((transaction) => {
-      transaction.jasa.forEach((jasa) => {
-        // Add row for jasa
+      transaction.jasa.forEach((jasa, jasaIndex) => {
+        // Baris utama untuk jasa
+        const waktu =
+          jasaIndex === 0
+            ? new Intl.DateTimeFormat("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+                timeZone: "Asia/Jakarta",
+              }).format(new Date(transaction.createdAt))
+            : "";
+        const jenisPembayaran =
+          jasaIndex === 0 ? (transaction.isOnline ? "Online" : "Offline") : "";
+        const total =
+          jasaIndex === 0
+            ? `Rp ${transaction.subtotal.toLocaleString("id-ID")}`
+            : "";
+
         tableRows.push([
-          new Date(transaction.createdAt).toLocaleDateString(),
+          waktu,
           `Jasa: ${jasa.nama}`,
-          `${jasa.lembar || 0} lembar`,
-          transaction.paymentMethod || "Offline",
-          `Rp. ${transaction.total.toLocaleString()}`,
+          `${jasa.lembar * jasa.qty || 0} lembar`,
+          `Rp ${jasa.harga.toLocaleString("id-ID")}`,
+          `Rp ${(jasa.harga * jasa.lembar * jasa.qty).toLocaleString("id-ID")}`,
+          jenisPembayaran,
+          total,
         ]);
 
-        // Add rows for add-ons within jasa
+        // Baris tambahan untuk add-on
         jasa.addOns.forEach((addon) => {
           tableRows.push([
             "",
             `Add-on: ${addon.nama}`,
-            `${addon.qty || 0} qty`,
+            `${addon.qty || 0} ${addon.tipeHarga}`,
+            `Rp ${addon.harga.toLocaleString("id-ID")}`,
+            `Rp ${(addon.harga * addon.qty).toLocaleString("id-ID")}`,
             "",
             "",
           ]);
@@ -98,17 +135,21 @@ const DailySalesReport = () => {
       });
     });
 
+    // Menambahkan tabel ke PDF
     doc.autoTable({
       head: [tableColumn],
       body: tableRows,
       startY: 40,
     });
 
+    // Menambahkan total penjualan
     doc.text(
-      `Total Penjualan Harian: Rp. ${totalRevenue.toLocaleString()}`,
+      `Total Penjualan Harian: Rp. ${totalRevenue.toLocaleString("id-ID")}`,
       14,
       doc.lastAutoTable.finalY + 10
     );
+
+    // Mengunduh PDF
     doc.save("Daily_Sales_Report.pdf");
   };
 
@@ -132,70 +173,107 @@ const DailySalesReport = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {transactions.map((transaction) =>
-              transaction.jasa.map((jasa, jasaIndex) => (
-                <React.Fragment key={`${transaction._id}-${jasaIndex}`}>
-                  <TableRow>
-                    {jasaIndex === 0 && (
-                      <TableCell
-                        rowSpan={transaction.jasa.length + jasa.addOns.length}
-                      >
-                        {new Intl.DateTimeFormat("id-ID", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false, // Format 24 jam
-                          timeZone: "Asia/Jakarta", // Zona waktu WIB
-                        }).format(new Date(transaction.createdAt))}
-                      </TableCell>
-                    )}
+            {transactions.map((transaction) => {
+              const totalAddOns = transaction.jasa.reduce(
+                (acc, jasa) => acc + jasa.addOns.length,
+                0
+              ); // Total add-ons dari semua jasa
+              const totalRows =
+                transaction.jasa.length +
+                totalAddOns +
+                transaction.barang.length +
+                transaction.addOns.length; // Total baris untuk rowSpan
 
-                    <TableCell>Jasa: {jasa.nama}</TableCell>
-                    <TableCell>{jasa.lembar * jasa.qty || 0} lembar</TableCell>
-                    <TableCell>
-                      {"Rp "}
-                      {jasa.harga.toLocaleString("id-ID")}
-                    </TableCell>
-                    <TableCell>
-                      {"Rp "}
-                      {(jasa.harga * jasa.lembar * jasa.qty).toLocaleString(
-                        "id-ID"
-                      )}
-                    </TableCell>
-                    <TableCell
-                      rowSpan={transaction.jasa.length + jasa.addOns.length}
-                    >
-                      {jasaIndex === 0 && transaction.isOnline
-                        ? "Online"
-                        : "Offline"}
-                    </TableCell>
-                    {jasaIndex === 0 && (
-                      <TableCell
-                        rowSpan={transaction.jasa.length + jasa.addOns.length}
-                      >
-                        Rp {transaction.subtotal.toLocaleString("id-ID")}
-                      </TableCell>
-                    )}
-                  </TableRow>
-                  {jasa.addOns.map((addon, addonIndex) => (
-                    <TableRow
-                      key={`${transaction._id}-${jasaIndex}-${addonIndex}`}
-                    >
+              return (
+                <>
+                  {/* Render for jasa */}
+                  {transaction.jasa.map((jasa, jasaIndex) => (
+                    <React.Fragment key={`${transaction._id}-${jasaIndex}`}>
+                      <TableRow>
+                        {jasaIndex === 0 && (
+                          <TableCell rowSpan={totalRows}>
+                            {new Intl.DateTimeFormat("id-ID", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false,
+                              timeZone: "Asia/Jakarta",
+                            }).format(new Date(transaction.createdAt))}
+                          </TableCell>
+                        )}
+                        <TableCell>Jasa: {jasa.nama}</TableCell>
+                        <TableCell>
+                          {jasa.lembar * jasa.qty || 0} lembar
+                        </TableCell>
+                        <TableCell>
+                          Rp {jasa.harga.toLocaleString("id-ID")}
+                        </TableCell>
+                        <TableCell>
+                          Rp{" "}
+                          {(jasa.harga * jasa.lembar * jasa.qty).toLocaleString(
+                            "id-ID"
+                          )}
+                        </TableCell>
+                        <TableCell rowSpan={totalRows}>
+                          {transaction.isOnline ? "Online" : "Offline"}
+                        </TableCell>
+                        {jasaIndex === 0 && (
+                          <TableCell rowSpan={totalRows}>
+                            Rp {transaction.subtotal.toLocaleString("id-ID")}
+                          </TableCell>
+                        )}
+                      </TableRow>
+
+                      {/* Render AddOns untuk jasa */}
+                      {jasa.addOns.map((addon, addonIndex) => (
+                        <TableRow
+                          key={`${transaction._id}-${jasaIndex}-${addonIndex}`}
+                        >
+                          <TableCell>Add-on: {addon.nama}</TableCell>
+                          <TableCell>
+                            {addon.qty || 0} {addon.tipeHarga}
+                          </TableCell>
+                          <TableCell>
+                            Rp {addon.harga.toLocaleString("id-ID")}
+                          </TableCell>
+                          <TableCell>
+                            Rp{" "}
+                            {(addon.harga * addon.qty).toLocaleString("id-ID")}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </React.Fragment>
+                  ))}
+
+                  {/* Render for add-ons diluar jasa */}
+                  {transaction.addOns.map((addon, addonIndex) => (
+                    <TableRow key={`${transaction._id}-addon-${addonIndex}`}>
                       <TableCell>Add-on: {addon.nama}</TableCell>
-                      <TableCell>
-                        {addon.qty || 0} {addon.tipeHarga}
-                      </TableCell>
+                      <TableCell>{addon.qty} pcs</TableCell>
                       <TableCell>
                         Rp {addon.harga.toLocaleString("id-ID")}
                       </TableCell>
                       <TableCell>
-                        {"Rp "}
-                        {(addon.harga * addon.qty).toLocaleString("id-ID")}
+                        Rp {addon.subtotal.toLocaleString("id-ID")}
                       </TableCell>
                     </TableRow>
                   ))}
-                </React.Fragment>
-              ))
-            )}
+
+                  {/* Render for barang */}
+                  {transaction.barang.map((barang, barangIndex) => (
+                    <TableRow key={`${transaction._id}-barang-${barangIndex}`}>
+                      <TableCell>Barang: {barang.nama}</TableCell>
+                      <TableCell>{barang.qty} pcs</TableCell>
+                      <TableCell>
+                        Rp {barang.harga.toLocaleString("id-ID")}
+                      </TableCell>
+                      <TableCell>
+                        Rp {barang.subtotal.toLocaleString("id-ID")}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
