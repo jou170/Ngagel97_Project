@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from "react";
 import {
@@ -18,9 +18,8 @@ import axios from "axios";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import { jsPDF } from "jspdf";  // Import jsPDF
-import "jspdf-autotable";  // Import autoTable plugin
-
+import { jsPDF } from "jspdf"; // Import jsPDF
+import "jspdf-autotable"; // Import autoTable plugin
 
 const DailySalesReport = () => {
   const [transactions, setTransactions] = useState([]);
@@ -60,12 +59,16 @@ const DailySalesReport = () => {
 
     // Table headers
     const headers = [
-      ["Waktu", "Barang", "Jumlah", "Harga Jual", "Pembayaran", "Untung"]
+      ["Waktu", "Barang", "Jumlah", "Harga Jual", "Pembayaran", "Untung"],
     ];
     const rows = filteredTransactions.map((transaction) => {
       // Format Jasa and AddOns details
-      const jasaDetails = transaction.jasa.map((jasa) => `${jasa.nama} - ${jasa.qty} lembar`).join(", ");
-      const addOnsDetails = transaction.addOns.map((addOn) => `${addOn.nama} - ${addOn.qty} ${addOn.tipeHarga}`).join(", ");
+      const jasaDetails = transaction.jasa
+        .map((jasa) => `${jasa.nama} - ${jasa.qty} lembar`)
+        .join(", ");
+      const addOnsDetails = transaction.addOns
+        .map((addOn) => `${addOn.nama} - ${addOn.qty} ${addOn.tipeHarga}`)
+        .join(", ");
       const totalJasaHarga = calculateTotal(transaction.jasa, "harga");
       const totalAddOnsHarga = calculateTotal(transaction.addOns, "subtotal");
       const totalHarga = transaction.total;
@@ -74,7 +77,10 @@ const DailySalesReport = () => {
       return [
         dayjs(transaction.createdAt).format("DD/MM/YYYY"),
         `${jasaDetails}${addOnsDetails ? `, Addons: ${addOnsDetails}` : ""}`,
-        `${transaction.jasa.length} items, ${transaction.addOns.reduce((acc, addOn) => acc + addOn.qty, 0)} items`,
+        `${transaction.jasa.length} items, ${transaction.addOns.reduce(
+          (acc, addOn) => acc + addOn.qty,
+          0
+        )} items`,
         formatCurrency(totalHarga),
         transaction.isOnline ? "Online" : "Offline",
         formatCurrency(profit),
@@ -92,7 +98,11 @@ const DailySalesReport = () => {
     // Total sales
     const totalSales = calculateTotal(filteredTransactions, "total");
     doc.setFontSize(12);
-    doc.text(`Total Penjualan Harian: ${formatCurrency(totalSales)}`, 14, doc.lastAutoTable.finalY + 10);
+    doc.text(
+      `Total Penjualan Harian: ${formatCurrency(totalSales)}`,
+      14,
+      doc.lastAutoTable.finalY + 10
+    );
 
     // Save the PDF
     doc.save("laporan_penjualan_harian.pdf");
@@ -141,8 +151,14 @@ const DailySalesReport = () => {
                     totalHarga: addOn.subtotal,
                   }));
 
-                  const totalJasaHarga = calculateTotal(transaction.jasa, "harga");
-                  const totalAddOnsHarga = calculateTotal(transaction.addOns, "subtotal");
+                  const totalJasaHarga = calculateTotal(
+                    transaction.jasa,
+                    "harga"
+                  );
+                  const totalAddOnsHarga = calculateTotal(
+                    transaction.addOns,
+                    "subtotal"
+                  );
 
                   const totalHarga = transaction.total;
                   const profit = totalHarga - totalJasaHarga - totalAddOnsHarga;
@@ -150,21 +166,27 @@ const DailySalesReport = () => {
                   return (
                     <TableRow key={transaction._id}>
                       <TableCell>
-                        {dayjs(transaction.createdAt).format("DD/MM/YYYY")}
+                        {dayjs(transaction.createdAt).format("HH:mm")}
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2">
-                          <strong>Jasa:</strong> {jasaDetails.map((jasa, index) => (
+                          <strong>Jasa:</strong>{" "}
+                          {jasaDetails.map((jasa, index) => (
                             <span key={`${transaction._id}-jasa-${index}`}>
-                              {jasa.description}: {formatCurrency(jasa.totalHarga)}<br />
+                              {jasa.description}:{" "}
+                              {formatCurrency(jasa.totalHarga)}
+                              <br />
                             </span>
                           ))}
                           {addOnsDetails.length > 0 && (
                             <>
-                              <strong>Addons:</strong><br />
+                              <strong>Addons:</strong>
+                              <br />
                               {addOnsDetails.map((addOn, index) => (
                                 <span key={`${transaction._id}-addon-${index}`}>
-                                  {addOn.description}: {formatCurrency(addOn.totalHarga)}<br />
+                                  {addOn.description}:{" "}
+                                  {formatCurrency(addOn.totalHarga)}
+                                  <br />
                                 </span>
                               ))}
                             </>
@@ -173,12 +195,21 @@ const DailySalesReport = () => {
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2">
-                          <strong>Jasa:</strong> {transaction.jasa.length * 1} items<br />
-                          <strong>Addons:</strong> {transaction.addOns.reduce((acc, addOn) => acc + addOn.qty, 0)} items
+                          <strong>Jasa:</strong> {transaction.jasa.length * 1}{" "}
+                          items
+                          <br />
+                          <strong>Addons:</strong>{" "}
+                          {transaction.addOns.reduce(
+                            (acc, addOn) => acc + addOn.qty,
+                            0
+                          )}{" "}
+                          items
                         </Typography>
                       </TableCell>
                       <TableCell>{formatCurrency(totalHarga)}</TableCell>
-                      <TableCell>{transaction.isOnline ? "Online" : "Offline"}</TableCell>
+                      <TableCell>
+                        {transaction.isOnline ? "Online" : "Offline"}
+                      </TableCell>
                       <TableCell>{formatCurrency(profit)}</TableCell>
                     </TableRow>
                   );
@@ -197,11 +228,16 @@ const DailySalesReport = () => {
               borderRadius: "4px",
             }}
           >
-            Total Penjualan Harian: {formatCurrency(calculateTotal(filteredTransactions, "total"))}
+            Total Penjualan Harian:{" "}
+            {formatCurrency(calculateTotal(filteredTransactions, "total"))}
           </Typography>
 
           <Box sx={{ mt: 2, textAlign: "right" }}>
-            <Button onClick={handleDownloadPDF} variant="contained" color="primary">
+            <Button
+              onClick={handleDownloadPDF}
+              variant="contained"
+              color="primary"
+            >
               Unduh PDF
             </Button>
           </Box>
