@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useEffect, useState } from "react";
 import {
@@ -24,7 +24,13 @@ const UserOrderPage = () => {
           throw new Error(`Error: ${response.status}`);
         }
         const data = await response.json();
-        setOrders(data.data.orders);
+
+        // Filter orders with specific status
+        const filteredOrders = data.data.orders.filter(order =>
+          ["completed", "progress", "pending"].includes(order.status)
+        );
+
+        setOrders(filteredOrders);
       } catch (error) {
         console.error("Failed to fetch orders:", error);
       }
@@ -54,6 +60,14 @@ const UserOrderPage = () => {
   const sortedOrders = orders
     .filter((order) => filter === "All" || order.status === filter)
     .sort((a, b) => a.status.localeCompare(b.status));
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   return (
     <Box sx={{ backgroundColor: "#f4e4d8", minHeight: "100vh", padding: "20px" }}>
@@ -109,9 +123,7 @@ const UserOrderPage = () => {
 
             <Box textAlign="right" display="flex" flexDirection="column" alignItems="flex-end">
               <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                {`Order ${order.status} pada ${new Date(
-                  order.createdAt
-                ).toLocaleDateString()} ${new Date(
+                {`Order ${order.status} pada ${formatDate(order.createdAt)} ${new Date(
                   order.createdAt
                 ).toLocaleTimeString()}`}
               </Typography>
@@ -141,11 +153,11 @@ const UserOrderPage = () => {
                   {(() => {
                     switch (order.status) {
                       case "pending":
-                        return `Sedang Disiapkan`;
+                        return `Pending`;
                       case "progress":
-                        return `Sedang Diproses`;
+                        return `Progress`;
                       case "completed":
-                        return `Selesai`;
+                        return `Completed`;
                       default:
                         return "Status Tidak Diketahui";
                     }

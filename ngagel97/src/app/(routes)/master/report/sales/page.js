@@ -21,15 +21,22 @@ import {
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker, MonthPicker } from "@mui/x-date-pickers";
+import { DatePicker } from "@mui/x-date-pickers";
 import axios from "axios";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(localizedFormat);
 
 const SalesPage = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [selectedMonth, setSelectedMonth] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [users, setUsers] = useState([]);
   const [groupedData, setGroupedData] = useState([]);
@@ -64,10 +71,10 @@ const SalesPage = () => {
     }
   };
 
-  const groupTransactionsByUser = () => {
-    const grouped = transactions.reduce((acc, transaction) => {
+  const groupTransactionsByUser = (filteredTransactions = transactions) => {
+    const grouped = filteredTransactions.reduce((acc, transaction) => {
       const user = users.find((u) => u._id === transaction.userId);
-      const userName = user ? user.name : "Offline User";
+      const userName = user ? user.name : "Transaksi Offline";
 
       if (!acc[userName]) {
         acc[userName] = [];
@@ -77,6 +84,16 @@ const SalesPage = () => {
     }, {});
 
     setGroupedData(grouped);
+  };
+
+  const calculateGrandTotal = () => {
+    return Object.entries(groupedData).reduce((grandTotal, [userName, userTransactions]) => {
+      const totalTransaction = userTransactions.reduce(
+        (acc, transaction) => acc + transaction.total,
+        0
+      );
+      return grandTotal + totalTransaction;
+    }, 0);
   };
 
   useEffect(() => {
@@ -90,42 +107,25 @@ const SalesPage = () => {
     }
   }, [transactions, users]);
 
-  // Update logic for filtering by month
   const handleUpdateReport = () => {
-    let filteredTransactions = transactions;
-
-    if (startDate && endDate) {
-      filteredTransactions = filteredTransactions.filter((transaction) => {
-        const transactionDate = new Date(transaction.createdAt);
-        const start = startDate.toDate();
-        const end = endDate.toDate();
-        return transactionDate >= start && transactionDate <= end;
-      });
+    if (!startDate || !endDate) {
+      groupTransactionsByUser();
+      return;
     }
 
-    if (selectedMonth) {
-      const selectedMonthValue = selectedMonth.month();
-      const selectedYearValue = selectedMonth.year();
+    const filteredTransactions = transactions.filter((transaction) => {
+      const transactionDate = dayjs(transaction.createdAt);
+      const start = startDate.startOf("day");
+      const end = endDate.endOf("day");
+      return transactionDate.isBetween(start, end, null, "[]");
+    });
 
-      filteredTransactions = filteredTransactions.filter((transaction) => {
-        const transactionDate = new Date(transaction.createdAt);
-        const transactionMonth = transactionDate.getMonth();
-        const transactionYear = transactionDate.getFullYear();
-        return (
-          transactionMonth === selectedMonthValue &&
-          transactionYear === selectedYearValue
-        );
-      });
-    }
-
-    setTransactions(filteredTransactions);
-    groupTransactionsByUser();
+    groupTransactionsByUser(filteredTransactions);
   };
 
   const handleReset = async () => {
     setStartDate(null);
     setEndDate(null);
-    setSelectedMonth(null);
     setSearchTerm("");
     await fetchTransactions();
     groupTransactionsByUser();
@@ -133,6 +133,11 @@ const SalesPage = () => {
 
   const handleDownloadPDF = () => {
     const input = previewRef.current;
+
+    const startDateText = startDate ? dayjs(startDate).format("DD/MM/YYYY") : "Semua Data";
+    const endDateText = endDate ? dayjs(endDate).format("DD/MM/YYYY") : "Semua Data";
+    const periodText = `Periode: ${startDateText} - ${endDateText}`;
+
     html2canvas(input, { scale: 2 })
       .then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
@@ -141,7 +146,11 @@ const SalesPage = () => {
         const pageHeight = 297;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
         let heightLeft = imgHeight;
-        let position = 0;
+        let position = 30;
+
+        pdf.setFontSize(12);
+        pdf.text("Laporan Penjualan", 105, 10, { align: "center" });
+        pdf.text(periodText, 105, 20, { align: "center" });
 
         pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
@@ -166,7 +175,7 @@ const SalesPage = () => {
     ([userName, userTransactions]) =>
       userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       userTransactions.some((transaction) =>
-        transaction._id.toLowerCase().includes(searchTerm.toLowerCase())
+        transaction.idTransaksi.toLowerCase().includes(searchTerm.toLowerCase())
       )
   );
 
@@ -192,13 +201,6 @@ const SalesPage = () => {
                 value={endDate}
                 onChange={(newValue) => setEndDate(newValue)}
                 renderInput={(params) => <TextField {...params} error={!isDateRangeValid()} />}
-              />
-              <DatePicker
-                views={["year", "month"]}
-                label="Filter Bulan"
-                value={selectedMonth}
-                onChange={(newValue) => setSelectedMonth(newValue)}
-                renderInput={(params) => <TextField {...params} />}
               />
               <TextField
                 label="Cari User/Transaksi"
@@ -261,30 +263,41 @@ const SalesPage = () => {
                       <TableBody>
                         {userTransactions.map((transaction, index) => (
                           <TableRow key={index}>
-                            <TableCell>{transaction._id.slice(-5)}</TableCell>
+                            <TableCell>{transaction.idTransaksi}</TableCell>
                             <TableCell>
-                              {new Date(transaction.createdAt).toLocaleDateString("id-ID")}
+                              {dayjs(transaction.createdAt).format("DD/MM/YYYY")}
                             </TableCell>
                             <TableCell>{formatCurrency(transaction.ongkir)}</TableCell>
                             <TableCell>{formatCurrency(transaction.subtotal)}</TableCell>
                             <TableCell>{formatCurrency(transaction.total)}</TableCell>
                           </TableRow>
                         ))}
+                        <TableRow sx={{ bgcolor: "#f1f1f1" }}>
+                          <TableCell colSpan={4} align="right">
+                            <strong>Total</strong>
+                          </TableCell>
+                          <TableCell>
+                            <strong>{formatCurrency(totalTransaction)}</strong>
+                          </TableCell>
+                        </TableRow>
                       </TableBody>
                     </Table>
                   </TableContainer>
-                  <Typography variant="body1" sx={{ mt: 1, textAlign: "right" }}>
-                    <strong>Total Transaksi:</strong> {formatCurrency(totalTransaction)}
-                  </Typography>
                 </div>
               );
             })}
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+              <Typography variant="h6">
+                <strong>Grand Total: {formatCurrency(calculateGrandTotal())}</strong>
+              </Typography>
+            </Box>
           </Paper>
         </Container>
-        <Dialog open={openPreview} onClose={() => setOpenPreview(false)} fullWidth maxWidth="md">
-          <DialogTitle>Preview Laporan Penjualan</DialogTitle>
+
+        <Dialog open={openPreview} onClose={() => setOpenPreview(false)} fullWidth maxWidth="lg">
+          <DialogTitle>Preview PDF</DialogTitle>
           <DialogContent>
-            <div ref={previewRef} style={{ padding: "20px" }}>
+            <Box sx={{ width: "100%", bgcolor: "white", p: 2 }} ref={previewRef}>
               {filteredGroupedData.map(([userName, userTransactions]) => {
                 const totalTransaction = userTransactions.reduce(
                   (acc, transaction) => acc + transaction.total,
@@ -299,7 +312,7 @@ const SalesPage = () => {
                     <TableContainer component={Paper}>
                       <Table>
                         <TableHead>
-                          <TableRow>
+                          <TableRow sx={{ bgcolor: "#d7ccc8" }}>
                             <TableCell>ID Transaksi</TableCell>
                             <TableCell>Tanggal</TableCell>
                             <TableCell>Ongkir</TableCell>
@@ -310,32 +323,42 @@ const SalesPage = () => {
                         <TableBody>
                           {userTransactions.map((transaction, index) => (
                             <TableRow key={index}>
-                              <TableCell>{transaction._id.slice(-5)}</TableCell>
+                              <TableCell>{transaction.idTransaksi}</TableCell>
                               <TableCell>
-                                {new Date(transaction.createdAt).toLocaleDateString("id-ID")}
+                                {dayjs(transaction.createdAt).format("DD/MM/YYYY")}
                               </TableCell>
                               <TableCell>{formatCurrency(transaction.ongkir)}</TableCell>
                               <TableCell>{formatCurrency(transaction.subtotal)}</TableCell>
                               <TableCell>{formatCurrency(transaction.total)}</TableCell>
                             </TableRow>
                           ))}
+                          <TableRow sx={{ bgcolor: "#f1f1f1" }}>
+                            <TableCell colSpan={4} align="right">
+                              <strong>Total</strong>
+                            </TableCell>
+                            <TableCell>
+                              <strong>{formatCurrency(totalTransaction)}</strong>
+                            </TableCell>
+                          </TableRow>
                         </TableBody>
                       </Table>
                     </TableContainer>
-                    <Typography variant="body1" sx={{ mt: 1, textAlign: "right" }}>
-                      <strong>Total Transaksi:</strong> {formatCurrency(totalTransaction)}
-                    </Typography>
                   </div>
                 );
               })}
-            </div>
+              <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+                <Typography variant="h6">
+                  <strong>Grand Total: {formatCurrency(calculateGrandTotal())}</strong>
+                </Typography>
+              </Box>
+            </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpenPreview(false)} color="error">
-              Close
+            <Button onClick={() => setOpenPreview(false)} color="primary">
+              Tutup
             </Button>
-            <Button onClick={handleDownloadPDF} color="primary" variant="contained">
-              Download PDF
+            <Button onClick={handleDownloadPDF} color="primary">
+              Unduh PDF
             </Button>
           </DialogActions>
         </Dialog>

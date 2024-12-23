@@ -249,7 +249,7 @@ const CartDetail = () => {
 
       const updatedCartData = {
         qty: quantity,
-        lembar: pageCount * quantity,
+        lembar: pageCount,
         file: uploadedFile ? newFileUrl : lastFileUrl,
         notes: notes,
         subtotal: parseInt(sub),
