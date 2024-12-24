@@ -133,11 +133,14 @@ const SalesPage = () => {
 
   const handleDownloadPDF = () => {
     const input = previewRef.current;
-
+  
     const startDateText = startDate ? dayjs(startDate).format("DD/MM/YYYY") : "Semua Data";
     const endDateText = endDate ? dayjs(endDate).format("DD/MM/YYYY") : "Semua Data";
-    const periodText = `Periode: ${startDateText} - ${endDateText}`;
-
+    const periodText =
+      startDate || endDate
+        ? `Periode: ${startDateText} - ${endDateText}`
+        : "Periode: Semua Data";
+  
     html2canvas(input, { scale: 2 })
       .then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
@@ -145,27 +148,46 @@ const SalesPage = () => {
         const imgWidth = 210;
         const pageHeight = 297;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 30;
-
+        let position = 50;
+  
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(16);
+        pdf.text("Toko Print Ngagel97", 105, 10, { align: "center" });
+  
+        pdf.setFont("helvetica", "normal");
         pdf.setFontSize(12);
-        pdf.text("Laporan Penjualan", 105, 10, { align: "center" });
-        pdf.text(periodText, 105, 20, { align: "center" });
-
+        pdf.text(
+          "Jl. Ngagel Jaya Tengah No.69, Baratajaya, Kec. Gubeng, Surabaya, Jawa Timur 60284",
+          105,
+          17,
+          { align: "center" }
+        );
+        pdf.text("Contact Number: (031) 5027852", 105, 23, { align: "center" });
+  
+        pdf.setFontSize(14);
+        pdf.text("Laporan Penjualan", 105, 33, { align: "center" });
+  
+        pdf.setFontSize(12);
+        pdf.text(periodText, 105, 40, { align: "center" });
+  
+        // Tambahkan gambar (canvas hasil render tabel)
         pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
+  
+        // Jika konten melebihi satu halaman, tambahkan halaman berikutnya
+        let heightLeft = imgHeight - pageHeight + position;
         while (heightLeft > 0) {
           position -= pageHeight;
           pdf.addPage();
           pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
           heightLeft -= pageHeight;
         }
-
+  
         pdf.save("sales-report.pdf");
       })
       .catch((err) => console.error("Error generating PDF:", err));
   };
+  
+  
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -354,11 +376,9 @@ const SalesPage = () => {
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpenPreview(false)} color="primary">
-              Tutup
-            </Button>
-            <Button onClick={handleDownloadPDF} color="primary">
-              Unduh PDF
+            <Button onClick={() => setOpenPreview(false)}>Close</Button>
+            <Button variant="contained" onClick={handleDownloadPDF}>
+              Download PDF
             </Button>
           </DialogActions>
         </Dialog>
