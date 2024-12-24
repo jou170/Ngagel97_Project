@@ -5,8 +5,8 @@ import {
   Typography,
   Paper,
   Button,
-  CircularProgress,
   Alert,
+  Grid2,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import CenterLoading from "../../(public)/components/CenterLoading";
@@ -91,28 +91,31 @@ const DashboardPage = () => {
       <Typography variant="h6" mb={2} fontWeight="bold">
         Recent Orders
       </Typography>
-      <Box display="flex" flexDirection="column" gap="15px" mb={3}>
+      <Box display="flex" flexDirection="column" gap="20px" mb={3}>
         {recentOrders.length > 0 ? (
           recentOrders.map((order) => (
             <Paper
               key={order._id}
-              onClick={() => router.push(`/admin/order/${order._id}`)} // Navigasi ke halaman detail order
+              onClick={() => router.push(`/admin/order/${order._id}`)}
               sx={{
-                padding: "15px",
+                padding: "20px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                border: "1px solid #ccc",
                 borderRadius: "8px",
                 cursor: "pointer",
-                border: "1px solid #ccc",
+                "&:hover": {
+                  backgroundColor: "#f5f5f5",
+                },
               }}
             >
               <Box>
-                <Typography variant="body1">
+                <Typography variant="h6">
                   {users[order.userId]?.name || "Unknown User"}
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {order.alamat}
+                <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
+                  Alamat: {order.alamat}
                 </Typography>
               </Box>
               <Button
@@ -149,7 +152,7 @@ const DashboardPage = () => {
       <Button
         variant="contained"
         onClick={() => router.push("/admin/order")}
-        sx={{ marginBottom: 5, width: 1315 }}
+        sx={{ marginBottom: 5, width: "100%" }}
       >
         View All Orders
       </Button>
@@ -158,30 +161,33 @@ const DashboardPage = () => {
       <Typography variant="h6" mb={2} fontWeight="bold">
         Recent Transaction History
       </Typography>
-      <Box display="flex" flexDirection="column" gap="15px" mb={3}>
+      <Box display="flex" flexDirection="column" gap="20px">
         {recentHistory.length > 0 ? (
           recentHistory.map((history) => (
             <Paper
               key={history._id}
               onClick={() =>
                 router.push(`/admin/transaction/history/${history._id}`)
-              } // Navigasi ke halaman detail history
+              }
               sx={{
-                padding: "15px",
+                padding: "20px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                border: "1px solid #ccc",
                 borderRadius: "8px",
                 cursor: "pointer",
-                border: "1px solid #ccc",
+                "&:hover": {
+                  backgroundColor: "#f5f5f5",
+                },
               }}
             >
               <Box>
-                <Typography variant="body1">
+                <Typography variant="h6">
                   {users[history.userId]?.name || "Unknown User"}
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {history.alamat || "No address"}
+                <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
+                  Alamat: {history.alamat || "No address"}
                 </Typography>
               </Box>
               <Button
@@ -203,7 +209,7 @@ const DashboardPage = () => {
       <Button
         variant="contained"
         onClick={() => router.push("/admin/transaction/history")}
-        sx={{ width: 1315 }}
+        sx={{ width: "100%", marginTop: 3 }}
       >
         View Transaction History
       </Button>

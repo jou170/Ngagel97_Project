@@ -148,7 +148,7 @@ const SalesPage = () => {
         const imgWidth = 210;
         const pageHeight = 297;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let position = 50;
+        let position = 50; 
   
         pdf.setFont("helvetica", "bold");
         pdf.setFontSize(16);
