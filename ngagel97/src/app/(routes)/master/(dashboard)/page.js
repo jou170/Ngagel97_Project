@@ -58,15 +58,19 @@ const DashboardPage = () => {
     .filter((t) => t.status === "completed")
     .reduce((sum, t) => sum + t.total, 0);
 
-  // Transactions in progress
-  const transactionsInProgress = transactions.filter(
-    (t) => t.status === "progress"
-  ).length;
+  // Offline transactions
+  const offlineTransactions = transactions.filter((t) => !t.isOnline).length;
 
-  // Pending transactions
-  const pendingTransactions = transactions.filter(
-    (t) => t.status === "pending"
-  ).length;
+  // Transactions happening today
+  const today = new Date();
+  const transactionsToday = transactions.filter((t) => {
+    const transactionDate = new Date(t.createdAt);
+    return (
+      transactionDate.getDate() === today.getDate() &&
+      transactionDate.getMonth() === today.getMonth() &&
+      transactionDate.getFullYear() === today.getFullYear()
+    );
+  }).length;
 
   return (
     <div style={{ minHeight: "100vh", padding: "20px" }}>
@@ -101,14 +105,14 @@ const DashboardPage = () => {
           </Grid>
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 3, textAlign: "center" }}>
-              <Typography variant="h6">Transaksi Progress</Typography>
-              <Typography variant="h4">{transactionsInProgress}</Typography>
+              <Typography variant="h6">Transaksi Offline</Typography>
+              <Typography variant="h4">{offlineTransactions}</Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 3, textAlign: "center" }}>
-              <Typography variant="h6">Transaksi Pending</Typography>
-              <Typography variant="h4">{pendingTransactions}</Typography>
+              <Typography variant="h6">Transaksi Hari Ini</Typography>
+              <Typography variant="h4">{transactionsToday}</Typography>
             </Paper>
           </Grid>
         </Grid>

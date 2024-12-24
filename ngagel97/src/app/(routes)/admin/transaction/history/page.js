@@ -54,14 +54,14 @@ const TransactionHistoryPage = () => {
         setLoading(false);
       }
     };
-    
+
     fetchTransactions();
   }, []);
 
   if (loading) {
     return <CenterLoading />;
   }
-  
+
   return (
     <Box sx={{ minHeight: "100vh", padding: "20px" }}>
       <Typography variant="h4" mb={3} color="black" fontWeight="bold">
@@ -86,9 +86,10 @@ const TransactionHistoryPage = () => {
                     ? () =>
                         router.push(`/admin/transaction/history/${order._id}`)
                     : () =>
-                      router.push(`/admin/transaction/history/offline/${order._id}`)
+                        router.push(
+                          `/admin/transaction/history/offline/${order._id}`
+                        )
                 }
-        
                 sx={{
                   padding: "20px",
                   display: "flex",
@@ -101,7 +102,7 @@ const TransactionHistoryPage = () => {
                 }}
               >
                 {/* {console.log(order)} */}
-                
+
                 <Box display="flex" alignItems="center" gap="15px">
                   <Box>
                     <Typography variant="h6">
