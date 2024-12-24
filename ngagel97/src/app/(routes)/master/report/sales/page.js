@@ -174,10 +174,14 @@ const SalesPage = () => {
   const filteredGroupedData = Object.entries(groupedData).filter(
     ([userName, userTransactions]) =>
       userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      userTransactions.some((transaction) =>
-        transaction.idTransaksi.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      userTransactions.some((transaction) => {
+        console.log(userName);
+        
+        const idStr = transaction.idTransaksi.toString();
+        return idStr.includes(searchTerm);
+      })
   );
+
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -202,12 +206,12 @@ const SalesPage = () => {
                 onChange={(newValue) => setEndDate(newValue)}
                 renderInput={(params) => <TextField {...params} error={!isDateRangeValid()} />}
               />
-              <TextField
+              {/* <TextField
                 label="Cari User/Transaksi"
                 value={searchTerm}
                 onChange={handleSearch}
                 variant="outlined"
-              />
+              /> */}
               <Button
                 variant="contained"
                 sx={{ bgcolor: "#b08968", color: "white" }}
