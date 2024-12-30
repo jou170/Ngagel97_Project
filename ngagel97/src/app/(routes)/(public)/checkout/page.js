@@ -27,7 +27,29 @@ const CheckoutPage = () => {
   const [snapToken, setSnapToken] = useState("");
   const [notes, setNotes] = useState("");
   const router = useRouter();
- 
+  const maxDistance = 5;
+
+  const haversineDistance = (coords2) => {
+    const toRad = (angle) => (angle * Math.PI) / 180;
+  
+    const R = 6371; // Radius bumi dalam kilometer
+    const lat1 = -7.2853, lon1 = 112.7526;
+    const [lat2, lon2] = coords2;
+  
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+  
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+  
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Hasil jarak dalam kilometer
+  };
+  
   // Fetch cart and user data
   useEffect(() => {
     const fetchData = async () => {
@@ -60,7 +82,14 @@ const CheckoutPage = () => {
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
         );
         const data = await response.json();
-        setAddress(data.display_name || "Alamat tidak ditemukan");
+        if(haversineDistance(position) > maxDistance){
+          alert(`jarak melebihi batas: ${Math.round(haversineDistance(position))} km`)
+          
+        }
+        else{
+          calculateShipping();
+          alert(`jarak: ${Math.round(haversineDistance(position))} km`)
+        setAddress(data.display_name || "Alamat tidak ditemukan");}
       } catch (error) {
         console.error("Error fetching address:", error);
         setAddress("Gagal mendapatkan alamat");
@@ -92,8 +121,9 @@ const CheckoutPage = () => {
     };
 
     fetchAddress();
-    calculateShipping();
   }, [position]);
+
+
 
   const handlePayment = async () => {
     console.log(user);
@@ -273,6 +303,15 @@ const CheckoutPage = () => {
               readOnly: true,
             }}
           />
+          {/* <TextField
+            label="Jarak"
+            variant="outlined"
+            fullWidth
+            value={`${Math.round(haversineDistance(position))} km`}
+            InputProps={{
+              readOnly: true,
+            }}
+          /> */}
           <TextField
             label="Catatan"
             variant="outlined"
