@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import CenterLoading from "@/app/(routes)/(public)/components/CenterLoading";
 
 const TransactionHistoryPage = () => {
-  const [orders, setOrders] = useState([]); // State for all transactions
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
-  const [users, setUsers] = useState({}); // State for online users
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [users, setUsers] = useState({});
   const router = useRouter();
 
   useEffect(() => {
@@ -28,11 +28,15 @@ const TransactionHistoryPage = () => {
             source: "online",
           })),
         ];
+
+        combinedOrders.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
         setOrders(combinedOrders);
 
-        // Fetch user data only for valid userIds
         const onlineUserPromises = onlineData.data.orders
-          .filter((order) => order.userId) // Ensure userId exists
+          .filter((order) => order.userId)
           .map((order) =>
             fetch(`/api/user/${order.userId}`)
               .then((res) => (res.ok ? res.json() : null))
@@ -58,9 +62,28 @@ const TransactionHistoryPage = () => {
     fetchTransactions();
   }, []);
 
+  const groupOrdersByDate = (orders) => {
+    return orders.reduce((grouped, order) => {
+      const dateKey = new Date(order.createdAt).toLocaleDateString("id-ID", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(order);
+
+      return grouped;
+    }, {});
+  };
+
   if (loading) {
     return <CenterLoading />;
   }
+
+  const groupedOrders = groupOrdersByDate(orders);
 
   return (
     <Box sx={{ minHeight: "100vh", padding: "20px" }}>
@@ -68,17 +91,19 @@ const TransactionHistoryPage = () => {
         TRANSACTION HISTORY
       </Typography>
 
-      {/* Error Handling */}
       {error && (
         <Alert severity="error" sx={{ marginBottom: "20px" }}>
           {error}
         </Alert>
       )}
 
-      {/* Display Transaction Data */}
-      <Box display="flex" flexDirection="column" gap="20px">
-        {orders.length > 0
-          ? orders.map((order, index) => (
+      {Object.keys(groupedOrders).map((date) => (
+        <Box key={date} mb={4}>
+          <Typography variant="h5" color="black" mb={2}>
+            {date}
+          </Typography>
+          <Box display="flex" flexDirection="column" gap="20px">
+            {groupedOrders[date].map((order) => (
               <Paper
                 key={order._id}
                 onClick={
@@ -101,8 +126,6 @@ const TransactionHistoryPage = () => {
                   "&:hover": { backgroundColor: "#f5f5f5" },
                 }}
               >
-                {/* {console.log(order)} */}
-
                 <Box display="flex" alignItems="center" gap="15px">
                   <Box>
                     <Typography variant="h6">
@@ -150,17 +173,10 @@ const TransactionHistoryPage = () => {
                   </Button>
                 </Box>
               </Paper>
-            ))
-          : !loading && (
-              <Typography
-                variant="body1"
-                color="textSecondary"
-                textAlign="center"
-              >
-                Tidak ada riwayat transaksi.
-              </Typography>
-            )}
-      </Box>
+            ))}
+          </Box>
+        </Box>
+      ))}
     </Box>
   );
 };

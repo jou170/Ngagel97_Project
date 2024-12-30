@@ -1,25 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Button,
-  CircularProgress,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
+import { Box, Typography, Paper, Button, Alert } from "@mui/material";
 import { useRouter } from "next/navigation";
 import CenterLoading from "../../(public)/components/CenterLoading";
 
 const TransactionOrderPage = () => {
-  const [orders, setOrders] = useState([]); // State untuk menyimpan data transaksi
-  const [loading, setLoading] = useState(true); // State untuk loading indicator
-  const [error, setError] = useState(null); // State untuk menampilkan error
-  const [users, setUsers] = useState({}); // State untuk menyimpan data user
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [users, setUsers] = useState({});
   const router = useRouter();
 
-  // Fetch data dari API saat komponen pertama kali dimuat
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
@@ -29,9 +20,11 @@ const TransactionOrderPage = () => {
         }
 
         const data = await response.json();
-        setOrders(data.data.orders);
+        const sortedOrders = data.data.orders.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setOrders(sortedOrders);
 
-        // Fetch user data for each order
         const userIds = [
           ...new Set(data.data.orders.map((order) => order.userId)),
         ];
@@ -57,10 +50,27 @@ const TransactionOrderPage = () => {
     fetchTransactions();
   }, []);
 
+  const groupOrdersByDate = (orders) => {
+    return orders.reduce((grouped, order) => {
+      const dateKey = new Date(order.createdAt).toLocaleDateString("id-ID", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(order);
+      return grouped;
+    }, {});
+  };
+
   if (loading) {
     return <CenterLoading />;
   }
 
+  const groupedOrders = groupOrdersByDate(orders);
+  
   return (
     <Box
       sx={{
@@ -71,20 +81,23 @@ const TransactionOrderPage = () => {
       <Typography variant="h4" mb={3} color="black" fontWeight="bold">
         ORDERS
       </Typography>
-      {/* Error Handling */}
+
       {error && (
         <Alert severity="error" sx={{ marginBottom: "20px" }}>
           {error}
         </Alert>
       )}
 
-      {/* Tampilkan Data Transaksi */}
-      <Box display="flex" flexDirection="column" gap="20px">
-        {orders.length > 0
-          ? orders.map((order) => (
+      {Object.keys(groupedOrders).map((date) => (
+        <Box key={date} mb={4}>
+          <Typography variant="h5" color="black" mb={2}>
+            {date}
+          </Typography>
+          <Box display="flex" flexDirection="column" gap="20px">
+            {groupedOrders[date].map((order) => (
               <Paper
                 key={order._id}
-                onClick={() => router.push(`/admin/order/${order._id}`)} // Navigasi ke halaman detail
+                onClick={() => router.push(`/admin/order/${order._id}`)}
                 sx={{
                   padding: "20px",
                   display: "flex",
@@ -98,7 +111,6 @@ const TransactionOrderPage = () => {
                   },
                 }}
               >
-                {/* Kiri: Detail Produk */}
                 <Box display="flex" alignItems="center" gap="15px">
                   <Box>
                     <Typography variant="h6">{`Pembelian Oleh : ${
@@ -110,7 +122,6 @@ const TransactionOrderPage = () => {
                   </Box>
                 </Box>
 
-                {/* Kanan: Status Pesanan */}
                 <Box textAlign="right">
                   <Typography variant="body2" sx={{ marginBottom: "8px" }}>
                     Pembelian pada{" "}
@@ -150,17 +161,16 @@ const TransactionOrderPage = () => {
                   </Button>
                 </Box>
               </Paper>
-            ))
-          : !loading && (
-              <Typography
-                variant="body1"
-                color="textSecondary"
-                textAlign="center"
-              >
-                Tidak ada pesanan yang belum selesai.
-              </Typography>
-            )}
-      </Box>
+            ))}
+          </Box>
+        </Box>
+      ))}
+
+      {orders.length === 0 && (
+        <Typography variant="body1" color="textSecondary" textAlign="center">
+          Tidak ada pesanan yang belum selesai.
+        </Typography>
+      )}
     </Box>
   );
 };
