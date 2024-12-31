@@ -40,10 +40,11 @@ const DashboardPage = () => {
 
         // Extract unique userIds
         const userIds = [
-          ...new Set([
-            ...recentOrdersData.map((order) => order.userId),
-            ...recentHistoryData.map((history) => history.userId),
-          ]),
+          ...new Set(
+            [...recentOrdersData, ...recentHistoryData]
+              .filter((entry) => entry.userId) // Hanya ambil data dengan userId valid
+              .map((entry) => entry.userId)
+          ),
         ];
 
         // Fetch user data for each userId
