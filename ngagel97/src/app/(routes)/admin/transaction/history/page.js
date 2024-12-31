@@ -124,7 +124,7 @@ const TransactionHistoryPage = () => {
                   <Typography variant="body2" sx={{ marginBottom: "8px" }}>
                     Pembelian pada{" "}
                     {order.createdAt
-                      ? new Date(order.createdAt).toLocaleString("id-ID", {
+                      ? new Date(order.updatedAt).toLocaleString("id-ID", {
                           weekday: "long",
                           year: "numeric",
                           month: "long",

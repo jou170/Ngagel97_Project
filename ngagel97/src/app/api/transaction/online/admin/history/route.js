@@ -8,7 +8,7 @@ export async function GET(req) {
   
       let completedOrders = await Transaksi.find({
         status: "completed",
-      });
+      }).sort({ updatedAt: -1 });
   
       if (!completedOrders || completedOrders.length === 0) {
         return NextResponse.json(

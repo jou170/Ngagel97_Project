@@ -28,6 +28,7 @@ const TransactionDetailPage = () => {
 
   const [order, setOrder] = useState(null);
   const [user, setUser] = useState(null);
+  const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -48,6 +49,13 @@ const TransactionDetailPage = () => {
       }
       const userData = await userResponse.json();
       setUser(userData.data.user);
+      if(data.data.adminId){
+      const adminResponse = await fetch(`/api/user/${data.data.adminId}`);
+      if (!adminResponse.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+      const adminData = await adminResponse.json();
+      setAdmin(adminData.data.user);}
     } catch (err) {
       setError(err.message);
     } finally {
@@ -132,6 +140,9 @@ const TransactionDetailPage = () => {
           </Typography>
           <Typography variant="body1">
             <strong>Order ID:</strong> {order._id}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Nama Admin:</strong> {admin?.name || "-"}
           </Typography>
           <Typography variant="body1">
             <strong>Nama Pemesan:</strong> {user?.name || "-"}
