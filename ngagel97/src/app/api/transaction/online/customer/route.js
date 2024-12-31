@@ -27,8 +27,8 @@ export async function GET(req) {
     // Perbaikan query menggunakan $in
     let userOrders = await Transaksi.find({
       userId: userId,
-      status: { $in: ["unpaid", "pending", "progress", "completed", "failed"] },
-    });
+      status: { $in: ["pending", "progress", "completed"] },
+    }).sort({ updatedAt: -1 });
 
     if (!userOrders || userOrders.length === 0) {
       return NextResponse.json(

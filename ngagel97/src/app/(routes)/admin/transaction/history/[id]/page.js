@@ -139,7 +139,7 @@ const TransactionDetailPage = () => {
             Order Information
           </Typography>
           <Typography variant="body1">
-            <strong>Order ID:</strong> {order._id}
+            <strong>Order ID:</strong> {order.idTransaksi}
           </Typography>
           <Typography variant="body1">
             <strong>Nama Admin:</strong> {admin?.name || "-"}
