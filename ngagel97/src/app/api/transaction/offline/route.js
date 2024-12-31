@@ -1,10 +1,25 @@
 import connectDB from "@/app/api/mongoose";
 import Transaksi from "@/models/Transaksi";
 import { NextResponse } from "next/server";
+import { jwtVerify } from "jose";
 
 export async function POST(req) {
+  const token = req.cookies.get("token");
+  console.log(token);
+
+  if (!token) {
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
   try {
     // Pastikan koneksi ke database
+    const { payload } = await jwtVerify(
+      token.value,
+      new TextEncoder().encode(process.env.JWT_SECRET)
+    );
+    const adminId = payload.id;
     await connectDB();
 
     // Parse body dari request
@@ -71,6 +86,7 @@ export async function POST(req) {
     const newTransaksi = new Transaksi({
       isOnline: false,
       status: "completed",
+      adminId: adminId,
       barang: brg || [],
       jasa: js || [],
       addOns: ao || [],

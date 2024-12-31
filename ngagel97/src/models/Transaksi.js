@@ -9,6 +9,11 @@ const TransaksiSchema = new mongoose.Schema(
       ref: "User",
       required: false,
     }, // Relasi ke User
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+    },
     isOnline: { type: Boolean, required: true }, // True untuk transaksi online, false untuk offline
     alamat: { type: String }, // Alamat untuk transaksi online
     notes: { type: String },
