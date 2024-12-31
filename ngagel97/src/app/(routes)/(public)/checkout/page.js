@@ -26,6 +26,7 @@ const CheckoutPage = () => {
   const [shippingCost, setShippingCost] = useState(0);
   const [snapToken, setSnapToken] = useState("");
   const [notes, setNotes] = useState("");
+  const [distance, setDistance] = useState(null);
   const router = useRouter();
   const maxDistance = 5;
 
@@ -82,14 +83,13 @@ const CheckoutPage = () => {
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
         );
         const data = await response.json();
-        if(haversineDistance(position) > maxDistance){
-          alert(`jarak melebihi batas: ${Math.round(haversineDistance(position))} km`)
+        setDistance(haversineDistance(position))
+        // if(haversineDistance(position) > maxDistance){
+        //   alert(`jarak melebihi batas: ${Math.round(haversineDistance(position))} km`)
           
-        }
-        else{
-          calculateShipping();
-          alert(`jarak: ${Math.round(haversineDistance(position))} km`)
-        setAddress(data.display_name || "Alamat tidak ditemukan");}
+        // }
+        calculateShipping();
+        setAddress(data.display_name || "Alamat tidak ditemukan");
       } catch (error) {
         console.error("Error fetching address:", error);
         setAddress("Gagal mendapatkan alamat");
@@ -303,15 +303,17 @@ const CheckoutPage = () => {
               readOnly: true,
             }}
           />
-          {/* <TextField
+          { distance != null &&
+          <TextField
             label="Jarak"
             variant="outlined"
             fullWidth
-            value={`${Math.round(haversineDistance(position))} km`}
+            value={`${distance.toFixed(2)} km`}
             InputProps={{
               readOnly: true,
             }}
-          /> */}
+          />
+          }
           <TextField
             label="Catatan"
             variant="outlined"
@@ -395,11 +397,16 @@ const CheckoutPage = () => {
             </Box>
           </CardContent>
         </Card>
-
+        {distance > maxDistance &&
+          <Typography variant="body1" color="red" fontWeight="bold" sx={{ mt: 3, py: 1.5 }}>
+            Jarak lokasi anda melebihi batas maksimal lokasi pengantaran kami ({maxDistance} km)! 
+        </Typography>
+        }
         <Button
           variant="contained"
           color="primary"
           fullWidth
+          disabled={distance>maxDistance}
           sx={{ mt: 3, py: 1.5 }}
           onClick={handlePayment}
         >
