@@ -122,27 +122,26 @@ New accounts can be created via the registration form. By default, all newly reg
 
 The **Fotocopy Ngagel97 Web Application** integrates with **Midtrans** to provide online payment capabilities. Here is how you can use the **Midtrans Mock Payments** feature during testing:
 
-### Setting Up Midtrans for Mock Payments
+# Midtrans Mock Payments Guide
 
-1. **Test Mode Configuration:**
-   To simulate payments during development, use **Midtrans Test Mode** with the provided test credentials.
+This guide explains how to test payments using **Midtrans Mock Payments** in the Fotocopy Ngagel97 Web Application.
 
-2. **Configure Midtrans Credentials:**
-   Set the following environment variables in the `.env.local` file:
+---
 
-   ```env
-   MIDTRANS_SERVER_KEY=SB-Mid-server-yj9lQgWs-AOo9aiYKcLfX6iZ
-   MIDTRANS_CLIENT_KEY=SB-Mid-client-NgrTXoIsgR5SCKaf
+## Steps to Test Payment with Midtrans Mock Payments
 
-3. **Test Credit Card Numbers:**
-   Midtrans provides test credit card numbers for simulating different payment scenarios. Here are some test cards you can use:
+1. **On the checkout page**, click the **"Proceed to Payment"** button.  
+   This will open the **Midtrans Snap** interface to choose a payment method.
 
-   Visa: 4811 1111 1111 1111 (any future expiration date)
-   MasterCard: 5211 1111 1111 1111 (any future expiration date)
-   Failure: 4111 1111 1111 1111 (to simulate a failed transaction)
+2. **Select your preferred payment method** from Snap, then **copy the code** provided.
 
-3. **Making a Mock Payment:**
-   When checking out on the application, enter any of the test card numbers above to simulate the payment process. The transaction will be processed using Midtrans' mock payment system, allowing you to complete the checkout without real charges.
+3. **Open the website** [Midtrans Payment Simulator](https://simulator.sandbox.midtrans.com/).  
+   Choose the payment simulator that matches the method you selected in Snap.
 
-3. **Payment Status:**
-   After a mock payment is processed, you will see the transaction status updated in the Customer Dashboard and can track your order status, including printing an invoice.
+4. **Paste the code** from Snap into the Midtrans Payment Simulator, click **Inquire**, and then click **Pay** to complete the simulated payment.
+
+5. **Return to the Snap page** and click the **"Check Status"** button, then click **OK** to update the transaction status.
+
+---
+
+By following these steps, you can simulate the payment process completely without making real transactions.

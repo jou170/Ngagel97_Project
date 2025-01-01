@@ -25,6 +25,7 @@ const ProductDetail = () => {
   const { id } = useParams();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [buttonLoading, setButtonLoading] = useState(false);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -158,6 +159,7 @@ const ProductDetail = () => {
   }, [quantity, pageCount, selectedAddOns]);
 
   const handleAddToCart = async () => {
+    setButtonLoading(true);
     let fileUrl = "";
     try {
       // prioritas cek file dulu
@@ -234,9 +236,11 @@ const ProductDetail = () => {
         router.push("/cart");
       } else {
         alert("Failed to add item to cart.");
+        setButtonLoading(false);
       }
     } catch (error) {
       setError(error);
+      setButtonLoading(false);
     }
   };
 
@@ -345,9 +349,18 @@ const ProductDetail = () => {
                   variant="contained"
                   color="primary"
                   onClick={handleAddToCart}
-                  disabled={!isFormValid}
+                  disabled={!isFormValid || buttonLoading} // Button tidak aktif saat loading
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
                 >
-                  Add to Cart
+                  {buttonLoading ? (
+                    <CircularProgress size={24} color="inherit" /> // Tampilkan loading saat proses berjalan
+                  ) : (
+                    "Add to Cart" // Teks normal jika tidak loading
+                  )}
                 </Button>
                 <Typography variant="h6" sx={{ marginLeft: 2 }}>
                   Subtotal: Rp {sub.toLocaleString("id-ID")}

@@ -144,38 +144,32 @@ const CartPage = () => {
                 //     .map((addOn) => `${addOn.nama} (per ${addOn.tipeHarga})`)
                 //     .join(", ")}
                 // </Typography>
-                item.addOns.map((addOn, index) => {
-                  return (
-                    <>
-                      <Typography key={`${index}-1`} variant="body2">
-                        {addOn.nama}
-                      </Typography>
-                      <Typography
-                        key={`${index}-2`}
-                        variant="body2"
-                        color="textSecondary"
-                      >
-                        {`Harga: ${addOn.harga} per ${addOn.tipeHarga}`}
-                      </Typography>
-                      <Typography
-                        key={`${index}-4`}
-                        variant="body2"
-                        color="textSecondary"
-                      >
-                        {`Qty: ${addOn.qty}`}
-                      </Typography>
-                      <Typography
-                        key={`${index}-3`}
-                        variant="body2"
-                        color="textSecondary"
-                      >
-                        {`Rincian harga: ${addOn.harga} x ${addOn.qty} = Rp ${(
-                          addOn.harga * addOn.qty
-                        ).toLocaleString("id-ID")}`}
-                      </Typography>
-                    </>
-                  );
-                })}
+                <Box display="flex" flexWrap="wrap" gap={2}>
+  {item.addOns.map((addOn, index) => (
+    <Box
+      key={index}
+      display="flex"
+      flexDirection="column"
+      alignItems="flex-start"
+      p={1}
+      border="1px solid #ccc"
+      borderRadius={2}
+    >
+      <Typography variant="body2">{addOn.nama}</Typography>
+      <Typography variant="body2" color="textSecondary">
+        {`Harga: Rp ${addOn.harga.toLocaleString("id-ID")} per ${addOn.tipeHarga}`}
+      </Typography>
+      <Typography variant="body2" color="textSecondary">
+        {`Qty: ${addOn.qty}`}
+      </Typography>
+      <Typography variant="body2" color="textSecondary">
+        {`Rincian harga: Rp ${(
+          addOn.harga * addOn.qty
+        ).toLocaleString("id-ID")}`}
+      </Typography>
+    </Box>
+  ))}
+</Box>}
             </CardContent>
             <Tooltip title="Attach File" sx={{ ml: 2 }}>
               <IconButton
