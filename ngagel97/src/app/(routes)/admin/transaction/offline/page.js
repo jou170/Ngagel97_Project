@@ -18,6 +18,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import DetailOfflineOrder from "../../../(public)/components/DetailOfflineOrder";
 
 const OfflineTransactionPage = () => {
   const [barangList, setBarangList] = useState([]);
@@ -31,6 +32,7 @@ const OfflineTransactionPage = () => {
   const [selectedJasa, setSelectedJasa] = useState(null); // Change to store ID
   const [selectedAddOns, setSelectedAddOns] = useState([]); // Multiple add-ons by ID
   const [selectedAddOn, setSelectedAddOn] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const [rows, setRows] = useState([]);
   const [qtyBarang, setQtyBarang] = useState(1);
@@ -207,7 +209,7 @@ const OfflineTransactionPage = () => {
             data.message || "Terjadi kesalahan saat menyimpan transaksi."
           );
         }
-
+        setSelectedOrder(data.data);
         alert("Transaksi berhasil!");
         setRows([]);
       } catch (error) {
@@ -446,6 +448,12 @@ const OfflineTransactionPage = () => {
           </Button>
         </Box>
       </Box>
+      {selectedOrder && (
+        <DetailOfflineOrder
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+        />
+      )}
     </Container>
   );
 };
