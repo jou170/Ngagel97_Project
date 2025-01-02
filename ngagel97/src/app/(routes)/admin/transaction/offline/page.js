@@ -17,6 +17,8 @@ import {
   Checkbox,
   Select,
   MenuItem,
+  Tab,
+  Tabs,
 } from "@mui/material";
 import DetailOfflineOrder from "../../../(public)/components/DetailOfflineOrder";
 
@@ -26,6 +28,7 @@ const OfflineTransactionPage = () => {
   const [addOnList, setAddOnList] = useState([]);
   const [filteredAddOnList, setFilteredAddOnList] = useState([]); // Filtered add-on list
 
+  const [activeTab, setActiveTab] = useState(0); // Mengatur tab aktif
   const [enableAddOn, setEnableAddOn] = useState(false);
 
   const [selectedBarang, setSelectedBarang] = useState(null); // Change to store ID
@@ -246,147 +249,165 @@ const OfflineTransactionPage = () => {
             boxShadow: 2, // Tambahkan shadow jika ingin efek lebih baik
           }}
         >
-          <Typography>Pilih Barang</Typography>
-          <TextField
-            select
-            value={selectedBarang || ""}
-            onChange={(e) => {
-              setSelectedBarang(e.target.value);
-              setSelectedJasa(null);
-              setSelectedAddOn(null);
-              setEnableAddOn(false);
-              setQtyAddOn(1);
-              setQtyJasa(1);
-              setLembarJasa(1);
-            }}
-            SelectProps={{ native: true }}
-            fullWidth
+          <Tabs
+            value={activeTab}
+            onChange={(e, newValue) => setActiveTab(newValue)}
+            centered
           >
-            <option value="">-- Pilih Barang --</option>
-            {barangList.map((barang) => (
-              <option key={barang._id} value={barang._id}>
-                {barang.nama}
-              </option>
-            ))}
-          </TextField>
-          <TextField
-            type="number"
-            label="Qty"
-            value={qtyBarang}
-            onChange={(e) => setQtyBarang(Number(e.target.value))}
-            fullWidth
-            inputProps={{ min: 1 }}
-            sx={{ mt: 1 }}
-          />
-
-          <Typography>Pilih Jasa</Typography>
-          <TextField
-            select
-            value={selectedJasa || ""}
-            onChange={(e) => {
-              setSelectedJasa(e.target.value);
-              setSelectedBarang(null);
-              setSelectedAddOn(null);
-              setEnableAddOn(true);
-              setQtyBarang(1);
-              setQtyAddOn(1);
-            }}
-            SelectProps={{ native: true }}
-            fullWidth
-          >
-            <option value="">-- Pilih Jasa --</option>
-            {jasaList.map((jasa) => (
-              <option key={jasa._id} value={jasa._id}>
-                {jasa.nama}
-              </option>
-            ))}
-          </TextField>
-          <TextField
-            type="number"
-            label="Qty"
-            value={qtyJasa}
-            onChange={(e) => setQtyJasa(Number(e.target.value))}
-            fullWidth
-            inputProps={{ min: 1 }}
-            sx={{ mt: 1 }}
-          />
-
-          {selectedJasa && (
-            <TextField
-              type="number"
-              label="Lembar"
-              value={lembarJasa}
-              onChange={(e) => setLembarJasa(Number(e.target.value))}
-              fullWidth
-              inputProps={{ min: 1 }}
-              sx={{ mt: 1 }}
-            />
+            <Tab label="Barang" />
+            <Tab label="Jasa" />
+            <Tab label="Add-On" />
+          </Tabs>
+          {activeTab === 0 && (
+            <Box>
+              <TextField
+                select
+                value={selectedBarang || ""}
+                onChange={(e) => {
+                  setSelectedBarang(e.target.value);
+                  setSelectedJasa(null);
+                  setSelectedAddOn(null);
+                  setEnableAddOn(false);
+                  setQtyAddOn(1);
+                  setQtyJasa(1);
+                  setLembarJasa(1);
+                }}
+                SelectProps={{ native: true }}
+                fullWidth
+              >
+                <option value="">-- Pilih Barang --</option>
+                {barangList.map((barang) => (
+                  <option key={barang._id} value={barang._id}>
+                    {barang.nama}
+                  </option>
+                ))}
+              </TextField>
+              <TextField
+                type="number"
+                label="Qty"
+                value={qtyBarang}
+                onChange={(e) => setQtyBarang(Number(e.target.value))}
+                fullWidth
+                inputProps={{ min: 1 }}
+                sx={{ mt: 1 }}
+              />
+            </Box>
           )}
 
-          {enableAddOn && (
-            <div>
-              <Typography>Tambah Add-On</Typography>
-              {filteredAddOnList.map((addon) => (
-                <Box
-                  key={addon._id}
-                  sx={{ display: "flex", alignItems: "center" }}
-                >
-                  <Checkbox
-                    checked={selectedAddOns.includes(addon._id)}
-                    onChange={() => handleAddOnCheckboxChange(addon._id)}
-                  />
-                  <Typography>{addon.nama}</Typography>
-                  <TextField
-                    type="number"
-                    label="Qty"
-                    value={addOnQuantities[addon._id] || 1}
-                    onChange={(e) =>
-                      setAddOnQuantities({
-                        ...addOnQuantities,
-                        [addon._id]: Number(e.target.value),
-                      })
-                    }
-                    inputProps={{ min: 1 }}
-                    fullWidth
-                    sx={{ mt: 1, ml: 2 }}
-                  />
-                </Box>
-              ))}
-            </div>
+          {activeTab === 1 && (
+            <Box>
+              <TextField
+                select
+                value={selectedJasa || ""}
+                onChange={(e) => {
+                  setSelectedJasa(e.target.value);
+                  setSelectedBarang(null);
+                  setSelectedAddOn(null);
+                  setEnableAddOn(true);
+                  setQtyBarang(1);
+                  setQtyAddOn(1);
+                }}
+                SelectProps={{ native: true }}
+                fullWidth
+              >
+                <option value="">-- Pilih Jasa --</option>
+                {jasaList.map((jasa) => (
+                  <option key={jasa._id} value={jasa._id}>
+                    {jasa.nama}
+                  </option>
+                ))}
+              </TextField>
+              <TextField
+                type="number"
+                label="Qty"
+                value={qtyJasa}
+                onChange={(e) => setQtyJasa(Number(e.target.value))}
+                fullWidth
+                inputProps={{ min: 1 }}
+                sx={{ mt: 1 }}
+              />
+
+              {selectedJasa && (
+                <TextField
+                  type="number"
+                  label="Lembar"
+                  value={lembarJasa}
+                  onChange={(e) => setLembarJasa(Number(e.target.value))}
+                  fullWidth
+                  inputProps={{ min: 1 }}
+                  sx={{ mt: 1 }}
+                />
+              )}
+
+              {enableAddOn && (
+                <div>
+                  <Typography>Tambah Add-On</Typography>
+                  {filteredAddOnList.map((addon) => (
+                    <Box
+                      key={addon._id}
+                      sx={{ display: "flex", alignItems: "center" }}
+                    >
+                      <Checkbox
+                        checked={selectedAddOns.includes(addon._id)}
+                        onChange={() => handleAddOnCheckboxChange(addon._id)}
+                      />
+                      <Typography>{addon.nama}</Typography>
+                      <TextField
+                        type="number"
+                        label="Qty"
+                        value={addOnQuantities[addon._id] || 1}
+                        onChange={(e) =>
+                          setAddOnQuantities({
+                            ...addOnQuantities,
+                            [addon._id]: Number(e.target.value),
+                          })
+                        }
+                        inputProps={{ min: 1 }}
+                        fullWidth
+                        sx={{ mt: 1, ml: 2 }}
+                      />
+                    </Box>
+                  ))}
+                </div>
+              )}
+            </Box>
           )}
 
-          <Typography>Pilih Add Ons</Typography>
-          <TextField
-            select
-            value={selectedAddOn || ""}
-            onChange={(e) => {
-              setSelectedBarang(null);
-              setSelectedJasa(null);
-              setSelectedAddOn(e.target.value);
-              setEnableAddOn(false);
-              setQtyBarang(1);
-              setQtyJasa(1);
-              setLembarJasa(1);
-            }}
-            SelectProps={{ native: true }}
-            fullWidth
-          >
-            <option value="">-- Pilih Add Ons --</option>
-            {addOnList.map((addon) => (
-              <option key={addon._id} value={addon._id}>
-                {addon.nama}
-              </option>
-            ))}
-          </TextField>
-          <TextField
-            type="number"
-            label="Qty"
-            value={qtyAddOn}
-            onChange={(e) => setQtyAddOn(Number(e.target.value))}
-            fullWidth
-            inputProps={{ min: 1 }}
-            sx={{ mt: 1 }}
-          />
+          {activeTab === 2 && (
+            <Box>
+              <TextField
+                select
+                value={selectedAddOn || ""}
+                onChange={(e) => {
+                  setSelectedBarang(null);
+                  setSelectedJasa(null);
+                  setSelectedAddOn(e.target.value);
+                  setEnableAddOn(false);
+                  setQtyBarang(1);
+                  setQtyJasa(1);
+                  setLembarJasa(1);
+                }}
+                SelectProps={{ native: true }}
+                fullWidth
+              >
+                <option value="">-- Pilih Add Ons --</option>
+                {addOnList.map((addon) => (
+                  <option key={addon._id} value={addon._id}>
+                    {addon.nama}
+                  </option>
+                ))}
+              </TextField>
+              <TextField
+                type="number"
+                label="Qty"
+                value={qtyAddOn}
+                onChange={(e) => setQtyAddOn(Number(e.target.value))}
+                fullWidth
+                inputProps={{ min: 1 }}
+                sx={{ mt: 1 }}
+              />
+            </Box>
+          )}
 
           <Button
             variant="contained"
