@@ -1,61 +1,68 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, Divider } from "@mui/material";
+import React, { useRef } from "react";
+import { Box, Typography, Button, Divider, Dialog, DialogTitle, DialogContent } from "@mui/material";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { format } from "date-fns";
 
 const DetailOfflineOrder = ({ order, onClose }) => {
-    console.log(order);
-    
-  const [isLoading, setIsLoading] = useState(false);
-  const [admin, setAdmin] = useState(null);
-  const fetchAdmin = async () => {
-    try {
-      
-      if(order.adminId){
-      const adminResponse = await fetch(`/api/user/${order.adminId}`);
-      if (!adminResponse.ok) {
-        throw new Error("Failed to fetch user data");
-      }
-      const adminData = await adminResponse.json();
-      setAdmin(adminData.data.user);}
-    } catch (err) {
-      setError(err.message);
-    } 
-  };
   const previewRef = useRef(null);
-
-  useEffect(() => {
-    fetchAdmin();
-  }, []);
 
   const handleDownloadPDF = () => {
     const input = previewRef.current;
-    html2canvas(input, { scale: 2 })
+    html2canvas(input, { 
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff'
+    })
       .then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+        });
 
-        // Resize canvas image to fit into a single PDF page
-        const pdf = new jsPDF("p", "mm", "a4");
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
+        const margins = 20;
 
-        // Scale image to fit the PDF page
         const aspectRatio = canvas.width / canvas.height;
-        const imgWidth = pdfWidth;
-        const imgHeight = pdfWidth / aspectRatio;
+        const imgWidth = pdfWidth - (margins * 2);
+        const imgHeight = imgWidth / aspectRatio;
 
-        // Ensure content fits entirely in one page
-        const yOffset = imgHeight > pdfHeight ? 0 : (pdfHeight - imgHeight) / 2;
+        const xOffset = margins;
+        const yOffset = (pdfHeight - imgHeight) / 2;
 
-        pdf.setFontSize(18);
+        // Add header with styling
+        pdf.setFontSize(16);
         pdf.setFont("helvetica", "bold");
-        pdf.text("Toko Print Ngagel97", pdfWidth / 2, 20, null, null, "center");
+        pdf.setTextColor(0, 0, 0);
+        pdf.text("Toko Print Ngagel97", pdfWidth / 2, margins, { align: "center" });
+        
+        // Add address and contact
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "normal");
+        const address = "Jl. Ngagel Jaya Tengah No.69, Baratajaya, Kec. Gubeng,";
+        const address2 = "Surabaya, Jawa Timur 60284";
+        const contact = "Contact: (031) 5027852";
+        pdf.text(address, pdfWidth / 2, margins + 8, { align: "center" });
+        pdf.text(address2, pdfWidth / 2, margins + 13, { align: "center" });
+        pdf.text(contact, pdfWidth / 2, margins + 18, { align: "center" });
 
-        pdf.addImage(imgData, "PNG", 0, 30 + yOffset, imgWidth, imgHeight - 30);
-        pdf.save(`Order_${order.idTransaksi}.pdf`);
+        // Add the main content
+        pdf.addImage(imgData, "PNG", xOffset, yOffset, imgWidth, imgHeight);
+
+        // Add footer
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "normal");
+        pdf.setTextColor(128, 128, 128);
+        const footer = "Terima kasih telah berbelanja di Toko Print Ngagel97";
+        pdf.text(footer, pdfWidth / 2, pdfHeight - 10, { align: "center" });
+
+        pdf.save(`Offline_Order_${order.idTransaksi}.pdf`);
       })
       .catch((err) => console.error("Error generating PDF:", err));
   };
@@ -68,8 +75,17 @@ const DetailOfflineOrder = ({ order, onClose }) => {
       }
 
       return (
-        <Box key={index} sx={{ marginBottom: 2 }}>
-          <Typography variant="body1" sx={{ fontWeight: "bold", marginBottom: 1 }}>
+        <Box key={index} sx={{ 
+          marginBottom: 2,
+          padding: "10px",
+          backgroundColor: "#f5f5f5",
+          borderRadius: "4px" 
+        }}>
+          <Typography variant="body1" sx={{ 
+            fontWeight: "bold", 
+            marginBottom: 1,
+            color: "#1a237e" 
+          }}>
             {`${item.nama} | ${item.lembar ? item.lembar : item.qty} ${
               item.lembar ? "lembar" : "x"
             }`}
@@ -92,8 +108,17 @@ const DetailOfflineOrder = ({ order, onClose }) => {
       }
 
       return (
-        <Box key={index} sx={{ marginBottom: 2 }}>
-          <Typography variant="body1" sx={{ fontWeight: "bold", marginBottom: 1 }}>
+        <Box key={index} sx={{ 
+          marginBottom: 2,
+          padding: "10px",
+          backgroundColor: "#f5f5f5",
+          borderRadius: "4px"
+        }}>
+          <Typography variant="body1" sx={{ 
+            fontWeight: "bold", 
+            marginBottom: 1,
+            color: "#1a237e"
+          }}>
             {`${item.nama} | ${item.lembar ? item.lembar : item.qty} ${
               item.lembar ? "lembar" : "x"
             }`}
@@ -104,7 +129,13 @@ const DetailOfflineOrder = ({ order, onClose }) => {
             } | Subtotal: Rp${subtotal.toLocaleString()}`}
           </Typography>
           {item.addOns && item.addOns.length > 0 && (
-            <Box sx={{ marginLeft: 2, marginTop: 1 }}>
+            <Box sx={{ 
+              marginLeft: 2, 
+              marginTop: 1,
+              padding: "8px",
+              backgroundColor: "#ffffff",
+              borderRadius: "4px"
+            }}>
               <Typography variant="body2" sx={{ fontWeight: "bold", marginBottom: 1 }}>
                 Add-Ons:
               </Typography>
@@ -122,7 +153,10 @@ const DetailOfflineOrder = ({ order, onClose }) => {
 
       return (
         <Box key={index} sx={{ marginBottom: 2 }}>
-          <Typography variant="body2" sx={{ marginBottom: 1 }}>
+          <Typography variant="body2" sx={{ 
+            marginBottom: 1,
+            color: "#424242"
+          }}>
             {`${addOn.nama} | ${addOn.qty} x`}
           </Typography>
           <Typography variant="body2" color="textSecondary">
@@ -136,60 +170,71 @@ const DetailOfflineOrder = ({ order, onClose }) => {
   const totalTanpaOngkir = order.total - (order.ongkir || 0);
   const formattedDate = format(new Date(order.createdAt), "dd MMMM yyyy, HH:mm");
 
-  const handleCompleteTransaction = async () => {
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/transaction/offline", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(order), // Pastikan order berisi data yang diperlukan
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error("Terjadi kesalahan saat membuat transaksi.");
-      }
-
-      // Setelah transaksi selesai, buat PDF dan unduh
-      handleDownloadPDF();
-    } catch (error) {
-      alert("Gagal menyelesaikan transaksi: " + error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <Dialog open={!!order} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        <div style={{ textAlign: "center" }}>
-          <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+        <Box sx={{ textAlign: "center", padding: "20px 0" }}>
+          <Typography variant="h4" sx={{ 
+            fontWeight: "bold",
+            color: "#1a237e",
+            marginBottom: 2
+          }}>
             Toko Print Ngagel97
           </Typography>
-        </div>
+          <Typography variant="body1" sx={{ color: "#424242" }}>
+            Jl. Ngagel Jaya Tengah No.69, Baratajaya, Kec. Gubeng,
+          </Typography>
+          <Typography variant="body1" sx={{ color: "#424242" }}>
+            Surabaya, Jawa Timur 60284
+          </Typography>
+          <Typography variant="body1" sx={{ color: "#424242" }}>
+            Contact: (031) 5027852
+          </Typography>
+        </Box>
       </DialogTitle>
       <DialogContent ref={previewRef}>
         {order && (
-          <Box sx={{ marginBottom: 3 }}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: 2 }}>
-              {`Toko Print Ngagel97`}
-            </Typography>
-            <Typography variant="h6" sx={{ marginBottom: 2 }}>
-              {`Order ID: ${order.idTransaksi}`}
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: 2 }}>
-              {`Tanggal Transaksi: ${formattedDate}`}
-            </Typography>
-            <Typography sx={{ marginBottom: 2 }}>
-              {`Admin: ${admin ? admin.name : "-"}`}
-            </Typography>
-            <Typography sx={{ fontWeight: "bold", marginBottom: 2 }}>
-              {`Status: ${order.status}`}
-            </Typography>
+          <Box sx={{ 
+            marginBottom: 3,
+            padding: "20px",
+            backgroundColor: "#ffffff" 
+          }}>
+            <Box sx={{ 
+              textAlign: "center",
+              marginBottom: 4
+            }}>
+              <Typography variant="h6" sx={{ 
+                fontWeight: "bold",
+                color: "#1a237e",
+                marginBottom: 1
+              }}>
+                {`Order ID: ${order.idTransaksi}`}
+              </Typography>
+              <Typography variant="subtitle1" sx={{ marginBottom: 1 }}>
+                {`Tanggal Transaksi: ${formattedDate}`}
+              </Typography>
+              <Typography variant="body1">
+                {`Alamat: Offline Store`}
+              </Typography>
+              <Typography sx={{ 
+                fontWeight: "bold",
+                marginTop: 2,
+                backgroundColor: "#e3f2fd",
+                padding: "8px",
+                borderRadius: "4px",
+                display: "inline-block"
+              }}>
+                {`Status: ${order.status}`}
+              </Typography>
+            </Box>
 
             {order.notes && (
-              <Box sx={{ margin: "20px 0" }}>
+              <Box sx={{ 
+                margin: "20px 0",
+                padding: "15px",
+                backgroundColor: "#fff3e0",
+                borderRadius: "4px"
+              }}>
                 <Typography sx={{ fontWeight: "bold", marginBottom: 1 }}>
                   Notes:
                 </Typography>
@@ -198,53 +243,66 @@ const DetailOfflineOrder = ({ order, onClose }) => {
             )}
 
             <Divider sx={{ margin: "20px 0" }} />
+            
             {order.barang && order.barang.length > 0 && (
               <Box sx={{ marginTop: "20px" }}>
-                <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                <Typography variant="h6" sx={{ 
+                  marginBottom: 2,
+                  color: "#1a237e",
+                  fontWeight: "bold"
+                }}>
                   Barang
                 </Typography>
-                <Box>{renderAddOns(order.barang)}</Box>
+                <Box>{renderBarang(order.barang)}</Box>
               </Box>
             )}
 
             {order.jasa && order.jasa.length > 0 && (
               <Box sx={{ marginTop: "20px" }}>
-                <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                <Typography variant="h6" sx={{ 
+                  marginBottom: 2,
+                  color: "#1a237e",
+                  fontWeight: "bold"
+                }}>
                   Jasa
                 </Typography>
                 <Box>{renderJasa(order.jasa)}</Box>
               </Box>
             )}
 
-            {order.addOns && order.addOns.length > 0 && (
-              <Box sx={{ marginTop: "20px" }}>
-                <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                  Add-Ons
-                </Typography>
-                <Box>{renderAddOns(order.addOns)}</Box>
-              </Box>
-            )}
-
             <Divider sx={{ margin: "20px 0" }} />
-            <Box
-              sx={{
-                marginTop: "20px",
+            
+            <Box sx={{
+              marginTop: "20px",
+              padding: "15px",
+              backgroundColor: "#f5f5f5",
+              borderRadius: "4px",
+            }}>
+              <Box sx={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "flex-end",
-              }}
-            >
-              <Typography sx={{ marginBottom: 1 }}>
-                {`Total Pembelian: Rp${totalTanpaOngkir.toLocaleString()}`}
-              </Typography>
-              {order.ongkir && (
+              }}>
                 <Typography sx={{ marginBottom: 1 }}>
-                  {`Ongkir: Rp${order.ongkir.toLocaleString()}`}
+                  {`Total Pembelian: Rp${totalTanpaOngkir.toLocaleString()}`}
                 </Typography>
-              )}
-              <Typography sx={{ fontWeight: "bold", marginBottom: 2 }}>
-                {`Grand Total: Rp${order.total.toLocaleString()}`}
-              </Typography>
+                {order.ongkir && (
+                  <Typography sx={{ marginBottom: 1 }}>
+                    {`Ongkir: Rp${order.ongkir.toLocaleString()}`}
+                  </Typography>
+                )}
+                <Typography sx={{ 
+                  fontWeight: "bold",
+                  fontSize: "1.2em",
+                  color: "#1a237e",
+                  marginTop: 1,
+                  padding: "8px 16px",
+                  backgroundColor: "#e3f2fd",
+                  borderRadius: "4px"
+                }}>
+                  {`Grand Total: Rp${order.total.toLocaleString()}`}
+                </Typography>
+              </Box>
             </Box>
           </Box>
         )}
@@ -252,11 +310,17 @@ const DetailOfflineOrder = ({ order, onClose }) => {
       <Button
         variant="contained"
         color="primary"
-        onClick={handleCompleteTransaction}
-        sx={{ marginTop: "20px" }}
-        disabled={isLoading}
+        onClick={handleDownloadPDF}
+        sx={{ 
+          margin: "20px",
+          padding: "10px 20px",
+          backgroundColor: "#1a237e",
+          '&:hover': {
+            backgroundColor: "#0d47a1"
+          }
+        }}
       >
-        {isLoading ? "Memproses..." : "Selesaikan Transaksi & Download PDF"}
+        Download PDF
       </Button>
     </Dialog>
   );
