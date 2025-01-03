@@ -6,7 +6,7 @@
 - [Environment Variables](#environment-variables)
 - [Features and Usage](#features-and-usage)
 - [Default User Accounts](#default-user-accounts)
-- [Online Payments](#online-payments)
+- [Midtrans Mock Payments Guide](#midtrans-mock-payments-guide)
 
 ---
 
@@ -77,15 +77,16 @@ MIDTRANS_CLIENT_KEY=SB-Mid-client-NgrTXoIsgR5SCKaf
 Register an account.
   - Log in to the application.
   - Register an account.
+  - Navigate to home page.
   
 ### Customer
 - **Features:**
   - Browse available printing services and add-ons.
   - Place and manage online orders.
   - Manage cart
-  - Checkout online by providing shipping address and make online payments. See [Online Payments](#online-payments)
+  - Checkout online by providing shipping address and make online payments. See [Midtrans Mock Payments Guide](#midtrans-mock-payments-guide)
   - Track order status (including transaction history and invoice generation).
-  - Manage account details.
+  - Manage account profile.
 
 ### Admin
 - **Features:**
@@ -118,17 +119,10 @@ To test the application, use the following default user accounts:
 New accounts can be created via the registration form. By default, all newly registered accounts are assigned the role of **Customer**. If you need to change a customer's role to **Admin** or vice versa, this can be done through the **Manage User Roles** feature, which is accessible by the **Master** role.
 
 
-## Online Payments
+## Midtrans Mock Payments Guide
+The **Fotocopy Ngagel97 Web Application** integrates with **Midtrans** to provide online payment capabilities. This guide explains how to test payments using **Midtrans Mock Payments**.
 
-The **Fotocopy Ngagel97 Web Application** integrates with **Midtrans** to provide online payment capabilities. Here is how you can use the **Midtrans Mock Payments** feature during testing:
-
-# Midtrans Mock Payments Guide
-
-This guide explains how to test payments using **Midtrans Mock Payments** in the Fotocopy Ngagel97 Web Application.
-
----
-
-## Steps to Test Payment with Midtrans Mock Payments
+### Steps to Test Payment with Midtrans Mock Payments
 
 1. **On the checkout page**, click the **"Proceed to Payment"** button.  
    This will open the **Midtrans Snap** interface to choose a payment method.
@@ -141,7 +135,5 @@ This guide explains how to test payments using **Midtrans Mock Payments** in the
 4. **Paste the code** from Snap into the Midtrans Payment Simulator, click **Inquire**, and then click **Pay** to complete the simulated payment.
 
 5. **Return to the Snap page** and click the **"Check Status"** button, then click **OK** to update the transaction status.
-
----
 
 By following these steps, you can simulate the payment process completely without making real transactions.
