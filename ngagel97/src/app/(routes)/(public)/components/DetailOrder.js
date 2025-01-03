@@ -11,92 +11,250 @@ const DetailOrder = ({ order, onClose }) => {
   const displayAddress = order?.alamat || "Offline Store";
 
   const handleDownloadPDF = async () => {
-    const input = previewRef.current;
-    try {
-      const canvas = await html2canvas(input, { 
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff'
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const margins = 20;
-
-      // Calculate image dimensions while preserving aspect ratio
-      const aspectRatio = canvas.width / canvas.height;
-      const imgWidth = pdfWidth - (margins * 2);
-      const imgHeight = imgWidth / aspectRatio;
-
-      // Calculate if content exceeds page height
-      const totalContentHeight = imgHeight + (margins * 2) + 30; // 30mm for header and footer
-      const numberOfPages = Math.ceil(totalContentHeight / pdfHeight);
-
-      // Header (on first page only)
-      pdf.setFontSize(16);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Toko Print Ngagel97", pdfWidth / 2, margins, { align: "center" });
-      
-      pdf.setFontSize(10);
-      pdf.setFont("helvetica", "normal");
-      const address = "Jl. Ngagel Jaya Tengah No.69, Baratajaya, Kec. Gubeng,";
-      const address2 = "Surabaya, Jawa Timur 60284";
-      const contact = "Contact: (031) 5027852";
-      pdf.text(address, pdfWidth / 2, margins + 8, { align: "center" });
-      pdf.text(address2, pdfWidth / 2, margins + 13, { align: "center" });
-      pdf.text(contact, pdfWidth / 2, margins + 18, { align: "center" });
-
-      // Split image into pages if necessary
-      let remainingHeight = imgHeight;
-      let sourceY = 0;
-      const headerHeight = 25; // Height reserved for header
-
-      for (let i = 0; i < numberOfPages; i++) {
-        if (i > 0) {
-          pdf.addPage();
-        }
-
-        const pageContentHeight = Math.min(remainingHeight, pdfHeight - (margins * 2) - (i === 0 ? headerHeight : 0));
-        const scaledSourceHeight = (pageContentHeight / imgHeight) * canvas.height;
-        
-        pdf.addImage(
-          imgData,
-          "PNG",
-          margins,
-          i === 0 ? margins + headerHeight : margins,
-          imgWidth,
-          imgHeight,
-          null,
-          'FAST',
-          0,
-          sourceY
-        );
-
-        remainingHeight -= pageContentHeight;
-        sourceY += scaledSourceHeight;
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
+  
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margins = 20;
+    let yPosition = margins + 15;
+  
+    const hexToRgb = (hex) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 0, g: 0, b: 0 };
+    };
+  
+    const checkNewPage = (height) => {
+      if (yPosition + height > pageHeight - margins) {
+        pdf.addPage();
+        yPosition = margins;
+        return true;
       }
-
-      // Add footer on the last page
-      pdf.setFontSize(10);
-      pdf.setFont("helvetica", "normal");
-      pdf.setTextColor(128, 128, 128);
-      const footer = "Terima kasih telah berbelanja di Toko Print Ngagel97";
-      pdf.text(footer, pdfWidth / 2, pdfHeight - 10, { align: "center" });
-
-      pdf.save(`Order_${order.idTransaksi}.pdf`);
-    } catch (err) {
-      console.error("Error generating PDF:", err);
+      return false;
+    };
+  
+    const addStyledBox = (text, options = {}) => {
+      const {
+        x = margins,
+        width = pageWidth - (margins * 2),
+        padding = 3,
+        backgroundColor = '#f5f5f5',
+        textColor = '#000000',
+        fontSize = 10,
+        isBold = false,
+        align = 'left',
+        addDivider = false,
+        dividerWidth = null,
+        dividerColor = '#cccccc'
+      } = options;
+  
+      checkNewPage(padding * 2 + 8);
+      
+      const rgb = hexToRgb(backgroundColor);
+      pdf.setFillColor(rgb.r, rgb.g, rgb.b);
+      pdf.rect(x, yPosition, width, padding * 2 + 6, 'F');
+      
+      if (addDivider) {
+        const divRgb = hexToRgb(dividerColor);
+        pdf.setDrawColor(divRgb.r, divRgb.g, divRgb.b);
+        const lineWidth = dividerWidth || width;
+        const lineX = x + ((width - lineWidth) / 2);
+        pdf.setLineWidth(0.2);
+        pdf.line(lineX, yPosition + padding * 2 + 6, lineX + lineWidth, yPosition + padding * 2 + 6);
+      }
+      
+      pdf.setFontSize(fontSize);
+      const textRgb = hexToRgb(textColor);
+      pdf.setTextColor(textRgb.r, textRgb.g, textRgb.b);
+      pdf.setFont("helvetica", isBold ? "bold" : "normal");
+      
+      const lines = pdf.splitTextToSize(text, width - (padding * 2));
+      const textX = align === 'center' ? pageWidth / 2 : 
+                   align === 'right' ? x + width - padding : 
+                   x + padding;
+      pdf.text(lines, textX, yPosition + padding + 4, { align });
+      
+      const height = (lines.length * fontSize * 0.3528) + (padding * 2);
+      yPosition += height;
+      return height;
+    };
+  
+    // Add logo image (if any, or remove this part)
+    try {
+      const logoWidth = 20;
+      const logoHeight = 20;
+      pdf.addImage('/image/Ngagel97Logo.png', 'PNG', margins, margins, logoWidth, logoHeight);
+    } catch (error) {
+      console.error('Error adding logo:', error);
     }
+  
+    // Header with adjusted position for logo
+    addStyledBox("Toko Print Ngagel97", {
+      fontSize: 16,
+      isBold: true,
+      textColor: '#1a237e',
+      backgroundColor: '#ffffff',
+      align: 'center',
+      x: margins + 25,
+      width: pageWidth - (margins * 2) - 25
+    });
+  
+    addStyledBox(
+      "Jl. Ngagel Jaya Tengah No.69, Baratajaya, Kec. Gubeng,\nSurabaya, Jawa Timur 60284\nContact: (031) 5027852",
+      {
+        fontSize: 10,
+        backgroundColor: '#ffffff',
+        align: 'center'
+      });
+  
+    yPosition += 5;
+  
+    // Order details
+    const formattedDate = format(new Date(order.createdAt), "dd MMMM yyyy, HH:mm");
+    
+    addStyledBox(`Order ID: ${order.idTransaksi}`, {
+      fontSize: 12,
+      isBold: true,
+      backgroundColor: '#ffffff',
+      align: 'center'
+    });
+  
+    addStyledBox(`Tanggal Transaksi: ${formattedDate}`, {
+      backgroundColor: '#ffffff',
+      align: 'center'
+    });
+  
+    // Notes section
+    if (order.notes) {
+      yPosition += 5;
+      addStyledBox("Notes:", {
+        isBold: true,
+        backgroundColor: '#fff3e0'
+      });
+      addStyledBox(order.notes, {
+        backgroundColor: '#fff3e0'
+      });
+    }
+  
+    // Items sections
+    const renderItems = (items, title, isJasa = false) => {
+      if (items?.length > 0) {
+        yPosition += 10;
+        addStyledBox(title, {
+          fontSize: 12,
+          isBold: true,
+          textColor: '#1a237e',
+          backgroundColor: '#ffffff'
+        });
+    
+        items.forEach((item, itemIndex) => {
+          const subtotal = item.lembar ? 
+            item.harga * item.lembar * item.qty : 
+            item.harga * item.qty;
+    
+          addStyledBox(
+            `${item.nama} | ${item.lembar ? item.lembar : item.qty} ${item.lembar ? "lembar" : "x"}`,
+            {
+              isBold: true,
+              textColor: '#1a237e',
+              backgroundColor: '#f8f9fa',
+              addDivider: itemIndex < items.length - 1 // Add divider between items
+            }
+          );
+          
+          addStyledBox(
+            `Rp${item.harga.toLocaleString()} @${item.lembar ? "lembar" : "barang"} | Subtotal: Rp${subtotal.toLocaleString()}`,
+            {
+              backgroundColor: '#f8f9fa',
+              addDivider: false
+            }
+          );
+    
+          if (isJasa && item.addOns?.length > 0) {
+            yPosition += 3;
+            
+            addStyledBox("Add-Ons:", {
+              isBold: true,
+              backgroundColor: '#e3f2fd',
+              textColor: '#1a237e',
+              x: margins + 10,
+              width: pageWidth - (margins * 2) - 20
+            });
+    
+            item.addOns.forEach((addOn, index) => {
+              const isLastAddOn = index === item.addOns.length - 1;
+              
+              // Add a full-width divider before each add-on except the first one
+              if (index > 0) {
+                pdf.setDrawColor(200, 200, 200);
+                pdf.setLineWidth(0.2);
+                pdf.line(
+                  margins + 15, 
+                  yPosition - 1,
+                  pageWidth - margins - 15,
+                  yPosition - 1
+                );
+                yPosition += 2;
+              }
+              
+              addStyledBox(
+                `${addOn.nama}`,
+                {
+                  x: margins + 15,
+                  width: pageWidth - (margins * 2) - 30,
+                  fontSize: 9,
+                  isBold: true,
+                }
+              );
+              
+              addStyledBox(
+                `${addOn.qty} x | Rp${addOn.harga.toLocaleString()} | Subtotal: Rp${(addOn.harga * addOn.qty).toLocaleString()}`,
+                {
+                  x: margins + 15,
+                  width: pageWidth - (margins * 2) - 30,
+                  fontSize: 9,
+                  backgroundColor: '#ffffff',
+                  addDivider: !isLastAddOn,
+                  dividerWidth: pageWidth - (margins * 2) - 40,
+                  dividerColor: '#e0e0e0'
+                }
+              );
+            });
+            
+            yPosition += 3;
+          }
+          yPosition += 4;
+        });
+      }
+    };
+  
+    // Render Jasa and Add-Ons
+    renderItems(order.jasa, "Jasa", true);
+  
+    // Footer with Grand Total
+    yPosition += 10;
+    addStyledBox(`Grand Total: Rp${order.total.toLocaleString()}`, {
+      fontSize: 14,
+      isBold: true,
+      backgroundColor: '#e3f2fd',
+      textColor: '#1a237e',
+      align: 'right'
+    });
+  
+    // Check for any remaining content and add pages as needed
+    checkNewPage(0);
+  
+    pdf.save(`Order_${order.idTransaksi}.pdf`);
   };
-
+  
+  
   const renderJasa = (jasa) => {
     return jasa.map((item, index) => {
       let subtotal = item.harga * item.qty;
@@ -211,7 +369,7 @@ const DetailOrder = ({ order, onClose }) => {
                 {`Tanggal Transaksi: ${formattedDate}`}
               </Typography>
               <Typography variant="body1">
-                {`Alamat: ${displayAddress}`}
+                {`Alamat: ${order.alamat}`}
               </Typography>
               <Typography sx={{ 
                 fontWeight: "bold",
