@@ -77,21 +77,24 @@ const SalesPage = () => {
   const groupTransactionsByDate = (filteredTransactions = transactions) => {
     const grouped = filteredTransactions.reduce((acc, transaction) => {
       const user = users.find((u) => u._id === transaction.userId);
+      const admin = users.find((u) => u._id === transaction.adminId);
       const userName = user ? user.name : "Transaksi Offline";
+      const adminName = admin ? admin.name : "-";
       const dateKey = dayjs(transaction.createdAt).format("DD/MM/YYYY");
-
+  
       if (!acc[dateKey]) {
         acc[dateKey] = [];
       }
-
+  
       acc[dateKey].push({
         ...transaction,
         userName,
+        adminName,
       });
-
+  
       return acc;
     }, {});
-
+  
     // Sort by date (newest first)
     const sortedGrouped = Object.fromEntries(
       Object.entries(grouped).sort((a, b) => {
@@ -100,10 +103,11 @@ const SalesPage = () => {
         return dateB - dateA;
       })
     );
-
+  
     setGroupedData(sortedGrouped);
     setCurrentPage(1); // Reset to first page when data changes
   };
+  
 
   const getDateRangeHeader = (transactions) => {
     const dates = [...new Set(transactions.map(t => dayjs(t.createdAt).format("DD/MM/YYYY")))];
@@ -251,7 +255,7 @@ const SalesPage = () => {
       (acc, transaction) => acc + transaction.total,
       0
     );
-
+  
     return (
       <div>
         <Typography variant="h6" gutterBottom>
@@ -263,6 +267,7 @@ const SalesPage = () => {
               <TableRow sx={{ bgcolor: "#d7ccc8" }}>
                 <TableCell>ID Transaksi</TableCell>
                 <TableCell>Nama Customer</TableCell>
+                <TableCell>Nama Admin</TableCell>
                 <TableCell>Ongkir</TableCell>
                 <TableCell>Subtotal</TableCell>
                 <TableCell>Total</TableCell>
@@ -273,13 +278,14 @@ const SalesPage = () => {
                 <TableRow key={index}>
                   <TableCell>{transaction.idTransaksi}</TableCell>
                   <TableCell>{transaction.userName}</TableCell>
+                  <TableCell>{transaction.adminName}</TableCell>
                   <TableCell>{formatCurrency(transaction.ongkir)}</TableCell>
                   <TableCell>{formatCurrency(transaction.subtotal)}</TableCell>
                   <TableCell>{formatCurrency(transaction.total)}</TableCell>
                 </TableRow>
               ))}
               <TableRow sx={{ bgcolor: "#f1f1f1" }}>
-                <TableCell colSpan={4} align="right">
+                <TableCell colSpan={5} align="right">
                   <strong>Total</strong>
                 </TableCell>
                 <TableCell>
@@ -292,6 +298,7 @@ const SalesPage = () => {
       </div>
     );
   };
+  
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>

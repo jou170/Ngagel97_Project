@@ -1,12 +1,33 @@
 "use client";
 
-import React, { useRef } from "react";
-import { Box, Typography, Button, Divider, Dialog, DialogTitle, DialogContent } from "@mui/material";
+import React, { useState, useEffect, useRef } from "react";
+import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, Divider } from "@mui/material";
 import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import { format } from "date-fns";
 
 const DetailOfflineOrder = ({ order, onClose }) => {
+  const [admin, setAdmin] = useState(null);
   const previewRef = useRef(null);
+
+  const fetchAdmin = async () => {
+    try {
+      if (order.adminId) {
+        const adminResponse = await fetch(`/api/user/${order.adminId}`);
+        if (!adminResponse.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        const adminData = await adminResponse.json();
+        setAdmin(adminData.data.user);
+      }
+    } catch (err) {
+      console.error("Error fetching admin:", err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdmin();
+  }, [order.adminId]);
 
   const handleDownloadPDF = async () => {
     const pdf = new jsPDF({
@@ -143,89 +164,91 @@ const DetailOfflineOrder = ({ order, onClose }) => {
       });
     }
 
-    const renderItems = (items, title, isJasa = false) => {
-      if (items?.length > 0) {
-        yPosition += 10;
-        addStyledBox(title, {
-          fontSize: 12,
+// Updated renderItems for better Add-Ons rendering in PDF
+const renderItems = (items, title, isJasa = false) => {
+  if (items?.length > 0) {
+    yPosition += 10;
+    addStyledBox(title, {
+      fontSize: 12,
+      isBold: true,
+      textColor: '#1a237e',
+      backgroundColor: '#ffffff'
+    });
+
+    items.forEach((item, itemIndex) => {
+      const subtotal = item.lembar ? 
+        item.harga * item.lembar * item.qty : 
+        item.harga * item.qty;
+
+      addStyledBox(
+        `${item.nama} | ${item.lembar ? item.lembar : item.qty} ${item.lembar ? "lembar" : "x"}`,
+        {
           isBold: true,
           textColor: '#1a237e',
-          backgroundColor: '#ffffff'
-        });
-    
-        items.forEach((item, itemIndex) => {
-          const subtotal = item.lembar ? 
-            item.harga * item.lembar * item.qty : 
-            item.harga * item.qty;
-    
-          addStyledBox(
-            `${item.nama} | ${item.lembar ? item.lembar : item.qty} ${item.lembar ? "lembar" : "x"}`,
-            {
-              isBold: true,
-              textColor: '#1a237e',
-              backgroundColor: '#f8f9fa',
-              addDivider: itemIndex < items.length - 1
-            }
-          );
-          
-          addStyledBox(
-            `Rp${item.harga.toLocaleString()} @${item.lembar ? "lembar" : "barang"} | Subtotal: Rp${subtotal.toLocaleString()}`,
-            {
-              backgroundColor: '#f8f9fa',
-              addDivider: false
-            }
-          );
-    
-          if (isJasa && item.addOns?.length > 0) {
-            yPosition += 3;
-            
-            addStyledBox("Add-Ons:", {
-              isBold: true,
-              backgroundColor: '#e3f2fd',
-              textColor: '#1a237e',
-              x: margins + 10,
-              width: pageWidth - (margins * 2) - 20
-            });
-    
-            item.addOns.forEach((addOn, index) => {
-              const isLastAddOn = index === item.addOns.length - 1;
-              
-              addStyledBox(
-                `${addOn.nama}`,
-                {
-                  x: margins + 15,
-                  width: pageWidth - (margins * 2) - 30,
-                  fontSize: 9,
-                  isBold: true,
-                  backgroundColor: '#ffffff'
-                }
-              );
-              
-              addStyledBox(
-                `${addOn.qty} x | Rp${addOn.harga.toLocaleString()} | Subtotal: Rp${(addOn.harga * addOn.qty).toLocaleString()}`,
-                {
-                  x: margins + 15,
-                  width: pageWidth - (margins * 2) - 30,
-                  fontSize: 9,
-                  backgroundColor: '#ffffff',
-                  addDivider: !isLastAddOn,
-                  dividerWidth: pageWidth - (margins * 2) - 40,
-                  dividerColor: '#e0e0e0'
-                }
-              );
-            });
-            
-            yPosition += 3;
-          }
-          yPosition += 4;
-        });
-      }
-    };
+          backgroundColor: '#f8f9fa',
+          addDivider: itemIndex < items.length - 1
+        }
+      );
+      
+      addStyledBox(
+        `Rp${item.harga.toLocaleString()} @${item.lembar ? "lembar" : "barang"} | Subtotal: Rp${subtotal.toLocaleString()}`,
+        {
+          backgroundColor: '#f8f9fa',
+          addDivider: false
+        }
+      );
 
-    // Render sections
-    renderItems(order.barang, "Barang");
-    renderItems(order.jasa, "Jasa", true);
-    renderItems(order.addon, "Add-Ons");
+      if (isJasa && item.addOns?.length > 0) {
+        yPosition += 3;
+        addStyledBox("Add-Ons:", {
+          isBold: true,
+          backgroundColor: '#e3f2fd',
+          textColor: '#1a237e',
+          x: margins + 10,
+          width: pageWidth - (margins * 2) - 20
+        });
+
+        item.addOns.forEach((addOn, index) => {
+          const addOnSubtotal = addOn.harga * addOn.qty;
+          const isLastAddOn = index === item.addOns.length - 1;
+
+          addStyledBox(
+            `${addOn.nama} | ${addOn.qty} x`,
+            {
+              x: margins + 15,
+              width: pageWidth - (margins * 2) - 30,
+              fontSize: 9,
+              isBold: true,
+              backgroundColor: '#ffffff'
+            }
+          );
+
+          addStyledBox(
+            `Rp${addOn.harga.toLocaleString()} | Subtotal: Rp${addOnSubtotal.toLocaleString()}`,
+            {
+              x: margins + 15,
+              width: pageWidth - (margins * 2) - 30,
+              fontSize: 9,
+              backgroundColor: '#ffffff',
+              addDivider: !isLastAddOn,
+              dividerWidth: pageWidth - (margins * 2) - 40,
+              dividerColor: '#e0e0e0'
+            }
+          );
+        });
+
+        yPosition += 3;
+      }
+      yPosition += 4;
+    });
+  }
+};
+
+// Replace in existing PDF generation logic
+renderItems(order.barang, "Barang");
+renderItems(order.jasa, "Jasa", true);
+renderItems(order.addOns, "Add-Ons");
+
   
     yPosition += 5;
     const totalTanpaOngkir = order.total - (order.ongkir || 0);
@@ -270,6 +293,7 @@ const DetailOfflineOrder = ({ order, onClose }) => {
     pdf.save(`Offline_Order_${order.idTransaksi}.pdf`);
   };
 
+
   const renderBarang = (barang) => {
     return barang.map((item, index) => {
       let subtotal = item.harga * item.qty;
@@ -282,12 +306,12 @@ const DetailOfflineOrder = ({ order, onClose }) => {
           marginBottom: 2,
           padding: "10px",
           backgroundColor: "#f5f5f5",
-          borderRadius: "4px" 
+          borderRadius: "4px"
         }}>
           <Typography variant="body1" sx={{ 
-            fontWeight: "bold", 
+            fontWeight: "bold",
             marginBottom: 1,
-            color: "#1a237e" 
+            color: "#1a237e"
           }}>
             {`${item.nama} | ${item.lembar ? item.lembar : item.qty} ${
               item.lembar ? "lembar" : "x"
@@ -302,11 +326,14 @@ const DetailOfflineOrder = ({ order, onClose }) => {
       );
     });
   };
-  
+
   const renderJasa = (jasa) => {
     return jasa.map((item, index) => {
-      let subtotal = item.lembar ? item.harga * item.lembar * item.qty : item.harga * item.qty;
-  
+      let subtotal = item.harga * item.qty;
+      if (item.lembar) {
+        subtotal = item.harga * item.lembar * item.qty;
+      }
+
       return (
         <Box key={index} sx={{ 
           marginBottom: 2,
@@ -315,31 +342,31 @@ const DetailOfflineOrder = ({ order, onClose }) => {
           borderRadius: "4px"
         }}>
           <Typography variant="body1" sx={{ 
-            fontWeight: "bold", 
+            fontWeight: "bold",
             marginBottom: 1,
             color: "#1a237e"
           }}>
-            {`${item.nama} | ${item.lembar ? item.lembar : item.qty} ${item.lembar ? "lembar" : "x"}`}
+            {`${item.nama} | ${item.lembar ? item.lembar : item.qty} ${
+              item.lembar ? "lembar" : "x"
+            }`}
           </Typography>
           <Typography variant="body2" sx={{ marginBottom: 1 }}>
-            {`Rp${item.harga.toLocaleString()} @${item.lembar ? "lembar" : "barang"} | Subtotal: Rp${subtotal.toLocaleString()}`}
+            {`Rp${item.harga.toLocaleString()} @${
+              item.lembar ? "lembar" : "barang"
+            } | Subtotal: Rp${subtotal.toLocaleString()}`}
           </Typography>
           {item.addOns && item.addOns.length > 0 && (
             <Box sx={{ 
-              marginLeft: 2, 
+              marginLeft: 2,
               marginTop: 1,
-              padding: "10px",
-              backgroundColor: "#e8eaf6",
+              padding: "8px",
+              backgroundColor: "#ffffff",
               borderRadius: "4px"
             }}>
-              <Typography variant="body2" sx={{ 
-                fontWeight: "bold", 
-                marginBottom: 1,
-                color: "#1a237e"
-              }}>
+              <Typography variant="body2" sx={{ fontWeight: "bold", marginBottom: 1 }}>
                 Add-Ons:
               </Typography>
-              <Box sx={{ padding: "0 4px" }}>{renderAddOns(item.addOns)}</Box>
+              <Box sx={{ padding: 0 }}>{renderAddOns(item.addOns)}</Box>
             </Box>
           )}
         </Box>
@@ -347,56 +374,21 @@ const DetailOfflineOrder = ({ order, onClose }) => {
     });
   };
 
-  // New function to render standalone add-ons
-  const renderStandaloneAddons = (addons) => {
-    return addons.map((item, index) => {
-      const subtotal = item.harga * item.qty;
-
-      return (
-        <Box key={index} sx={{ 
-          marginBottom: 2,
-          padding: "10px",
-          backgroundColor: "#f5f5f5",
-          borderRadius: "4px"
-        }}>
-          <Typography variant="body1" sx={{ 
-            fontWeight: "bold", 
-            marginBottom: 1,
-            color: "#1a237e"
-          }}>
-            {`${item.nama} | ${item.qty} x`}
-          </Typography>
-          <Typography variant="body2" sx={{ marginBottom: 1 }}>
-            {`Rp${item.harga.toLocaleString()} @item | Subtotal: Rp${subtotal.toLocaleString()}`}
-          </Typography>
-        </Box>
-      );
-    });
-  };
-
   const renderAddOns = (addOns) => {
     return addOns.map((addOn, index) => {
-      const isLastItem = index === addOns.length - 1;
       let subtotal = addOn.harga * addOn.qty;
-  
+
       return (
-        <Box key={index}>
-          <Box sx={{ 
-            padding: "8px 0",
-            backgroundColor: "#f8f9fa"
+        <Box key={index} sx={{ marginBottom: 2 }}>
+          <Typography variant="body2" sx={{ 
+            marginBottom: 1,
+            color: "#424242"
           }}>
-            <Typography variant="body2" sx={{ 
-              marginBottom: 0.5,
-              color: "#424242",
-              fontWeight: "medium"
-            }}>
-              {`${addOn.nama} | ${addOn.qty} x`}
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#666666" }}>
-              {`Rp${addOn.harga.toLocaleString()} | Subtotal: Rp${subtotal.toLocaleString()}`}
-            </Typography>
-          </Box>
-          {!isLastItem && <Divider sx={{ margin: "4px 0" }} />}
+            {`${addOn.nama} | ${addOn.qty} x`}
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            {`Rp${addOn.harga.toLocaleString()} | Subtotal: Rp${subtotal.toLocaleString()}`}
+          </Typography>
         </Box>
       );
     });
@@ -432,7 +424,7 @@ const DetailOfflineOrder = ({ order, onClose }) => {
           <Box sx={{ 
             marginBottom: 3,
             padding: "20px",
-            backgroundColor: "#ffffff" 
+            backgroundColor: "#ffffff"
           }}>
             <Box sx={{ 
               textAlign: "center",
@@ -448,8 +440,8 @@ const DetailOfflineOrder = ({ order, onClose }) => {
               <Typography variant="subtitle1" sx={{ marginBottom: 1 }}>
                 {`Tanggal Transaksi: ${formattedDate}`}
               </Typography>
-              <Typography variant="body1">
-                {`Alamat: Offline Store`}
+              <Typography variant="subtitle1" sx={{ marginBottom: 1 }}>
+                {`Admin: ${admin ? admin.name : "-"}`}
               </Typography>
               <Typography sx={{ 
                 fontWeight: "bold",
@@ -478,7 +470,7 @@ const DetailOfflineOrder = ({ order, onClose }) => {
             )}
 
             <Divider sx={{ margin: "20px 0" }} />
-            
+
             {order.barang && order.barang.length > 0 && (
               <Box sx={{ marginTop: "20px" }}>
                 <Typography variant="h6" sx={{ 
@@ -505,8 +497,7 @@ const DetailOfflineOrder = ({ order, onClose }) => {
               </Box>
             )}
 
-            {/* New section for standalone add-ons */}
-            {order.addon && order.addon.length > 0 && (
+            {order.addOns && order.addOns.length > 0 && (
               <Box sx={{ marginTop: "20px" }}>
                 <Typography variant="h6" sx={{ 
                   marginBottom: 2,
@@ -515,7 +506,7 @@ const DetailOfflineOrder = ({ order, onClose }) => {
                 }}>
                   Add-Ons
                 </Typography>
-                <Box>{renderStandaloneAddons(order.addon)}</Box>
+                <Box>{renderAddOns(order.addOns)}</Box>
               </Box>
             )}
 
