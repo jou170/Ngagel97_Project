@@ -18,6 +18,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Pagination,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -34,6 +35,8 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(localizedFormat);
 
+const ITEMS_PER_PAGE = 10;
+
 const SalesPage = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -41,6 +44,7 @@ const SalesPage = () => {
   const [users, setUsers] = useState([]);
   const [groupedData, setGroupedData] = useState({});
   const [openPreview, setOpenPreview] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const previewRef = useRef(null);
 
   const formatCurrency = (amount) => `Rp. ${amount.toLocaleString("id-ID")},-`;
@@ -98,7 +102,32 @@ const SalesPage = () => {
     );
 
     setGroupedData(sortedGrouped);
+    setCurrentPage(1); // Reset to first page when data changes
   };
+
+  const getDateRangeHeader = (transactions) => {
+    const dates = [...new Set(transactions.map(t => dayjs(t.createdAt).format("DD/MM/YYYY")))];
+    dates.sort();
+    
+    if (dates.length === 1) {
+      return dates[0];
+    } else if (dates.length > 1) {
+      return `${dates[0]} - ${dates[dates.length - 1]}`;
+    }
+    return "";
+  };
+
+  // Get paginated data
+  const getPaginatedTransactions = () => {
+    const allTransactions = Object.values(groupedData).flat();
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return allTransactions.slice(startIndex, endIndex);
+  };
+
+  const pageCount = Math.ceil(
+    Object.values(groupedData).flat().length / ITEMS_PER_PAGE
+  );
 
   const calculateGrandTotal = () => {
     return Object.values(groupedData).reduce((grandTotal, dateTransactions) => {
@@ -144,6 +173,10 @@ const SalesPage = () => {
     groupTransactionsByDate();
   };
 
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
+
   const handleDownloadPDF = () => {
     const input = previewRef.current;
   
@@ -169,7 +202,6 @@ const SalesPage = () => {
         let yPosition = margins + 15;
   
         try {
-          // Adding the logo image
           const logoWidth = 20;
           const logoHeight = 20;
           pdf.addImage('/image/Ngagel97Logo.png', 'PNG', margins, margins, logoWidth, logoHeight);
@@ -177,7 +209,6 @@ const SalesPage = () => {
           console.error('Error adding logo:', error);
         }
   
-        // Header Text
         pdf.setFont("helvetica", "bold");
         pdf.setFontSize(16);
         pdf.text("Toko Print Ngagel97", 105, yPosition, { align: "center" });
@@ -212,18 +243,19 @@ const SalesPage = () => {
       })
       .catch((err) => console.error("Error generating PDF:", err));
   };
-  
 
-  const renderTransactionTable = (dateTransactions, date) => {
-    const totalTransaction = dateTransactions.reduce(
+  const renderTransactionTable = () => {
+    const paginatedTransactions = getPaginatedTransactions();
+    const dateRangeHeader = getDateRangeHeader(paginatedTransactions);
+    const totalTransaction = paginatedTransactions.reduce(
       (acc, transaction) => acc + transaction.total,
       0
     );
 
     return (
-      <div key={date}>
+      <div>
         <Typography variant="h6" gutterBottom>
-          Tanggal: {date}
+          Tanggal: {dateRangeHeader}
         </Typography>
         <TableContainer component={Paper}>
           <Table>
@@ -237,7 +269,7 @@ const SalesPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {dateTransactions.map((transaction, index) => (
+              {paginatedTransactions.map((transaction, index) => (
                 <TableRow key={index}>
                   <TableCell>{transaction.idTransaksi}</TableCell>
                   <TableCell>{transaction.userName}</TableCell>
@@ -334,9 +366,15 @@ const SalesPage = () => {
             )}
           </Paper>
           <Paper sx={{ p: 3 }}>
-            {Object.entries(groupedData).map(([date, dateTransactions]) =>
-              renderTransactionTable(dateTransactions, date)
-            )}
+            {renderTransactionTable()}
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 2 }}>
+              <Pagination
+                count={pageCount}
+                page={currentPage}
+                onChange={handlePageChange}
+                color="primary"
+              />
+            </Box>
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
               <Typography variant="h6">
                 <strong>
@@ -359,9 +397,7 @@ const SalesPage = () => {
               sx={{ width: "100%", bgcolor: "white", p: 2 }}
               ref={previewRef}
             >
-              {Object.entries(groupedData).map(([date, dateTransactions]) =>
-                renderTransactionTable(dateTransactions, date)
-              )}
+              {renderTransactionTable()}
               <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
                 <Typography variant="h6">
                   <strong>
