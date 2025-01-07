@@ -85,7 +85,7 @@ const DashboardPage = () => {
           }}
         >
           <Typography variant="h5" sx={{ color: "white" }}>
-            Dashboard Penjualan
+            Sales Dashboard
           </Typography>
         </Box>
 
@@ -93,25 +93,25 @@ const DashboardPage = () => {
         <Grid container spacing={3} sx={{ mt: 3 }}>
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 3, textAlign: "center" }}>
-              <Typography variant="h6">Total Transaksi Terjadi</Typography>
+              <Typography variant="h6">Total Transactions</Typography>
               <Typography variant="h4">{totalTransactions}</Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 3, textAlign: "center" }}>
-              <Typography variant="h6">Total Pendapatan</Typography>
+              <Typography variant="h6">Total Earning</Typography>
               <Typography variant="h4">Rp {totalRevenue.toLocaleString()}</Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 3, textAlign: "center" }}>
-              <Typography variant="h6">Transaksi Offline</Typography>
+              <Typography variant="h6">Offline Transactions</Typography>
               <Typography variant="h4">{offlineTransactions}</Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 3, textAlign: "center" }}>
-              <Typography variant="h6">Transaksi Hari Ini</Typography>
+              <Typography variant="h6">Transactions Today</Typography>
               <Typography variant="h4">{transactionsToday}</Typography>
             </Paper>
           </Grid>
@@ -122,7 +122,7 @@ const DashboardPage = () => {
           <Paper sx={{ p: 3 }}>
             {transactions.length === 0 ? (
               <Typography variant="h6" align="center" color="text.secondary">
-                Tidak ada data transaksi
+                No transaction data available
               </Typography>
             ) : (
               <Line
@@ -132,7 +132,7 @@ const DashboardPage = () => {
                   ),
                   datasets: [
                     {
-                      label: "Total Transaksi",
+                      label: "Total Transactions",
                       data: transactions.map((t) => t.total || 0),
                       borderColor: "rgba(75, 192, 192, 1)",
                       backgroundColor: "rgba(75, 192, 192, 0.5)",
@@ -148,7 +148,7 @@ const DashboardPage = () => {
                     },
                     title: {
                       display: true,
-                      text: "Grafik Total Transaksi",
+                      text: "Total Transaction Chart",
                     },
                   },
                 }}

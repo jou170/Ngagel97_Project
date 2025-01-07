@@ -13,13 +13,13 @@ import { useRouter } from "next/navigation";
 import CenterLoading from "../../(public)/components/CenterLoading";
 
 const TransactionOrderPage = () => {
-  const [orders, setOrders] = useState([]); // State untuk menyimpan data transaksi
-  const [loading, setLoading] = useState(true); // State untuk loading indicator
-  const [error, setError] = useState(null); // State untuk menampilkan error
-  const [users, setUsers] = useState({}); // State untuk menyimpan data user
+  const [orders, setOrders] = useState([]); // State to store transaction data
+  const [loading, setLoading] = useState(true); // State for loading indicator
+  const [error, setError] = useState(null); // State to display errors
+  const [users, setUsers] = useState({}); // State to store user data
   const router = useRouter();
 
-  // Fetch data dari API saat komponen pertama kali dimuat
+  // Fetch data from API when component first loads
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
@@ -78,13 +78,13 @@ const TransactionOrderPage = () => {
         </Alert>
       )}
 
-      {/* Tampilkan Data Transaksi */}
+      {/* Display Transaction Data */}
       <Box display="flex" flexDirection="column" gap="20px">
         {orders.length > 0
           ? orders.map((order) => (
               <Paper
                 key={order._id}
-                onClick={() => router.push(`/admin/order/${order._id}`)} // Navigasi ke halaman detail
+                onClick={() => router.push(`/admin/order/${order._id}`)} // Navigate to detail page
                 sx={{
                   padding: "20px",
                   display: "flex",
@@ -98,23 +98,23 @@ const TransactionOrderPage = () => {
                   },
                 }}
               >
-                {/* Kiri: Detail Produk */}
+                {/* Left: Product Details */}
                 <Box display="flex" alignItems="center" gap="15px">
                   <Box>
-                    <Typography variant="h6">{`Pembelian Oleh : ${
+                    <Typography variant="h6">{`Purchase By: ${
                       users[order.userId]?.name || "-"
                     }`}</Typography>
                     <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
-                      Alamat: {order.alamat}
+                      Location: {order.alamat}
                     </Typography>
                   </Box>
                 </Box>
 
-                {/* Kanan: Status Pesanan */}
+                {/* Right: Order Status */}
                 <Box textAlign="right">
                   <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                    Pembelian pada{" "}
-                    {new Date(order.createdAt).toLocaleString("id-ID", {
+                    Purchase On{" "}
+                    {new Date(order.createdAt).toLocaleString("en-US", {
                       weekday: "long",
                       year: "numeric",
                       month: "long",
@@ -157,7 +157,7 @@ const TransactionOrderPage = () => {
                 color="textSecondary"
                 textAlign="center"
               >
-                Tidak ada pesanan yang belum selesai.
+                No pending orders.
               </Typography>
             )}
       </Box>

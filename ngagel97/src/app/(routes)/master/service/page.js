@@ -117,7 +117,7 @@ const ServicesPage = () => {
                 variant="outlined"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Ketik nama jasa..."
+                placeholder="Type Service Name"
                 sx={{
                   backgroundColor: "white",
                   borderRadius: "8px",

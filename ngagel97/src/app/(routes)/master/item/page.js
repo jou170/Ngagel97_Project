@@ -134,7 +134,7 @@ const ItemPage = () => {
               </Typography>
               <TextField
                 variant="outlined"
-                placeholder="Ketik nama barang..."
+                placeholder="Type Item Name"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 sx={{

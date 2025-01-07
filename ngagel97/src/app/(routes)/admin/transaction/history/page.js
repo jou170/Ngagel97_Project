@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import CenterLoading from "@/app/(routes)/(public)/components/CenterLoading";
 
 const TransactionHistoryPage = () => {
-  const [orders, setOrders] = useState([]); // State for all transactions
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
-  const [users, setUsers] = useState({}); // State for online users
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [users, setUsers] = useState({});
   const router = useRouter();
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const TransactionHistoryPage = () => {
 
         // Fetch user data only for valid userIds
         const onlineUserPromises = onlineData.data.orders
-          .filter((order) => order.userId) // Ensure userId exists
+          .filter((order) => order.userId)
           .map((order) =>
             fetch(`/api/user/${order.userId}`)
               .then((res) => (res.ok ? res.json() : null))
@@ -101,20 +101,18 @@ const TransactionHistoryPage = () => {
                   "&:hover": { backgroundColor: "#f5f5f5" },
                 }}
               >
-                {/* {console.log(order)} */}
-
                 <Box display="flex" alignItems="center" gap="15px">
                   <Box>
                     <Typography variant="h6">
                       {order.isOnline === true
-                        ? `Pembelian Oleh : ${
+                        ? `Purchase By: ${
                             users[order.userId]?.name || "Unknown User"
                           }`
-                        : `Pembelian Offline Dengan ID : ${order.idTransaksi}`}
+                        : `Offline Purchase ID: ${order.idTransaksi}`}
                     </Typography>
                     <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
                       {order.isOnline === true
-                        ? `Alamat : ${order.alamat || "Alamat tidak tersedia"}`
+                        ? `Address: ${order.alamat || "Address not available"}`
                         : ""}
                     </Typography>
                   </Box>
@@ -122,9 +120,9 @@ const TransactionHistoryPage = () => {
 
                 <Box textAlign="right">
                   <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                    Pembelian pada{" "}
+                    Purchase on{" "}
                     {order.createdAt
-                      ? new Date(order.updatedAt).toLocaleString("id-ID", {
+                      ? new Date(order.updatedAt).toLocaleString("en-US", {
                           weekday: "long",
                           year: "numeric",
                           month: "long",
@@ -133,7 +131,7 @@ const TransactionHistoryPage = () => {
                           minute: "numeric",
                           timeZone: "Asia/Jakarta",
                         })
-                      : "Tanggal tidak tersedia"}
+                      : "Date not available"}
                   </Typography>
                   <Button
                     variant="contained"
@@ -157,7 +155,7 @@ const TransactionHistoryPage = () => {
                 color="textSecondary"
                 textAlign="center"
               >
-                Tidak ada riwayat transaksi.
+                No transaction history available.
               </Typography>
             )}
       </Box>

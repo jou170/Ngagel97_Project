@@ -64,19 +64,18 @@ export default function ItemForm({ mode = "add", id }) {
 
   const schema = Joi.object({
     nama: Joi.string().min(3).required().messages({
-      "string.base": `"Nama" harus berupa teks`,
-      "string.empty": `"Nama" tidak boleh kosong`,
-      "string.min": `"Nama" minimal {#limit} karakter`,
+      "string.base": `"Name" Must be Text`,
+      "string.empty": `"Name" Can't be empty`,
+      "string.min": `"Name" Minimum Character is {#limit}`,
     }),
     harga: Joi.number().min(100).positive().required().messages({
-      "number.base": `"Harga" harus berupa angka`,
-      "number.min": `"Harga" minimal Rp 100,-`,
-      "number.positive": `"Harga" harus angka positif`,
-      "number.empty": `"Harga" tidak boleh kosong`,
+      "number.base": `"Price" Must be Number`,
+      "number.min": `"Price" Minimum is Rp 100,-`,
+      "number.positive": `"Price" Must be more than 0`,
     }),
     deskripsi: Joi.string().required().messages({
-      "string.base": `"Deskripsi" harus berupa teks`,
-      "string.empty": `"Deskripsi" tidak boleh kosong`,
+      "string.base": `"Description" Must be a Text`,
+      "string.empty": `"Description" Can't be Empty`,
     }),
   });
 
@@ -171,9 +170,9 @@ export default function ItemForm({ mode = "add", id }) {
             gap={2}
             width="100%"
           >
-            <Typography variant="body1">Nama</Typography>
+            <Typography variant="body1">Name</Typography>
             <TextField
-              label="Masukkan Nama Barang "
+              label="Insert Item Name"
               variant="outlined"
               fullWidth
               value={watch("nama") || ""}
@@ -182,9 +181,9 @@ export default function ItemForm({ mode = "add", id }) {
               helperText={errors.nama?.message}
             />
 
-            <Typography variant="body1">Harga</Typography>
+            <Typography variant="body1">Price</Typography>
             <TextField
-              label="Masukkan Harga Barang"
+              label="Insert Item Price"
               variant="outlined"
               fullWidth
               type="number"
@@ -194,10 +193,10 @@ export default function ItemForm({ mode = "add", id }) {
               helperText={errors.harga?.message}
             />
 
-            <Typography variant="body1">Deskripsi</Typography>
+            <Typography variant="body1">Description</Typography>
             <Textarea
               minRows={4}
-              placeholder="Masukkan Deskripsi Barang"
+              placeholder="Insert Item Description"
               value={watch("deskripsi") || ""}
               {...register("deskripsi")}
               style={{ borderColor: errors.deskripsi ? "red" : undefined }}
@@ -213,7 +212,7 @@ export default function ItemForm({ mode = "add", id }) {
               color="success"
               sx={{ marginTop: 2, borderRadius: 3, backgroundColor: "#493628" }}
             >
-              {mode === "add" ? "Tambah Barang" : "Perbarui Barang"}
+              {mode === "add" ? "Add Items" : "Update Item"}
             </Button>
           </Box>
         </Box>

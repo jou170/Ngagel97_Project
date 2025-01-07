@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  useTheme,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -32,6 +33,7 @@ const TransactionDetailPage = () => {
   const [error, setError] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [actionType, setActionType] = useState(null);
+  const theme = useTheme();
 
   const fetchTransaction = async () => {
     try {
@@ -104,28 +106,33 @@ const TransactionDetailPage = () => {
   if (error) return <Typography>Error: {error}</Typography>;
 
   return (
-    <Box sx={{ backgroundColor: "#D6C0B3", minHeight: "100vh", padding: 4 }}>
+    <Box sx={{minHeight: "100vh", padding: 4 }}>
       {/* Header Section */}
       <Box mb={4}>
         <Grid2 container alignItems="center" spacing={2}>
           <Grid2 xs={12} sm={6}>
             <IconButton
               onClick={() => router.push("/admin/order")}
-              sx={{ backgroundColor: "#D6C0B3" }}
+              sx={{
+                backgroundColor: theme.palette.primary.main,
+                color: "white",
+                borderRadius: "50%",
+                boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)",
+              }}
             >
               <ArrowBackIcon />
             </IconButton>
           </Grid2>
           <Grid2 xs={12} sm={6}>
-            <Typography variant="h4" fontWeight="bold">
-              Detail Order
+            <Typography variant="h4" fontWeight="bold" color="primary">
+              Order Details
             </Typography>
           </Grid2>
         </Grid2>
       </Box>
 
       {/* Order Details */}
-      <Card elevation={3} sx={{ marginBottom: 4 }}>
+      <Card elevation={5} sx={{ marginBottom: 4, borderRadius: 2, overflow: "hidden" }}>
         <CardContent>
           <Typography variant="h6" fontWeight="bold" gutterBottom>
             Order Information
@@ -134,24 +141,24 @@ const TransactionDetailPage = () => {
             <strong>Order ID:</strong> {order.idTransaksi}
           </Typography>
           <Typography variant="body1">
-            <strong>Nama Pemesan:</strong> {user?.name || "-"}
+            <strong>Customer Name:</strong> {user?.name || "-"}
           </Typography>
           <Typography variant="body1">
-            <strong>Nomor Telepon:</strong> {user?.phone_number || "-"}
+            <strong>Phone Number:</strong> {user?.phone_number || "-"}
           </Typography>
           <Typography variant="body1">
-            <strong>Alamat:</strong> {order.alamat || "-"}
+            <strong>Address:</strong> {order.alamat || "-"}
           </Typography>
           <Typography variant="body1">
-            <strong>Catatan:</strong> {order.notes || "-"}
+            <strong>Notes:</strong> {order.notes || "-"}
           </Typography>
           <Typography variant="body1">
-            <strong>Total Harga:</strong> Rp. {order.total || "-"}
+            <strong>Total Price:</strong> Rp. {order.total || "-"}
           </Typography>
         </CardContent>
       </Card>
 
-      {/* List Jasa */}
+      {/* List of Services */}
       <Typography variant="h6" fontWeight="bold" gutterBottom>
         Services and Add-Ons
       </Typography>
@@ -161,9 +168,11 @@ const TransactionDetailPage = () => {
             <Card
               elevation={3}
               sx={{
-                width: 637,
-                height: 300,
+                borderRadius: 2,
+                height: "100%",
+                boxShadow: "0px 2px 15px rgba(0, 0, 0, 0.1)",
                 position: "relative",
+                paddingBottom: "60px", // Added padding bottom to avoid overlap with button
               }}
             >
               <CardContent>
@@ -171,13 +180,9 @@ const TransactionDetailPage = () => {
                   {jasa.nama}
                 </Typography>
                 <Typography variant="body1">
-                  Sebanyak: {jasa.lembar} Lembar | Jumlah Copy: {jasa.qty} | Harga: Rp. {jasa.harga}
+                  Quantity: {jasa.lembar} Sheets | Copies: {jasa.qty} | Price: Rp. {jasa.harga}
                 </Typography>
-                <Typography
-                  variant="body2"
-                  color="textSecondary"
-                  sx={{ marginTop: 1 }}
-                >
+                <Typography variant="body2" color="textSecondary" sx={{ marginTop: 1 }}>
                   Notes: {jasa.notes || "-"}
                 </Typography>
                 {jasa.addOns.length > 0 && (
@@ -187,10 +192,9 @@ const TransactionDetailPage = () => {
                     </Typography>
                     {jasa.addOns.map((addOn, idx) => (
                       <Typography key={idx} variant="body2">
-                        - {addOn.nama} dengan jumlah tiap{" "}
-                        {addOn.tipeHarga === "lembar" ? "lembar" : "copy"}{" "}
-                        {addOn.qty}{" "}
-                        seharga Rp. {addOn.harga}{" "}
+                        - {addOn.nama} with {addOn.qty}{" "}
+                        {addOn.tipeHarga === "lembar" ? "sheet" : "copy"}{" "}
+                        priced at Rp. {addOn.harga}
                       </Typography>
                     ))}
                   </Box>
@@ -203,6 +207,10 @@ const TransactionDetailPage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     color="primary"
+                    sx={{
+                      backgroundColor: theme.palette.background.default,
+                      borderRadius: "50%",
+                    }}
                   >
                     <DownloadIcon />
                   </IconButton>
@@ -219,13 +227,14 @@ const TransactionDetailPage = () => {
           <Button
             variant="contained"
             color="warning"
-            shape="rounded"
             onClick={() => handleOpenDialog("deliver")}
             sx={{
               textTransform: "none",
               fontSize: 18,
               width: { xs: "100%", sm: "80%", md: "60%" },
               height: 50,
+              borderRadius: "8px",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.15)",
             }}
           >
             Deliver Order
@@ -235,13 +244,14 @@ const TransactionDetailPage = () => {
           <Button
             variant="contained"
             color="success"
-            shape="rounded"
             onClick={() => handleOpenDialog("complete")}
             sx={{
               textTransform: "none",
               fontSize: 18,
               width: { xs: "100%", sm: "80%", md: "60%" },
               height: 50,
+              borderRadius: "8px",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.15)",
             }}
           >
             Complete Order
@@ -257,8 +267,7 @@ const TransactionDetailPage = () => {
             Are you sure you want to{" "}
             {actionType === "deliver"
               ? "deliver this order"
-              : "mark this order as completed"}
-            ?
+              : "mark this order as completed"}?
           </Typography>
         </DialogContent>
         <DialogActions>

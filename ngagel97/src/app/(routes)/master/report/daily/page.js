@@ -30,13 +30,13 @@ const DailySalesReport = () => {
         const data = await response.json();
 
         // Filter transactions for today
-        const today = new Date().toLocaleDateString("id-ID", {
+        const today = new Date().toLocaleDateString("en-US", {
           timeZone: "Asia/Jakarta",
         });
         const filteredTransactions = data.data.orders.filter((transaction) => {
-          // Konversi waktu UTC ke waktu lokal Indonesia (WIB)
+          // Convert UTC time to local Indonesian time (WIB)
           const localDate = new Date(transaction.createdAt).toLocaleDateString(
-            "id-ID",
+            "en-US",
             {
               timeZone: "Asia/Jakarta",
             }
@@ -66,7 +66,7 @@ const DailySalesReport = () => {
     // Set font size and bold for the store name only
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
-    doc.text("Toko Print Ngagel97", 104, 20, null, null, "center");
+    doc.text("Print Shop Ngagel97", 104, 20, null, null, "center");
 
     // Set font size and regular for the rest of the text
     doc.setFontSize(12);
@@ -78,7 +78,7 @@ const DailySalesReport = () => {
 
     // Add store details (centered)
     doc.text(
-      "Jl. Ngagel Jaya Tengah No.69, Baratajaya, Kec. Gubeng, Surabaya, Jawa Timur 60284",
+      "Jl. Ngagel Jaya Tengah No.69, Baratajaya, Kec. Gubeng, Surabaya, East Java 60284",
       textX,
       25,
       null,
@@ -87,10 +87,10 @@ const DailySalesReport = () => {
     );
     doc.text("Contact Number: (031) 5027852", textX, 30, null, null, "center");
 
-    // Add space between "Contact Number" and "Laporan Penjualan Harian"
+    // Add space between "Contact Number" and "Daily Sales Report"
     const spaceAfterContact = 10; // Adjust this value to increase/decrease the space
     doc.text(
-      "Laporan Penjualan Harian",
+      "Daily Sales Report",
       textX,
       35 + spaceAfterContact,
       null,
@@ -99,8 +99,8 @@ const DailySalesReport = () => {
     );
 
     doc.text(
-      "Per tanggal " +
-        new Date().toLocaleDateString("id-ID", {
+      "As of " +
+        new Date().toLocaleDateString("en-US", {
           day: "numeric",
           month: "long",
           year: "numeric",
@@ -110,7 +110,7 @@ const DailySalesReport = () => {
           timeZone: "Asia/Jakarta",
         }),
       textX,
-      40 + spaceAfterContact, // Adjust this value to add space after "Per tanggal"
+      40 + spaceAfterContact, // Adjust this value to add space after "As of"
       null,
       null,
       "center"
@@ -124,12 +124,12 @@ const DailySalesReport = () => {
 
     // Column names for the table
     const tableColumn = [
-      "Waktu",
-      "Produk",
-      "Jumlah",
-      "Harga Satuan",
+      "Time",
+      "Product",
+      "Quantity",
+      "Unit Price",
       "Subtotal",
-      "Jenis Pembayaran",
+      "Payment Type",
       "Total",
     ];
 
@@ -141,16 +141,16 @@ const DailySalesReport = () => {
     transactions.forEach((transaction) => {
       transaction.jasa.forEach((jasa, jasaIndex) => {
         // Main row for jasa
-        const waktu =
+        const time =
           jasaIndex === 0
-            ? new Intl.DateTimeFormat("id-ID", {
+            ? new Intl.DateTimeFormat("en-US", {
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: false,
                 timeZone: "Asia/Jakarta",
               }).format(new Date(transaction.createdAt))
             : "";
-        const jenisPembayaran =
+        const paymentType =
           jasaIndex === 0 ? (transaction.isOnline ? "Online" : "Offline") : "";
         const total =
           jasaIndex === 0
@@ -158,12 +158,12 @@ const DailySalesReport = () => {
             : "";
 
         tableRows.push([
-          waktu,
-          `Jasa: ${jasa.nama}`,
-          `${jasa.lembar * jasa.qty || 0} lembar`,
+          time,
+          `Service: ${jasa.nama}`,
+          `${jasa.lembar * jasa.qty || 0} sheets`,
           `Rp ${jasa.harga.toLocaleString("id-ID")}`,
           `Rp ${(jasa.harga * jasa.lembar * jasa.qty).toLocaleString("id-ID")}`,
-          jenisPembayaran,
+          paymentType,
           total,
         ]);
 
@@ -187,11 +187,11 @@ const DailySalesReport = () => {
         });
       });
 
-      // Render for barang
+      // Render for items
       transaction.barang.forEach((barang) => {
         tableRows.push([
           "",
-          `Barang: ${barang.nama}`,
+          `Item: ${barang.nama}`,
           `${barang.qty} pcs`,
           `Rp ${barang.harga.toLocaleString("id-ID")}`,
           `Rp ${barang.subtotal.toLocaleString("id-ID")}`,
@@ -229,7 +229,7 @@ const DailySalesReport = () => {
 
     // Add total sales
     doc.text(
-      `Total Penjualan Harian: Rp. ${totalRevenueFromTable.toLocaleString(
+      `Total Daily Sales: Rp. ${totalRevenueFromTable.toLocaleString(
         "id-ID"
       )}`,
       textX,
@@ -243,19 +243,19 @@ const DailySalesReport = () => {
   return (
     <Box sx={{ minHeight: "100vh", padding: "20px" }}>
       <Typography variant="h4" mb={3} color="black">
-        Laporan Penjualan Harian
+        Daily Sales Report
       </Typography>
 
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Waktu</TableCell>
-              <TableCell>Produk</TableCell>
-              <TableCell>Jumlah</TableCell>
-              <TableCell>Harga Satuan</TableCell>
+              <TableCell>Time</TableCell>
+              <TableCell>Product</TableCell>
+              <TableCell>Quantity</TableCell>
+              <TableCell>Unit Price</TableCell>
               <TableCell>Subtotal</TableCell>
-              <TableCell>Jenis Pembayaran</TableCell>
+              <TableCell>Payment Type</TableCell>
               <TableCell>Total</TableCell>
             </TableRow>
           </TableHead>
@@ -264,12 +264,12 @@ const DailySalesReport = () => {
               const totalAddOns = transaction.jasa.reduce(
                 (acc, jasa) => acc + jasa.addOns.length,
                 0
-              ); // Total add-ons dari semua jasa
+              ); // Total add-ons from all services
               const totalRows =
                 transaction.jasa.length +
                 totalAddOns +
                 transaction.barang.length +
-                transaction.addOns.length; // Total baris untuk rowSpan
+                transaction.addOns.length; // Total rows for rowSpan
 
               return (
                 <React.Fragment
@@ -283,7 +283,7 @@ const DailySalesReport = () => {
                       <TableRow>
                         {jasaIndex === 0 && (
                           <TableCell rowSpan={totalRows}>
-                            {new Intl.DateTimeFormat("id-ID", {
+                            {new Intl.DateTimeFormat("en-US", {
                               hour: "2-digit",
                               minute: "2-digit",
                               hour12: false,
@@ -291,9 +291,9 @@ const DailySalesReport = () => {
                             }).format(new Date(transaction.createdAt))}
                           </TableCell>
                         )}
-                        <TableCell>Jasa: {jasa.nama}</TableCell>
+                        <TableCell>Service: {jasa.nama}</TableCell>
                         <TableCell>
-                          {jasa.lembar * jasa.qty || 0} lembar
+                          {jasa.lembar * jasa.qty || 0} sheets
                         </TableCell>
                         <TableCell>
                           Rp {jasa.harga.toLocaleString("id-ID")}
@@ -334,7 +334,7 @@ const DailySalesReport = () => {
                   {/* Render for barang */}
                   {transaction.barang.map((barang, barangIndex) => (
                     <TableRow key={`barang-${barangIndex}`}>
-                      <TableCell>Barang: {barang.nama}</TableCell>
+                      <TableCell>Item: {barang.nama}</TableCell>
                       <TableCell>{barang.qty} pcs</TableCell>
                       <TableCell>
                         Rp {barang.harga.toLocaleString("id-ID")}
@@ -366,7 +366,7 @@ const DailySalesReport = () => {
       </TableContainer>
 
       <Button variant="contained" onClick={generatePDF} sx={{ marginTop: 3 }}>
-        Unduh Laporan PDF
+        Download PDF Report
       </Button>
     </Box>
   );

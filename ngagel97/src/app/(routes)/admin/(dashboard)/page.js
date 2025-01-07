@@ -6,17 +6,16 @@ import {
   Paper,
   Button,
   Alert,
-  Grid2,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import CenterLoading from "../../(public)/components/CenterLoading";
 
 const DashboardPage = () => {
-  const [recentOrders, setRecentOrders] = useState([]); // 3 recent orders
-  const [recentHistory, setRecentHistory] = useState([]); // 3 recent history
-  const [users, setUsers] = useState({}); // Map untuk menyimpan user data
-  const [loading, setLoading] = useState(true); // State untuk loading
-  const [error, setError] = useState(null); // State untuk error handling
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [recentHistory, setRecentHistory] = useState([]);
+  const [users, setUsers] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -38,26 +37,30 @@ const DashboardPage = () => {
         const historyData = await historyResponse.json();
         const recentHistoryData = historyData.data.orders.slice(0, 3);
 
-        // Extract unique userIds
+        // Extract unique userIds from both orders and history
         const userIds = [
-          ...new Set(
-            [...recentOrdersData, ...recentHistoryData]
-              .filter((entry) => entry.userId) // Hanya ambil data dengan userId valid
-              .map((entry) => entry.userId)
-          ),
+          ...new Set([
+            ...recentOrdersData.map(order => order.userId),
+            ...recentHistoryData.map(history => history.userId)
+          ].filter(Boolean))
         ];
 
         // Fetch user data for each userId
-        const userPromises = userIds.map((userId) =>
-          fetch(`/api/user/${userId}`).then((res) =>
-            res.ok ? res.json() : Promise.reject("Failed to fetch user data")
-          )
+        const usersMap = {};
+        await Promise.all(
+          userIds.map(async (userId) => {
+            try {
+              const userResponse = await fetch(`/api/user/${userId}`);
+              if (userResponse.ok) {
+                const userData = await userResponse.json();
+                usersMap[userId] = userData.data.user;
+              }
+            } catch (error) {
+              console.error(`Failed to fetch user data for ID ${userId}:`, error);
+              usersMap[userId] = { name: "Offline Transaction" }; // Fallback for failed user fetch
+            }
+          })
         );
-        const usersData = await Promise.all(userPromises);
-        const usersMap = usersData.reduce((acc, userData) => {
-          acc[userData.data.user._id] = userData.data.user;
-          return acc;
-        }, {});
 
         setUsers(usersMap);
         setRecentOrders(recentOrdersData);
@@ -72,11 +75,31 @@ const DashboardPage = () => {
     fetchDashboardData();
   }, []);
 
+  const getUserName = (userId) => {
+    return users[userId]?.name || "Offline Transaction";
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
   if (loading) return <CenterLoading />;
 
   return (
     <Box sx={{ minHeight: "100vh", padding: "20px" }}>
-      {/* Judul Dashboard */}
+      {/* Dashboard Title */}
       <Typography variant="h4" mb={3} color="black" fontWeight="bold">
         DASHBOARD
       </Typography>
@@ -112,11 +135,9 @@ const DashboardPage = () => {
               }}
             >
               <Box>
-                <Typography variant="h6">
-                  {users[order.userId]?.name || "Unknown User"}
-                </Typography>
+                <Typography variant="h6">{getUserName(order.userId)}</Typography>
                 <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
-                  Alamat: {order.alamat}
+                  Location: {order.alamat || "Offline Store"}
                 </Typography>
               </Box>
               <Button
@@ -184,11 +205,12 @@ const DashboardPage = () => {
               }}
             >
               <Box>
-                <Typography variant="h6">
-                  {users[history.userId]?.name || "Unknown User"}
-                </Typography>
+                <Typography variant="h6">{getUserName(history.userId)}</Typography>
                 <Typography variant="body1" sx={{ color: "#6d6d6d" }}>
-                  Alamat: {history.alamat || "No address"}
+                  Location: {history.alamat || "Offline Store"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#6d6d6d", mt: 1 }}>
+                  {formatDate(history.createdAt)} • {formatCurrency(history.total)}
                 </Typography>
               </Box>
               <Button
@@ -196,6 +218,9 @@ const DashboardPage = () => {
                 size="small"
                 sx={{
                   backgroundColor: history.isOnline ? "#4caf50" : "#ff9800",
+                  '&:hover': {
+                    backgroundColor: history.isOnline ? "#45a049" : "#f57c00"
+                  }
                 }}
               >
                 {history.isOnline ? "Online" : "Offline"}

@@ -66,23 +66,23 @@ export default function ServiceForm({ mode = "add", id }) {
     setValue,
   } = useForm();
 
-  const schema = Joi.object({
-    nama: Joi.string().min(3).required().messages({
-      "string.base": `"Nama" harus berupa teks`,
-      "string.empty": `"Nama" tidak boleh kosong`,
-      "string.min": `"Nama" harus memiliki minimal {#limit} kata`,
-    }),
-    harga: Joi.number().min(100).positive().required().messages({
-      "number.base": `"Harga" harus berupa angka`,
-      "number.min": `"Harga" minimal Rp 100,-`,
-      "number.positive": `"Harga" harus angka positive`,
-      "number.empty": `"Harga" tidak boleh kosong`,
-    }),
-    deskripsi: Joi.string().required().messages({
-      "string.base": `"Deskripsi" harus berupa teks'`,
-      "string.empty": `"Deskripsi" tidak boleh kosong`,
-    }),
-  });
+    const schema = Joi.object({
+      nama: Joi.string().min(3).required().messages({
+        "string.base": `"Name" Must be Text`,
+        "string.empty": `"Name" Can't be empty`,
+        "string.min": `"Name" Minimum Character is {#limit}`,
+      }),
+      harga: Joi.number().min(100).positive().required().messages({
+        "number.base": `"Harga" harus berupa angka`,
+        "number.min": `"Harga" minimal Rp 100,-`,
+        "number.positive": `"Harga" harus angka positive`,
+        "number.empty": `"Harga" tidak boleh kosong`,
+      }),
+      deskripsi: Joi.string().required().messages({
+        "string.base": `"Description" Must be a Text`,
+        "string.empty": `"Description" Can't be Empty`,
+      }),
+    });
 
   const fetchServiceData = async (id) => {
     try {
@@ -168,7 +168,7 @@ export default function ServiceForm({ mode = "add", id }) {
       });
       if (res.ok) {
         alert(
-          `Jasa berhasil ${mode === "add" ? "ditambahkan" : "diperbarui"}!`
+          `Jasa berhasil ${mode === "add" ? "Add" : "Update"}!`
         );
         router.push("/master/service");
       } else {
@@ -235,9 +235,9 @@ export default function ServiceForm({ mode = "add", id }) {
               {mode === "add" ? "ADD SERVICE" : "EDIT SERVICE"}
             </Typography>
           </Box>
-          <Typography variant="body1">Nama</Typography>
+          <Typography variant="body1">Name</Typography>
           <TextField
-            label="Masukkan Nama Jasa"
+            label="Insert Service Name"
             variant="outlined"
             fullWidth
             value={watch("nama") || ""}
@@ -246,9 +246,9 @@ export default function ServiceForm({ mode = "add", id }) {
             helperText={errors.nama?.message}
           />
 
-          <Typography variant="body1">Harga</Typography>
+          <Typography variant="body1">Price</Typography>
           <TextField
-            label="Masukkan Harga Jasa"
+            label="Insert Service Price"
             variant="outlined"
             fullWidth
             type="number"
@@ -258,10 +258,10 @@ export default function ServiceForm({ mode = "add", id }) {
             helperText={errors.harga?.message}
           />
 
-          <Typography variant="body1">Deskripsi</Typography>
+          <Typography variant="body1">Description</Typography>
           <Textarea
             minRows={4}
-            placeholder="Masukkan Deskripsi Jasa"
+            placeholder="InsertService Description"
             value={watch("deskripsi") || ""}
             {...register("deskripsi")}
             style={{ borderColor: errors.deskripsi ? "red" : undefined }}
@@ -270,7 +270,7 @@ export default function ServiceForm({ mode = "add", id }) {
             <Typography color="error">{errors.deskripsi.message}</Typography>
           )}
 
-          <Typography variant="body1">Upload Gambar</Typography>
+          <Typography variant="body1">Upload Picture</Typography>
           <input type="file" accept="image/*" onChange={handleFileChange} />
 
           <AddonCheckboxes

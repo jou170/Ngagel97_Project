@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation"; // Import useRouter
 import CenterLoading from "../components/CenterLoading";
 
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState([]); // Default sebagai array
+  const [cartItems, setCartItems] = useState([]); // Default as array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
@@ -48,7 +48,7 @@ const CartPage = () => {
   };
 
   const handleRemoveItem = async (id) => {
-    // Delete file dulu
+    // Delete file first
     try {
       await deleteFile(cartItems[id].file);
     } catch (error) {
@@ -72,11 +72,11 @@ const CartPage = () => {
   };
 
   const handleCheckout = () => {
-    router.push("/checkout"); // Navigasi ke halaman checkout
+    router.push("/checkout"); // Navigate to checkout page
   };
 
   const handleCardClick = (index) => {
-    router.push(`/cart/${index}`); // Navigasi ke halaman detail berdasarkan index
+    router.push(`/cart/${index}`); // Navigate to detail page based on index
   };
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
@@ -93,7 +93,7 @@ const CartPage = () => {
         cartItems.map((item, index) => (
           <Card
             key={index}
-            onClick={() => handleCardClick(index)} // Navigasi saat card ditekan
+            onClick={() => handleCardClick(index)} // Navigate when card is clicked
             sx={{
               display: "flex",
               alignItems: "center",
@@ -101,7 +101,7 @@ const CartPage = () => {
               p: 2,
               boxShadow: 2,
               borderRadius: 2,
-              cursor: "pointer", // Tambahkan pointer untuk UX lebih baik
+              cursor: "pointer", // Add pointer for better UX
             }}
           >
             <CardMedia
@@ -113,7 +113,7 @@ const CartPage = () => {
             <CardContent sx={{ flex: 1 }}>
               <Typography variant="h6">{item.nama}</Typography>
               <Typography variant="body1">
-                Harga per lembar: Rp {item.harga.toLocaleString("id-ID")}
+                Price per sheet: Rp {item.harga.toLocaleString("id-ID")}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Pages file: {item.lembar}
@@ -125,11 +125,7 @@ const CartPage = () => {
                 {item.notes ? "Notes: " + item.notes : "No notes provided"}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {`Rincian perhitungan jasa: ${item.lembar} x ${item.qty} x ${
-                  item.harga
-                } = Rp ${(item.lembar * item.qty * item.harga).toLocaleString(
-                  "id-ID"
-                )}`}
+                {`Price breakdown: ${item.lembar} x ${item.qty} x ${item.harga} = Rp ${(item.lembar * item.qty * item.harga).toLocaleString("id-ID")}`}
               </Typography>
               <Typography variant="body1" fontWeight="bold">
                 Price: Rp {item.subtotal.toLocaleString("id-ID")}
@@ -137,46 +133,41 @@ const CartPage = () => {
               <Typography variant="body2" color="text.secondary">
                 AddOn(s):
               </Typography>
-              {item.addOns.length > 0 &&
-                // <Typography variant="body2" color="text.secondary">
-                //   Add-on(s) :{" "}
-                //   {item.addOns
-                //     .map((addOn) => `${addOn.nama} (per ${addOn.tipeHarga})`)
-                //     .join(", ")}
-                // </Typography>
+              {item.addOns.length > 0 && (
                 <Box display="flex" flexWrap="wrap" gap={2}>
-  {item.addOns.map((addOn, index) => (
-    <Box
-      key={index}
-      display="flex"
-      flexDirection="column"
-      alignItems="flex-start"
-      p={1}
-      border="1px solid #ccc"
-      borderRadius={2}
-    >
-      <Typography variant="body2">{addOn.nama}</Typography>
-      <Typography variant="body2" color="textSecondary">
-        {`Harga: Rp ${addOn.harga.toLocaleString("id-ID")} per ${addOn.tipeHarga}`}
-      </Typography>
-      <Typography variant="body2" color="textSecondary">
-        {`Qty: ${addOn.qty}`}
-      </Typography>
-      <Typography variant="body2" color="textSecondary">
-        {`Rincian harga: Rp ${(
-          addOn.harga * addOn.qty
-        ).toLocaleString("id-ID")}`}
-      </Typography>
-    </Box>
-  ))}
-</Box>}
+                  {item.addOns.map((addOn, index) => (
+                    <Box
+                      key={index}
+                      display="flex"
+                      flexDirection="column"
+                      alignItems="flex-start"
+                      p={1}
+                      border="1px solid #ccc"
+                      borderRadius={2}
+                    >
+                      <Typography variant="body2">{addOn.nama}</Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {`Price: Rp ${addOn.harga.toLocaleString("id-ID")} per ${addOn.tipeHarga}`}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {`Qty: ${addOn.qty}`}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {`Price breakdown: Rp ${(
+                          addOn.harga * addOn.qty
+                        ).toLocaleString("id-ID")}`}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </CardContent>
             <Tooltip title="Attach File" sx={{ ml: 2 }}>
               <IconButton
                 color="primary"
-                component="a" // Mengubah IconButton menjadi elemen <a>
+                component="a" // Change IconButton to an <a> element
                 href={item.file}
-                target="_blank" // Membuka file di tab baru
+                target="_blank" // Open file in new tab
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -186,7 +177,7 @@ const CartPage = () => {
             <Box
               display="flex"
               alignItems="center"
-              onClick={(e) => e.stopPropagation()} // Hentikan propagasi klik ke card
+              onClick={(e) => e.stopPropagation()} // Stop click propagation to card
             >
               <TextField
                 size="small"
@@ -203,7 +194,7 @@ const CartPage = () => {
               <IconButton
                 color="error"
                 onClick={(e) => {
-                  e.stopPropagation(); // Hentikan klik propagasi ke card
+                  e.stopPropagation(); // Stop click propagation to card
                   handleRemoveItem(index); // Pass index to identify the item
                 }}
               >
@@ -227,7 +218,7 @@ const CartPage = () => {
         <Button
           variant="contained"
           color="primary"
-          onClick={handleCheckout} // Panggil handleCheckout saat tombol ditekan
+          onClick={handleCheckout} // Call handleCheckout when button is clicked
         >
           Checkout
         </Button>

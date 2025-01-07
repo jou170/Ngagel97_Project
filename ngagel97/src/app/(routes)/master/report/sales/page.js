@@ -78,23 +78,23 @@ const SalesPage = () => {
     const grouped = filteredTransactions.reduce((acc, transaction) => {
       const user = users.find((u) => u._id === transaction.userId);
       const admin = users.find((u) => u._id === transaction.adminId);
-      const userName = user ? user.name : "Transaksi Offline";
+      const userName = user ? user.name : "Offline Transaction";
       const adminName = admin ? admin.name : "-";
       const dateKey = dayjs(transaction.createdAt).format("DD/MM/YYYY");
-  
+
       if (!acc[dateKey]) {
         acc[dateKey] = [];
       }
-  
+
       acc[dateKey].push({
         ...transaction,
         userName,
         adminName,
       });
-  
+
       return acc;
     }, {});
-  
+
     // Sort by date (newest first)
     const sortedGrouped = Object.fromEntries(
       Object.entries(grouped).sort((a, b) => {
@@ -103,16 +103,15 @@ const SalesPage = () => {
         return dateB - dateA;
       })
     );
-  
+
     setGroupedData(sortedGrouped);
     setCurrentPage(1); // Reset to first page when data changes
   };
-  
 
   const getDateRangeHeader = (transactions) => {
-    const dates = [...new Set(transactions.map(t => dayjs(t.createdAt).format("DD/MM/YYYY")))];
+    const dates = [...new Set(transactions.map(t => dayjs(t.createdAt).format("DD/MM/YYYY")))]; 
     dates.sort();
-    
+
     if (dates.length === 1) {
       return dates[0];
     } else if (dates.length > 1) {
@@ -183,18 +182,18 @@ const SalesPage = () => {
 
   const handleDownloadPDF = () => {
     const input = previewRef.current;
-  
+
     const startDateText = startDate
       ? dayjs(startDate).format("DD/MM/YYYY")
-      : "Semua Data";
+      : "All Data";
     const endDateText = endDate
       ? dayjs(endDate).format("DD/MM/YYYY")
-      : "Semua Data";
+      : "All Data";
     const periodText =
       startDate || endDate
-        ? `Periode: ${startDateText} - ${endDateText}`
-        : "Periode: Semua Data";
-  
+        ? `Period: ${startDateText} - ${endDateText}`
+        : "Period: All Data";
+
     html2canvas(input, { scale: 2 })
       .then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
@@ -204,7 +203,7 @@ const SalesPage = () => {
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
         const margins = 20;
         let yPosition = margins + 15;
-  
+
         try {
           const logoWidth = 20;
           const logoHeight = 20;
@@ -212,11 +211,11 @@ const SalesPage = () => {
         } catch (error) {
           console.error('Error adding logo:', error);
         }
-  
+
         pdf.setFont("helvetica", "bold");
         pdf.setFontSize(16);
-        pdf.text("Toko Print Ngagel97", 105, yPosition, { align: "center" });
-  
+        pdf.text("Ngagel97 Print Shop", 105, yPosition, { align: "center" });
+
         pdf.setFont("helvetica", "normal");
         pdf.setFontSize(12);
         pdf.text(
@@ -226,15 +225,15 @@ const SalesPage = () => {
           { align: "center" }
         );
         pdf.text("Contact Number: (031) 5027852", 105, yPosition + 13, { align: "center" });
-  
+
         pdf.setFontSize(14);
-        pdf.text("Laporan Penjualan", 105, yPosition + 23, { align: "center" });
-  
+        pdf.text("Sales Report", 105, yPosition + 23, { align: "center" });
+
         pdf.setFontSize(12);
         pdf.text(periodText, 105, yPosition + 30, { align: "center" });
-  
+
         pdf.addImage(imgData, "PNG", 0, yPosition + 40, imgWidth, imgHeight);
-  
+
         let heightLeft = imgHeight - pageHeight + yPosition + 40;
         while (heightLeft > 0) {
           yPosition -= pageHeight;
@@ -242,7 +241,7 @@ const SalesPage = () => {
           pdf.addImage(imgData, "PNG", 0, yPosition + 40, imgWidth, imgHeight);
           heightLeft -= pageHeight;
         }
-  
+
         pdf.save("sales-report.pdf");
       })
       .catch((err) => console.error("Error generating PDF:", err));
@@ -255,20 +254,20 @@ const SalesPage = () => {
       (acc, transaction) => acc + transaction.total,
       0
     );
-  
+
     return (
       <div>
         <Typography variant="h6" gutterBottom>
-          Tanggal: {dateRangeHeader}
+          Date: {dateRangeHeader}
         </Typography>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow sx={{ bgcolor: "#d7ccc8" }}>
-                <TableCell>ID Transaksi</TableCell>
-                <TableCell>Nama Customer</TableCell>
-                <TableCell>Nama Admin</TableCell>
-                <TableCell>Ongkir</TableCell>
+                <TableCell>Transaction ID</TableCell>
+                <TableCell>Customer Name</TableCell>
+                <TableCell>Admin Name</TableCell>
+                <TableCell>Shipping</TableCell>
                 <TableCell>Subtotal</TableCell>
                 <TableCell>Total</TableCell>
               </TableRow>
@@ -298,7 +297,6 @@ const SalesPage = () => {
       </div>
     );
   };
-  
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -313,7 +311,7 @@ const SalesPage = () => {
             }}
           >
             <Typography variant="h6" sx={{ color: "white" }}>
-              Laporan Penjualan
+              Sales Report
             </Typography>
           </Box>
           <Paper sx={{ p: 3, mb: 3 }}>
@@ -326,7 +324,7 @@ const SalesPage = () => {
               }}
             >
               <DatePicker
-                label="Tanggal Awal"
+                label="Start Date"
                 value={startDate}
                 onChange={(newValue) => setStartDate(newValue)}
                 renderInput={(params) => (
@@ -335,7 +333,7 @@ const SalesPage = () => {
                 format="DD/MM/YYYY"
               />
               <DatePicker
-                label="Tanggal Akhir"
+                label="End Date"
                 value={endDate}
                 onChange={(newValue) => setEndDate(newValue)}
                 renderInput={(params) => (
@@ -368,7 +366,7 @@ const SalesPage = () => {
             </Box>
             {!isDateRangeValid() && (
               <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                Tanggal Awal tidak boleh lebih besar dari Tanggal Akhir.
+                The Start Date cannot be later than the End Date.
               </Typography>
             )}
           </Paper>

@@ -49,13 +49,15 @@ const TransactionDetailPage = () => {
       }
       const userData = await userResponse.json();
       setUser(userData.data.user);
-      if(data.data.adminId){
-      const adminResponse = await fetch(`/api/user/${data.data.adminId}`);
-      if (!adminResponse.ok) {
-        throw new Error("Failed to fetch user data");
+
+      if (data.data.adminId) {
+        const adminResponse = await fetch(`/api/user/${data.data.adminId}`);
+        if (!adminResponse.ok) {
+          throw new Error("Failed to fetch admin data");
+        }
+        const adminData = await adminResponse.json();
+        setAdmin(adminData.data.user);
       }
-      const adminData = await adminResponse.json();
-      setAdmin(adminData.data.user);}
     } catch (err) {
       setError(err.message);
     } finally {
@@ -112,58 +114,82 @@ const TransactionDetailPage = () => {
   if (error) return <Typography>Error: {error}</Typography>;
 
   return (
-    <Box sx={{ backgroundColor: "#D6C0B3", minHeight: "100vh", padding: 4 }}>
+    <Box
+      sx={{ 
+        minHeight: "100vh",
+        padding: 4,
+        fontFamily: "Roboto, sans-serif",
+      }}
+    >
       {/* Header Section */}
       <Box mb={4}>
         <Grid2 container alignItems="center" spacing={2}>
           <Grid2 xs={12} sm={6}>
             <IconButton
               onClick={() => router.push("/admin/transaction/history")}
-              sx={{ backgroundColor: "#D6C0B3" }}
+              sx={{
+                backgroundColor: "#FFFFFF",
+                boxShadow: 1,
+                "&:hover": { backgroundColor: "#E0E0E0" },
+              }}
             >
               <ArrowBackIcon />
             </IconButton>
           </Grid2>
-          <Grid2 xs={12} sm={6}>
-            <Typography variant="h4" fontWeight="bold">
-              Detail History
+          <Grid2 xs={12} sm={6} textAlign={{ xs: "center", sm: "right" }}>
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+              sx={{ color: "#333333" }}
+            >
+              Transaction Details
             </Typography>
           </Grid2>
         </Grid2>
       </Box>
 
       {/* Order Details */}
-      <Card elevation={3} sx={{ marginBottom: 4 }}>
+      <Card elevation={3} sx={{ marginBottom: 4, borderRadius: 2 }}>
         <CardContent>
-          <Typography variant="h6" fontWeight="bold" gutterBottom>
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            gutterBottom
+            sx={{ color: "#3F51B5" }}
+          >
             Order Information
           </Typography>
           <Typography variant="body1">
             <strong>Order ID:</strong> {order.idTransaksi}
           </Typography>
           <Typography variant="body1">
-            <strong>Nama Admin:</strong> {admin?.name || "-"}
+            <strong>Admin Name:</strong> {admin?.name || "-"}
           </Typography>
           <Typography variant="body1">
-            <strong>Nama Pemesan:</strong> {user?.name || "-"}
+            <strong>Customer Name:</strong> {user?.name || "-"}
           </Typography>
           <Typography variant="body1">
-            <strong>Nomor Telepon:</strong> {user?.phone_number || "-"}
+            <strong>Phone Number:</strong> {user?.phone_number || "-"}
           </Typography>
           <Typography variant="body1">
-            <strong>Alamat:</strong> {order.alamat || "-"}
+            <strong>Address:</strong> {order.alamat || "-"}
           </Typography>
           <Typography variant="body1">
-            <strong>Catatan:</strong> {order.notes || "-"}
+            <strong>Notes:</strong> {order.notes || "-"}
           </Typography>
           <Typography variant="body1">
-            <strong>Total Harga:</strong> Rp. {order.total || "-"}
+            <strong>Total Price:</strong> Rp. {order.total || "-"}
           </Typography>
         </CardContent>
       </Card>
 
-      {/* List Jasa */}
-      <Typography variant="h6" fontWeight="bold" gutterBottom>
+      {/* List of Services */}
+      <Typography
+        variant="h6"
+        fontWeight="bold"
+        gutterBottom
+        sx={{ color: "#3F51B5" }}
+      >
         Services and Add-Ons
       </Typography>
       <Grid2 container spacing={2}>
@@ -172,17 +198,24 @@ const TransactionDetailPage = () => {
             <Card
               elevation={3}
               sx={{
-                width: 637,
-                height: 250,
-                position: "relative",
+                height: "100%",
+                borderRadius: 2,
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
               }}
             >
               <CardContent>
-                <Typography variant="h6" fontWeight="bold">
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  sx={{ color: "#333333" }}
+                >
                   {jasa.nama}
                 </Typography>
                 <Typography variant="body1">
-                  Sebanyak: {jasa.lembar} Lembar | Jumlah Copy: {jasa.qty} | Harga: Rp. {jasa.harga}
+                  <strong>Sheets:</strong> {jasa.lembar} | <strong>Copies:</strong> {jasa.qty} | <strong>Price:</strong> Rp. {jasa.harga}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -198,10 +231,7 @@ const TransactionDetailPage = () => {
                     </Typography>
                     {jasa.addOns.map((addOn, idx) => (
                       <Typography key={idx} variant="body2">
-                        - {addOn.nama} dengan jumlah tiap{" "}
-                        {addOn.tipeHarga === "lembar" ? "lembar" : "copy"}{" "}
-                        {addOn.qty}{" "}
-                        seharga Rp. {addOn.harga}{" "}
+                        - {addOn.nama} per {addOn.tipeHarga === "lembar" ? "sheet" : "copy"} {addOn.qty} for Rp. {addOn.harga}
                       </Typography>
                     ))}
                   </Box>

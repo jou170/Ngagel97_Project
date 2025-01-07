@@ -45,127 +45,132 @@ const OfflineDetail = () => {
   if (error) return <Typography>Error: {error}</Typography>;
 
   return (
-    <Box sx={{ backgroundColor: "#D6C0B3", minHeight: "100vh", padding: 4 }}>
+    <Box sx={{minHeight: "100vh", padding: 4 }}>
       {/* Header Section */}
       <Box mb={4}>
         <Grid2 container alignItems="center" spacing={2}>
           <Grid2 xs={12} sm={6}>
             <IconButton
               onClick={() => router.push("/admin/transaction/history")}
-              sx={{ backgroundColor: "#D6C0B3" }}
+              sx={{
+                backgroundColor: "#E0E0E0",
+                borderRadius: "8px",
+                padding: 1,
+                "&:hover": { backgroundColor: "#BDBDBD" },
+              }}
             >
               <ArrowBackIcon />
             </IconButton>
           </Grid2>
           <Grid2 xs={12} sm={6}>
-            <Typography variant="h4" fontWeight="bold">
-              Detail Offline Transaction
+            <Typography variant="h4" fontWeight="bold" sx={{ textAlign: "center" }}>
+              Offline Transaction Details
             </Typography>
           </Grid2>
         </Grid2>
       </Box>
 
       {/* Order Details */}
-      <Card elevation={3} sx={{ marginBottom: 4 }}>
+      <Card elevation={4} sx={{ marginBottom: 4, padding: 3 }}>
         <CardContent>
-          <Typography variant="h6" fontWeight="bold" gutterBottom>
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
             Order Information
           </Typography>
-          <Typography variant="body1">
+          <Typography variant="body1" gutterBottom>
             <strong>Order ID:</strong> {order.idTransaksi}
           </Typography>
-          <Typography variant="body1">
+          <Typography variant="body1" gutterBottom>
             <strong>Status:</strong> {order.status || "-"}
           </Typography>
-          <Typography variant="body1">
-            <strong>Total Harga:</strong> Rp. {order.total || "-"}
+          <Typography variant="body1" gutterBottom>
+            <strong>Total Price:</strong> Rp. {order.total || "-"}
           </Typography>
         </CardContent>
       </Card>
 
-      {/* List Barang */}
-      <Typography variant="h6" fontWeight="bold" gutterBottom>
-        Barang
+      {/* Items Section */}
+      <Typography variant="h5" fontWeight="bold" gutterBottom>
+        Items
       </Typography>
-      {order.barang.length > 0 ? (
-        <Grid2 container spacing={2}>
-          {order.barang.map((item, index) => (
+      <Grid2 container spacing={3}>
+        {order.barang.length > 0 ? (
+          order.barang.map((item, index) => (
             <Grid2 xs={12} sm={6} md={4} key={index}>
-              <Card elevation={3}>
+              <Card elevation={4} sx={{ padding: 3 }}>
                 <CardContent>
-                  <Typography variant="h6" fontWeight="bold">
+                  <Typography variant="h6" fontWeight="bold" gutterBottom>
                     {item.nama}
                   </Typography>
-                  <Typography variant="body1">
-                    Jumlah: {item.qty}
+                  <Typography variant="body1" gutterBottom>
+                    Quantity: {item.qty}
                   </Typography>
-                  <Typography variant="body1">
-                    Harga: Rp. {item.harga}
-                  </Typography>
+                  <Typography variant="body1">Price: Rp. {item.harga}</Typography>
                 </CardContent>
               </Card>
             </Grid2>
-          ))}
-        </Grid2>
-      ) : (
-        <Typography variant="body1">Tidak Ada Barang</Typography>
-      )}
+          ))
+        ) : (
+          <Grid2 xs={12}>
+            <Typography variant="body1">No Items</Typography>
+          </Grid2>
+        )}
+      </Grid2>
 
-      {/* List Jasa */}
-      <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ marginTop: 4 }}>
-        Jasa
+      {/* Services Section */}
+      <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ marginTop: 4 }}>
+        Services
       </Typography>
-      {order.jasa.length > 0 ? (
-        <Grid2 container spacing={2}>
-          {order.jasa.map((jasa, index) => (
+      <Grid2 container spacing={3}>
+        {order.jasa.length > 0 ? (
+          order.jasa.map((service, index) => (
             <Grid2 xs={12} sm={6} md={4} key={index}>
-              <Card elevation={3}>
+              <Card elevation={4} sx={{ padding: 3 }}>
                 <CardContent>
-                  <Typography variant="h6" fontWeight="bold">
-                    {jasa.nama}
+                  <Typography variant="h6" fontWeight="bold" gutterBottom>
+                    {service.nama}
                   </Typography>
-                  <Typography variant="body1">
-                    Sebanyak: {jasa.lembar} Lembar | Copy: {jasa.qty}
+                  <Typography variant="body1" gutterBottom>
+                    Sheets: {service.lembar} | Copies: {service.qty}
                   </Typography>
-                  <Typography variant="body1">
-                    Harga: Rp. {jasa.harga}
-                  </Typography>
+                  <Typography variant="body1">Price: Rp. {service.harga}</Typography>
                 </CardContent>
               </Card>
             </Grid2>
-          ))}
-        </Grid2>
-      ) : (
-        <Typography variant="body1">Tidak Ada Jasa</Typography>
-      )}
+          ))
+        ) : (
+          <Grid2 xs={12}>
+            <Typography variant="body1">No Services</Typography>
+          </Grid2>
+        )}
+      </Grid2>
 
-      {/* Add-Ons */}
-      <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ marginTop: 4 }}>
+      {/* Add-Ons Section */}
+      <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ marginTop: 4 }}>
         Add-Ons
       </Typography>
-      {order.addOns.length > 0 ? (
-        <Grid2 container spacing={2}>
-          {order.addOns.map((addOn, index) => (
+      <Grid2 container spacing={3}>
+        {order.addOns.length > 0 ? (
+          order.addOns.map((addOn, index) => (
             <Grid2 xs={12} sm={6} md={4} key={index}>
-              <Card elevation={3}>
+              <Card elevation={4} sx={{ padding: 3 }}>
                 <CardContent>
-                  <Typography variant="h6" fontWeight="bold">
+                  <Typography variant="h6" fontWeight="bold" gutterBottom>
                     {addOn.nama}
                   </Typography>
-                  <Typography variant="body1">
-                    Jumlah: {addOn.qty}
+                  <Typography variant="body1" gutterBottom>
+                    Quantity: {addOn.qty}
                   </Typography>
-                  <Typography variant="body1">
-                    Harga: Rp. {addOn.harga}
-                  </Typography>
+                  <Typography variant="body1">Price: Rp. {addOn.harga}</Typography>
                 </CardContent>
               </Card>
             </Grid2>
-          ))}
-        </Grid2>
-      ) : (
-        <Typography variant="body1">Tidak Ada Add-ons</Typography>
-      )}
+          ))
+        ) : (
+          <Grid2 xs={12}>
+            <Typography variant="body1">No Add-Ons</Typography>
+          </Grid2>
+        )}
+      </Grid2>
     </Box>
   );
 };

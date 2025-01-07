@@ -23,141 +23,140 @@ import {
 import DetailOfflineOrder from "../../../(public)/components/DetailOfflineOrder";
 
 const OfflineTransactionPage = () => {
-  const [barangList, setBarangList] = useState([]);
-  const [jasaList, setJasaList] = useState([]);
+  const [productList, setProductList] = useState([]);
+  const [serviceList, setServiceList] = useState([]);
   const [addOnList, setAddOnList] = useState([]);
-  const [filteredAddOnList, setFilteredAddOnList] = useState([]); // Filtered add-on list
+  const [filteredAddOnList, setFilteredAddOnList] = useState([]);
 
-  const [activeTab, setActiveTab] = useState(0); // Mengatur tab aktif
+  const [activeTab, setActiveTab] = useState(0);
   const [enableAddOn, setEnableAddOn] = useState(false);
 
-  const [selectedBarang, setSelectedBarang] = useState(null); // Change to store ID
-  const [selectedJasa, setSelectedJasa] = useState(null); // Change to store ID
-  const [selectedAddOns, setSelectedAddOns] = useState([]); // Multiple add-ons by ID
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
+  const [selectedAddOns, setSelectedAddOns] = useState([]);
   const [selectedAddOn, setSelectedAddOn] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   const [rows, setRows] = useState([]);
-  const [qtyBarang, setQtyBarang] = useState(1);
-  const [qtyJasa, setQtyJasa] = useState(1);
+  const [qtyProduct, setQtyProduct] = useState(1);
+  const [qtyService, setQtyService] = useState(1);
   const [qtyAddOn, setQtyAddOn] = useState(1);
-  const [lembarJasa, setLembarJasa] = useState(1);
-  const [addOnQuantities, setAddOnQuantities] = useState({}); // Add-on quantities
+  const [pageCount, setPageCount] = useState(1);
+  const [addOnQuantities, setAddOnQuantities] = useState({});
 
-  const todayDate = new Date().toLocaleDateString("id-ID");
+  const todayDate = new Date().toLocaleDateString("en-US");
 
   // Fetch data from APIs
   useEffect(() => {
     fetch("/api/barang")
       .then((res) => res.json())
-      .then((data) => setBarangList(data));
+      .then((data) => setProductList(data));
 
     fetch("/api/jasa")
       .then((res) => res.json())
-      .then((data) => setJasaList(data));
+      .then((data) => setServiceList(data));
 
     fetch("/api/addon")
       .then((res) => res.json())
       .then((data) => setAddOnList(data));
   }, []);
 
-  // Update filteredAddOnList when jasa is selected
+  // Update filteredAddOnList when service is selected
   useEffect(() => {
-    if (selectedJasa) {
-      const selectedJasaData = jasaList.find(
-        (jasa) => jasa._id === selectedJasa
+    if (selectedService) {
+      const selectedServiceData = serviceList.find(
+        (service) => service._id === selectedService
       );
-      if (selectedJasaData && selectedJasaData.addOns) {
+      if (selectedServiceData && selectedServiceData.addOns) {
         const filteredAddOns = addOnList.filter((addon) =>
-          selectedJasaData.addOns.includes(addon._id)
+          selectedServiceData.addOns.includes(addon._id)
         );
         setFilteredAddOnList(filteredAddOns);
       }
     } else {
       setFilteredAddOnList([]);
     }
-  }, [selectedJasa, jasaList, addOnList]);
+  }, [selectedService, serviceList, addOnList]);
 
   // Handle adding a new row to the table
   const handleAdd = () => {
-    if (selectedBarang || selectedJasa || selectedAddOn) {
+    if (selectedProduct || selectedService || selectedAddOn) {
       let newProduct;
       let qty;
-      let harga;
-      let lembar = 0;
+      let price;
+      let pages = 0;
 
-      if (selectedBarang) {
-        newProduct = barangList.find((b) => b._id === selectedBarang); // Use _id for barang
-        qty = qtyBarang;
-        harga = newProduct?.harga;
-      } else if (selectedJasa) {
-        newProduct = jasaList.find((j) => j._id === selectedJasa); // Use _id for jasa
-        qty = qtyJasa;
-        harga = newProduct?.harga;
-        lembar = lembarJasa; // Calculate total lembar for jasa
+      if (selectedProduct) {
+        newProduct = productList.find((p) => p._id === selectedProduct);
+        qty = qtyProduct;
+        price = newProduct?.harga;
+      } else if (selectedService) {
+        newProduct = serviceList.find((s) => s._id === selectedService);
+        qty = qtyService;
+        price = newProduct?.harga;
+        pages = pageCount;
       } else if (selectedAddOn) {
-        newProduct = addOnList.find((a) => a._id === selectedAddOn); // Use _id for barang
+        newProduct = addOnList.find((a) => a._id === selectedAddOn);
         qty = qtyAddOn;
-        harga = newProduct?.harga;
+        price = newProduct?.harga;
       }
 
       let addOnDetails = enableAddOn
         ? selectedAddOns.map((addonId) => {
             const addon = addOnList.find((a) => a._id === addonId);
             return {
-              harga: addon.harga,
+              price: addon.harga,
               name: addon.nama,
               id: addon._id,
               qty: addOnQuantities[addonId] || 1,
-              tipeHarga: addon.tipeHarga,
+              priceType: addon.tipeHarga,
               subtotal: addon.harga * addOnQuantities[addonId],
             };
           })
         : [];
 
       const addOnPrice = addOnDetails.reduce((sum, addon) => {
-        const addonHarga =
+        const addonPrice =
           addOnList.find((a) => a._id === addon.id)?.harga || 0;
-        return sum + addonHarga * addon.qty;
+        return sum + addonPrice * addon.qty;
       }, 0);
 
       const subtotal =
-        lembar == 0
-          ? harga * qty + addOnPrice
-          : harga * qty * lembar + addOnPrice;
+        pages == 0
+          ? price * qty + addOnPrice
+          : price * qty * pages + addOnPrice;
 
-      // Menambahkan row dengan data produk lengkap
       const newRow = {
-        tanggal: todayDate,
-        product: newProduct, // Menyimpan objek produk lengkap
-        jumlah: qty,
-        lembar: lembar,
-        tipe: newProduct.idBarang
-          ? "barang"
+        date: todayDate,
+        product: newProduct,
+        quantity: qty,
+        pages: pages,
+        type: newProduct.idBarang
+          ? "product"
           : newProduct.idJasa
-          ? "jasa"
+          ? "service"
           : "addon",
-        harga: `Rp. ${(harga * qty).toLocaleString()}`,
+        price: `$ ${(price * qty).toLocaleString()}`,
         addOn: addOnDetails.length
           ? addOnDetails.map((a) => `${a.name} (Qty: ${a.qty})`).join("<br />")
           : "-",
         addOnsDetails: addOnDetails,
-        subtotal: `Rp. ${subtotal.toLocaleString()}`,
+        subtotal: `$ ${subtotal.toLocaleString()}`,
       };
 
       setRows([...rows, newRow]);
 
       // Reset fields
-      setSelectedBarang(null);
-      setSelectedJasa(null);
+      setSelectedProduct(null);
+      setSelectedService(null);
       setSelectedAddOns([]);
       setEnableAddOn(false);
-      setQtyBarang(1);
-      setQtyJasa(1);
-      setLembarJasa(1);
+      setQtyProduct(1);
+      setQtyService(1);
+      setPageCount(1);
       setAddOnQuantities({});
     } else {
-      alert("Pilih Barang atau Jasa atau Add Ons terlebih dahulu!");
+      alert("Please select a Product, Service, or Add-Ons first!");
     }
   };
 
@@ -178,16 +177,16 @@ const OfflineTransactionPage = () => {
 
   const handleSubmit = async () => {
     if (rows.length == 0) {
-      alert("Tidak ada item yang hendak dibeli!");
+      alert("No items have been added to the cart!");
     } else {
-      const barang = rows.filter((row) => row.tipe === "barang");
-      const jasa = rows.filter((row) => row.tipe === "jasa");
-      const addon = rows.filter((row) => row.tipe === "addon");
+      const products = rows.filter((row) => row.type === "product");
+      const services = rows.filter((row) => row.type === "service");
+      const addons = rows.filter((row) => row.type === "addon");
 
       const payload = {
-        barang: barang,
-        jasa: jasa,
-        addon: addon,
+        products: products,
+        services: services,
+        addons: addons,
         subtotal: rows.reduce(
           (acc, row) => acc + parseInt(row.subtotal.replace(/\D/g, ""), 10),
           0
@@ -209,14 +208,14 @@ const OfflineTransactionPage = () => {
         const data = await response.json();
         if (!response.ok) {
           throw new Error(
-            data.message || "Terjadi kesalahan saat menyimpan transaksi."
+            data.message || "An error occurred while saving the transaction."
           );
         }
         setSelectedOrder(data.data);
-        alert("Transaksi berhasil!");
+        alert("Transaction successful!");
         setRows([]);
       } catch (error) {
-        alert("Gagal menyelesaikan transaksi: " + error.message);
+        alert("Failed to complete transaction: " + error.message);
       }
     }
   };
@@ -231,22 +230,21 @@ const OfflineTransactionPage = () => {
           mb={3}
           fontWeight="bold"
         >
-          Pencatatan Transaksi Offline
+          Offline Transaction Recording
         </Typography>
         <Typography variant="h6" color="black" fontWeight="bold">
-          Tanggal: {todayDate}
+          Date: {todayDate}
         </Typography>
       </Box>
 
       <Box display="flex" gap={2}>
-        {/* Left section for adding barang or jasa */}
         <Box
           sx={{
             flex: 1,
-            backgroundColor: "#FFFFFF", // Warna putih
-            padding: 2, // Padding sekitar form
-            borderRadius: 2, // Agar pojok form membulat
-            boxShadow: 2, // Tambahkan shadow jika ingin efek lebih baik
+            backgroundColor: "#FFFFFF",
+            padding: 2,
+            borderRadius: 2,
+            boxShadow: 2,
           }}
         >
           <Tabs
@@ -254,39 +252,39 @@ const OfflineTransactionPage = () => {
             onChange={(e, newValue) => setActiveTab(newValue)}
             centered
           >
-            <Tab label="Barang" />
-            <Tab label="Jasa" />
-            <Tab label="Add-On" />
+            <Tab label="Products" />
+            <Tab label="Services" />
+            <Tab label="Add-Ons" />
           </Tabs>
           {activeTab === 0 && (
             <Box>
               <TextField
                 select
-                value={selectedBarang || ""}
+                value={selectedProduct || ""}
                 onChange={(e) => {
-                  setSelectedBarang(e.target.value);
-                  setSelectedJasa(null);
+                  setSelectedProduct(e.target.value);
+                  setSelectedService(null);
                   setSelectedAddOn(null);
                   setEnableAddOn(false);
                   setQtyAddOn(1);
-                  setQtyJasa(1);
-                  setLembarJasa(1);
+                  setQtyService(1);
+                  setPageCount(1);
                 }}
                 SelectProps={{ native: true }}
                 fullWidth
               >
-                <option value="">-- Pilih Barang --</option>
-                {barangList.map((barang) => (
-                  <option key={barang._id} value={barang._id}>
-                    {barang.nama}
+                <option value="">-- Select Product --</option>
+                {productList.map((product) => (
+                  <option key={product._id} value={product._id}>
+                    {product.nama}
                   </option>
                 ))}
               </TextField>
               <TextField
                 type="number"
                 label="Qty"
-                value={qtyBarang}
-                onChange={(e) => setQtyBarang(Number(e.target.value))}
+                value={qtyProduct}
+                onChange={(e) => setQtyProduct(Number(e.target.value))}
                 fullWidth
                 inputProps={{ min: 1 }}
                 sx={{ mt: 1 }}
@@ -298,41 +296,41 @@ const OfflineTransactionPage = () => {
             <Box>
               <TextField
                 select
-                value={selectedJasa || ""}
+                value={selectedService || ""}
                 onChange={(e) => {
-                  setSelectedJasa(e.target.value);
-                  setSelectedBarang(null);
+                  setSelectedService(e.target.value);
+                  setSelectedProduct(null);
                   setSelectedAddOn(null);
                   setEnableAddOn(true);
-                  setQtyBarang(1);
+                  setQtyProduct(1);
                   setQtyAddOn(1);
                 }}
                 SelectProps={{ native: true }}
                 fullWidth
               >
-                <option value="">-- Pilih Jasa --</option>
-                {jasaList.map((jasa) => (
-                  <option key={jasa._id} value={jasa._id}>
-                    {jasa.nama}
+                <option value="">-- Select Service --</option>
+                {serviceList.map((service) => (
+                  <option key={service._id} value={service._id}>
+                    {service.nama}
                   </option>
                 ))}
               </TextField>
               <TextField
                 type="number"
                 label="Qty"
-                value={qtyJasa}
-                onChange={(e) => setQtyJasa(Number(e.target.value))}
+                value={qtyService}
+                onChange={(e) => setQtyService(Number(e.target.value))}
                 fullWidth
                 inputProps={{ min: 1 }}
                 sx={{ mt: 1 }}
               />
 
-              {selectedJasa && (
+              {selectedService && (
                 <TextField
                   type="number"
-                  label="Lembar"
-                  value={lembarJasa}
-                  onChange={(e) => setLembarJasa(Number(e.target.value))}
+                  label="Pages"
+                  value={pageCount}
+                  onChange={(e) => setPageCount(Number(e.target.value))}
                   fullWidth
                   inputProps={{ min: 1 }}
                   sx={{ mt: 1 }}
@@ -341,7 +339,7 @@ const OfflineTransactionPage = () => {
 
               {enableAddOn && (
                 <div>
-                  <Typography>Tambah Add-On</Typography>
+                  <Typography>Add Add-Ons</Typography>
                   {filteredAddOnList.map((addon) => (
                     <Box
                       key={addon._id}
@@ -379,18 +377,18 @@ const OfflineTransactionPage = () => {
                 select
                 value={selectedAddOn || ""}
                 onChange={(e) => {
-                  setSelectedBarang(null);
-                  setSelectedJasa(null);
+                  setSelectedProduct(null);
+                  setSelectedService(null);
                   setSelectedAddOn(e.target.value);
                   setEnableAddOn(false);
-                  setQtyBarang(1);
-                  setQtyJasa(1);
-                  setLembarJasa(1);
+                  setQtyProduct(1);
+                  setQtyService(1);
+                  setPageCount(1);
                 }}
                 SelectProps={{ native: true }}
                 fullWidth
               >
-                <option value="">-- Pilih Add Ons --</option>
+                <option value="">-- Select Add-Ons --</option>
                 {addOnList.map((addon) => (
                   <option key={addon._id} value={addon._id}>
                     {addon.nama}
@@ -415,42 +413,41 @@ const OfflineTransactionPage = () => {
             onClick={handleAdd}
             sx={{ mt: 3 }}
           >
-            Tambah ke Tabel
+            Add to Table
           </Button>
         </Box>
 
-        {/* Right section for showing table */}
         <Box sx={{ flex: 2 }}>
           <Typography variant="h6" fontWeight="bold">
-            Transaksi yang Ditambahkan
+            Added Transactions
           </Typography>
           <TableContainer component={Paper} sx={{ mt: 2 }}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Produk</TableCell>
-                  <TableCell>Jumlah</TableCell>
-                  <TableCell>Lembar</TableCell>
-                  <TableCell>Harga</TableCell>
+                  <TableCell>Product</TableCell>
+                  <TableCell>Quantity</TableCell>
+                  <TableCell>Pages</TableCell>
+                  <TableCell>Price</TableCell>
                   <TableCell>Add-Ons</TableCell>
                   <TableCell>Subtotal</TableCell>
-                  <TableCell>Aksi</TableCell>
+                  <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {rows.map((row, index) => (
                   <TableRow key={index}>
                     <TableCell>{row.product.nama}</TableCell>
-                    <TableCell>{row.jumlah}</TableCell>
-                    <TableCell>{row.lembar}</TableCell>
-                    <TableCell>{row.harga}</TableCell>
+                    <TableCell>{row.quantity}</TableCell>
+                    <TableCell>{row.pages}</TableCell>
+                    <TableCell>{row.price}</TableCell>
                     <TableCell
                       dangerouslySetInnerHTML={{ __html: row.addOn }}
                     />
                     <TableCell>{row.subtotal}</TableCell>
                     <TableCell>
                       <Button color="error" onClick={() => handleDelete(index)}>
-                        Hapus
+                        Delete
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -465,7 +462,7 @@ const OfflineTransactionPage = () => {
             onClick={handleSubmit}
             sx={{ mt: 3 }}
           >
-            Selesai
+            Complete
           </Button>
         </Box>
       </Box>

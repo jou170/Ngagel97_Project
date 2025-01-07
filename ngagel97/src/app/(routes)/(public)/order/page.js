@@ -52,7 +52,7 @@ const UserOrderPage = () => {
     }
   };
 
-  // Menghitung total lembar dengan menjumlahkan nilai 'lembar' di setiap jasa
+  // Calculate total sheets by summing 'lembar' from each service
   const calculateTotalLembar = (jasa) => {
     return jasa.reduce((total, item) => total + item.lembar, 0);
   };
@@ -72,7 +72,7 @@ const UserOrderPage = () => {
   return (
     <Box sx={{ backgroundColor: "#f4e4d8", minHeight: "100vh", padding: "20px" }}>
       <Typography variant="h4" mb={3} color="black">
-        Status Pemesanan
+        Order Status
       </Typography>
 
       <Select
@@ -111,19 +111,19 @@ const UserOrderPage = () => {
                 Total: Rp.{order.total}
               </Typography>
               <Typography variant="body2" sx={{ color: "#6d6d6d" }}>
-                Jumlah Lembar: {calculateTotalLembar(order.jasa)} lembar
+                Sheets: {calculateTotalLembar(order.jasa)} sheets
               </Typography>
               <Typography variant="body2" sx={{ color: "#6d6d6d" }}>
-                Ongkir: Rp.{order.ongkir || "0"}
+                Shipping: Rp.{order.ongkir || "0"}
               </Typography>
               <Typography variant="body2" sx={{ color: "#6d6d6d" }}>
-                Total Tanpa Ongkir: Rp.{order.total - (order.ongkir || 0)}
+                Total Without Shipping: Rp.{order.total - (order.ongkir || 0)}
               </Typography>
             </Box>
 
             <Box textAlign="right" display="flex" flexDirection="column" alignItems="flex-end">
               <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                {`Order ${order.status} pada ${formatDate(order.createdAt)} ${new Date(
+                {`Order ${order.status} on ${formatDate(order.createdAt)} ${new Date(
                   order.createdAt
                 ).toLocaleTimeString()}`}
               </Typography>
@@ -155,11 +155,11 @@ const UserOrderPage = () => {
                       case "pending":
                         return `Pending`;
                       case "progress":
-                        return `Progress`;
+                        return `In Progress`;
                       case "completed":
                         return `Completed`;
                       default:
-                        return "Status Tidak Diketahui";
+                        return "Unknown Status";
                     }
                   })()}
                 </Button>
@@ -168,7 +168,7 @@ const UserOrderPage = () => {
                   color="primary"
                   onClick={() => handleDetailClick(order.idTransaksi)}
                 >
-                  Detail
+                  Details
                 </Button>
               </Box>
             </Box>
