@@ -23,9 +23,7 @@ export async function GET(req) {
     await connectDB();
 
     // Fetch all completed orders
-    let completedOrders = await Transaksi.find({
-      status: "completed",
-    });
+    let completedOrders = await Transaksi.find();
 
     if (!completedOrders || completedOrders.length === 0) {
       return NextResponse.json(

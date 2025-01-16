@@ -334,6 +334,7 @@ const DailySalesReport = () => {
                   {/* Render for barang */}
                   {transaction.barang.map((barang, barangIndex) => (
                     <TableRow key={`barang-${barangIndex}`}>
+                      <TableCell rowSpan={totalRows}></TableCell>
                       <TableCell>Item: {barang.nama}</TableCell>
                       <TableCell>{barang.qty} pcs</TableCell>
                       <TableCell>
