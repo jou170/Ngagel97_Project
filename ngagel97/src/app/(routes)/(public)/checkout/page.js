@@ -266,7 +266,7 @@ const CheckoutPage = () => {
       {/* Left Section */}
       <Box flex={1}>
         <Typography variant="h6" mb={2}>
-          Customer's Information
+          {"Customer's Information"}
         </Typography>
         {user && (
           <Box display="flex" flexDirection="column" gap={2}>
@@ -339,7 +339,7 @@ const CheckoutPage = () => {
       {/* Right Section */}
       <Box flex={1}>
         <Typography variant="h6" mb={2}>
-          Service's Details
+          {"Service's Details"}
         </Typography>
         {cart.map((item, index) => (
           <Card key={index} sx={{ mb: 2 }}>
