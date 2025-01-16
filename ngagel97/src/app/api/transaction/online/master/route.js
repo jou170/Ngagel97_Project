@@ -39,7 +39,11 @@ export async function GET(req) {
   } catch (error) {
     console.error("Error fetching completed orders:", error);
     return NextResponse.json(
-      { success: false, message: "Error fetching orders", error: error.message },
+      {
+        success: false,
+        message: "Error fetching orders",
+        error: error.message,
+      },
       { status: 500 }
     );
   }
