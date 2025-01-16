@@ -73,10 +73,10 @@ export default function ServiceForm({ mode = "add", id }) {
       "string.min": `"Name" Minimum Character is {#limit}`,
     }),
     harga: Joi.number().min(100).positive().required().messages({
-      "number.base": `"Harga" harus berupa angka`,
-      "number.min": `"Harga" minimal Rp 100,-`,
-      "number.positive": `"Harga" harus angka positive`,
-      "number.empty": `"Harga" tidak boleh kosong`,
+      "number.base": `Price must be a number`,
+      "number.min": `Price must be more than Rp 100,-`,
+      "number.positive": `Price can't be less than Rp 0,-`,
+      "number.empty": `Price should not be empty`,
     }),
     deskripsi: Joi.string().required().messages({
       "string.base": `"Description" Must be a Text`,
