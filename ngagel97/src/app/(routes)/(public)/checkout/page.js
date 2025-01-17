@@ -19,12 +19,7 @@ const MapComponent = dynamic(() => import("../components/MapComponent"), {
 });
 
 const CheckoutPage = () => {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  const orderId = urlParams.get("order_id") || null; // "order-123"
-  const statusCode = urlParams.get("status_code") || null; // "200"
-  const transactionStatus = urlParams.get("transaction_status") || null;
-
+  
   const [cart, setCart] = useState([]); // Cart items
   const [user, setUser] = useState(null); // User info
   const [position, setPosition] = useState([-7.2891, 112.7578]); // Default coordinates
@@ -35,32 +30,37 @@ const CheckoutPage = () => {
   const [distance, setDistance] = useState(null);
   const router = useRouter();
   const maxDistance = 5;
-
+  
   const haversineDistance = (coords2) => {
     const toRad = (angle) => (angle * Math.PI) / 180;
-
+    
     const R = 6371; // Radius bumi dalam kilometer
     const lat1 = -7.2853,
-      lon1 = 112.7526;
+    lon1 = 112.7526;
     const [lat2, lon2] = coords2;
 
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
-
+    
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
+      Math.cos(toRad(lat2)) *
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c; // Hasil jarak dalam kilometer
   };
 
   // Fetch cart and user data
   useEffect(() => {
     const fetchData = async () => {
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const orderId = urlParams.get("order_id") || null; // "order-123"
+      const statusCode = urlParams.get("status_code") || null; // "200"
+      const transactionStatus = urlParams.get("transaction_status") || null;
       if (orderId && statusCode && transactionStatus) {
         try {
           const res2 = await fetch(`/api/cart`, {
